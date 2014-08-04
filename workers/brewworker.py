@@ -4,7 +4,7 @@ from schedules.mash import *
 from masters.defaults import *
 from masters.messages import *
 
-MessageFunctions = {MessageInfo:"info", MessagePause:"pause", MessageResume:"resume", MessageReset:"reset"}
+MessageFunctions = {MessageInfo:"info", MessagePause:"pause", MessageResume:"resume", MessageReset:"reset", MessageStop:"stop"}
 
 class BrewWorker(threading.Thread):
 
@@ -13,12 +13,14 @@ class BrewWorker(threading.Thread):
         self.name = name
         self.ip = MessageServerIP
         self.port = MessageServerPort
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        self.channel = self.connection.channel()
+        self.channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
+        self.channel.queue_declare(queue=self.name)
+
 
     def __str__(self):
-        return 'BrewWorker - [name:{0}, type:{1}]'.format(self.name, self.__class__.name)
-
-    def onStart(self):
-        pass
+        return 'BrewWorker - [name:{0}, type:{1}]'.format(self.name, str(self.__class__.__name__))
 
     def work(self, ch, method, properties, body):
         print('[*] Waiting for schedule. To exit press CTRL+C')
@@ -27,17 +29,14 @@ class BrewWorker(threading.Thread):
         self.listen()
 
     def listen(self):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        channel = connection.channel()
-
-        channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
-        channel.queue_declare(queue=self.name)
-
         self.onStart()
+        self.channel.basic_consume(self.receive, queue=self.name, no_ack=True)
+        self.channel.queue_bind(exchange=BroadcastExchange, queue=self.name)
+        self.channel.start_consuming()
 
-        channel.basic_consume(self.receive, queue=self.name, no_ack=True)
-        channel.queue_bind(exchange=BroadcastExchange, queue=self.name)
-        channel.start_consuming()
+    def stop(self):
+        self.onStop()
+        self.channel.stop_consuming()
 
     def sendMaster(self, data):
         print "[*] Sending to master - " + data
@@ -53,7 +52,7 @@ class BrewWorker(threading.Thread):
         #print("[*] Receiving:{0}".format(body))
         if(MessageFunctions.__contains__(body) and hasattr(self, MessageFunctions[body])):
             command = MessageFunctions[body]
-            print("[*] Executing:{0}".format(command))
+            #print("[*] Executing:{0}".format(command))
             getattr(self,command)()
             return
         self.work(ch, method, properties, body)
@@ -91,6 +90,12 @@ class BrewWorker(threading.Thread):
 
     def reportError(self, err):
         print("[!] Error:{0}", err)
+
+    def onStart(self):
+        pass
+
+    def onStop(self):
+        print("[*] Stopping {0}".format(self))
 
     def onInfo(self):
         return True

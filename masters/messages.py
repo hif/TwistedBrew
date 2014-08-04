@@ -2,6 +2,7 @@
 MessageInfo = "INFO"
 MessageReset = "RESET"
 MessagePause = "PAUSE"
+MessageStop = "STOP"
 MessageResume = "RESUME"
 MessagePaused = "PAUSED"
 MessageResumed = "RESUMED"

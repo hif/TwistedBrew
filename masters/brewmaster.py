@@ -12,7 +12,8 @@ class Worker():
     def __init__(self, name, type):
         self.name = name
         self.type = type
-
+    def __str__(self):
+        return '{0} of type {1}'.format(self.name, self.type)
 
 class BrewMaster(threading.Thread):
     def __init__(self):
@@ -26,8 +27,11 @@ class BrewMaster(threading.Thread):
 
         self.broadcastcommands = {"info", "resetAll"}
         self.workercommands = {"reset", "pause", "resume", "mash", "boil", "ferment"}
-
         self.workers = []
+
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue=MasterQueue)
 
     def run(self):
         self.listen()
@@ -62,17 +66,16 @@ class BrewMaster(threading.Thread):
         return result
 
     def listen(self):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        channel = connection.channel()
-        channel.queue_declare(queue=MasterQueue)
-
         print("[*] Broadcasts :", self.listBroadcasts())
         print("[*] Commands   :", self.listWorkerCommands())
         self.info()
 
         print('[*] Waiting for worker updates. To exit press CTRL+C')
-        channel.basic_consume(self.update, queue=MasterQueue, no_ack=True)
-        channel.start_consuming()
+        self.channel.basic_consume(self.update, queue=MasterQueue, no_ack=True)
+        self.channel.start_consuming()
+
+    def shutdown(self):
+        self.channel.stop_consuming()
 
     def update(self, ch, method, properties, body):
         print('[*] Receiving worker update...')
@@ -119,6 +122,9 @@ class BrewMaster(threading.Thread):
     def resume(self, worker):
             self.send(worker, MessageResume)
 
+    def stop(self, worker):
+            self.send(worker, MessageStop)
+
     def mash(self, worker):
         if (self.recipeloaded == False):
             print("[!] No recipe loaded!")
@@ -156,4 +162,4 @@ class BrewMaster(threading.Thread):
             method()
         else:
             method(worker)
-        print("[*] Command executed :", command)
+        #print("[*] Command executed :", command)

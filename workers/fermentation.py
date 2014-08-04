@@ -3,7 +3,6 @@ from masters.defaults import *
 from masters.messages import *
 from schedules.fermentation import *
 
-
 class FermentationWorker(BrewWorker):
     def __init__(self, name):
         BrewWorker.__init__(self,name)

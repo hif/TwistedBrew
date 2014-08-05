@@ -18,7 +18,6 @@ class BrewWorker(threading.Thread):
         self.channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
         self.channel.queue_declare(queue=self.name)
 
-
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}]'.format(self.name, str(self.__class__.__name__))
 

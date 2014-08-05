@@ -1,5 +1,6 @@
 import pika
 import threading
+import psycopg2
 from masters.defaults import *
 from masters.messages import *
 from workers.brewworker import *

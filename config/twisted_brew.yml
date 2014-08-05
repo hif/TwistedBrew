@@ -1,0 +1,53 @@
+master:
+    name: "BrewMaster"
+    ip: "localhost"
+    port: "5672"
+
+workers:
+    - worker:
+        name: "Mash Dude"
+        ip: "localhost"
+        port: "5672"
+        class: "MashWorker"
+        outputs:
+            - output:
+                name: "Boiler"
+                type: "SSR"
+                io: "GP0"
+        inputs:
+            - input:
+                name: "Temperature"
+                type: "Probe"
+                io: "GP1"
+
+    - worker:
+        name: "Mr Boiler"
+        ip: "localhost"
+        port: "5672"
+        class: "BoilWorker"
+        outputs:
+            - output:
+                name: "Boiler"
+                type: "SSR"
+                io: "GP2"
+        inputs:
+            - input:
+                name: "Temperature"
+                type: "Probe"
+                io: "GP3"
+
+    - worker:
+        name: "Fermat"
+        ip: "localhost"
+        port: "5672"
+        class: "FermentationWorker"
+        outputs:
+            - output:
+                name: "Fermenter"
+                type: "SSR"
+                io: "GP4"
+        inputs:
+            - input:
+                name: "Temperature"
+                type: "Probe"
+                io: "GP5"

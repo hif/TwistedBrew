@@ -1,0 +1,21 @@
+#master:
+#    name: "BrewMaster"
+#    ip: "localhost"
+#    port: "5672"
+
+workers:
+    - worker:
+        name: "Mash Dude"
+        ip: "localhost"
+        port: "5672"
+        class: "MashWorker"
+        outputs:
+            - output:
+                name: "Boiler"
+                type: "SSR"
+                io: "GP0"
+        inputs:
+            - input:
+                name: "Temperature"
+                type: "Probe"
+                io: "GP1"

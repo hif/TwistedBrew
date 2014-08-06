@@ -1,12 +1,11 @@
-from masters.defaults import *
-from masters.brewmaster import BrewMaster
-import thread
 import time
-import brewutils
 
+from masters.brewmaster import BrewMaster
+from utils import brewutils
 from workers.boil import BoilWorker
 from workers.mash import MashWorker
 from workers.fermentation import FermentationWorker
+
 
 def startWorkers():
     worker = MashWorker("The Mashing Dude")
@@ -31,7 +30,7 @@ def test(master):
     r = "dummy"
     f = "dummy"
 
-    master.loadRecipe(r, f)
+    master.load(r, f)
     master.info()
 
     print("[*] Giving workers time to register")
@@ -59,7 +58,7 @@ def test(master):
 
     time.sleep(1)
     print("[*] Giving all processes time to finish their work before killing all")
-    time.sleep(3)
+    time.sleep(1)
     print("[*] Killing workers")
     master.sendCommand('stop', mashworker)
     master.sendCommand('stop', boilworker)

@@ -11,14 +11,14 @@ workers:
         class: "MashWorker"
         outputs:
             - output:
-                name: "Boiler"
+                name: "Mash Tun"
                 type: "SSR"
-                io: "GP0"
+                io: "gpio0"
         inputs:
             - input:
                 name: "Temperature"
                 type: "Probe"
-                io: "GP1"
+                io: "gpio1"
 
     - worker:
         name: "Mr Boiler"
@@ -29,12 +29,12 @@ workers:
             - output:
                 name: "Boiler"
                 type: "SSR"
-                io: "GP2"
+                io: "gpio2"
         inputs:
             - input:
                 name: "Temperature"
                 type: "Probe"
-                io: "GP3"
+                io: "gpio3"
 
     - worker:
         name: "Fermat"
@@ -45,9 +45,9 @@ workers:
             - output:
                 name: "Fermenter"
                 type: "SSR"
-                io: "GP4"
+                io: "gpio4"
         inputs:
             - input:
                 name: "Temperature"
                 type: "Probe"
-                io: "GP5"
+                io: "gpio5"

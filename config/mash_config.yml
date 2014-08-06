@@ -11,11 +11,11 @@ workers:
         class: "MashWorker"
         outputs:
             - output:
-                name: "Boiler"
+                name: "Mash Tun"
                 type: "SSR"
-                io: "GP0"
+                io: "gpio0"
         inputs:
             - input:
                 name: "Temperature"
                 type: "Probe"
-                io: "GP1"
+                io: "gpio1"

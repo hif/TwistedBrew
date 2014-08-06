@@ -1,4 +1,7 @@
 
+MessageExecute = "EXEC"
+MessageLoad = "LOAD"
+MessageUpdate = "UPDATE"
 MessageInfo = "INFO"
 MessageReset = "RESET"
 MessagePause = "PAUSE"

@@ -1,8 +1,6 @@
 from config import brewconfig
 from masters import brewmaster
 from workers import brewworker
-import time
-
 
 def startFromConfig(file = brewconfig.DEFAULT_CONFIG):
     config = brewconfig.BrewConfig(file)

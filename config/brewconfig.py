@@ -42,7 +42,7 @@ class MasterConfig():
     def __init__(self):
         self.name = ""
         self.ip = ""
-        self.port = ""
+        self.port = 0
         self.verifyData()
 
     def set(self, name, ip=defaults.MessageServerIP, port=defaults.MessageServerPort):
@@ -100,6 +100,7 @@ class BrewConfig():
         self.master = None
         self.workers = []
         self.file = file
+        self.readConfig()
 
     def __str__(self):
         tmp = ""
@@ -136,8 +137,8 @@ class BrewConfig():
                 print ("Warning, unknown module found {0}!".format(str(name)))
 
 
-cfg = BrewConfig()
+#cfg = BrewConfig()
 #cfg = BrewConfig("mash_config.yml")
-cfg.readConfig()
+#cfg.readConfig()
 
-print(cfg)
+#print(cfg)

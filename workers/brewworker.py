@@ -3,8 +3,25 @@ import threading
 from schedules.mash import *
 from masters.defaults import *
 from masters.messages import *
+from config.brewconfig import WorkerConfig
 
 MessageFunctions = {MessageInfo:"info", MessagePause:"pause", MessageResume:"resume", MessageReset:"reset", MessageStop:"stop"}
+
+def loadWorker(config):
+    modulename = config.classname.lower()
+    if(not modulename.endswith('worker')):
+        print("Error: Worker module {0} not found".format(modulename))
+        return None
+    modulename = modulename[:-6]
+    package = 'workers.' + modulename
+    module = __import__(package)
+    workerclass = getattr(getattr(module, modulename), config.classname)
+    instance = workerclass(config.name)
+    instance.ip = config.ip
+    instance.port = config.port
+    instance.inputs = config.inputs
+    instance.outputs = config.outputs
+    return instance
 
 class BrewWorker(threading.Thread):
 
@@ -17,9 +34,12 @@ class BrewWorker(threading.Thread):
         self.channel = self.connection.channel()
         self.channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
         self.channel.queue_declare(queue=self.name)
+        self.outputs = {}
+        self.inputs = {}
 
     def __str__(self):
-        return 'BrewWorker - [name:{0}, type:{1}]'.format(self.name, str(self.__class__.__name__))
+        return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'.\
+            format(self.name, str(self.__class__.__name__), len(self.outputs), len(self.inputs))
 
     def work(self, ch, method, properties, body):
         print('[*] Waiting for schedule. To exit press CTRL+C')

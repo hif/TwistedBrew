@@ -8,6 +8,7 @@ from recipies.beerparser import *
 from schedules.mash import *
 from schedules.boil import *
 from schedules.fermentation import *
+from config.brewconfig import MasterConfig
 
 class Worker():
     def __init__(self, name, type):
@@ -17,10 +18,17 @@ class Worker():
         return '{0} of type {1}'.format(self.name, self.type)
 
 class BrewMaster(threading.Thread):
-    def __init__(self):
+    def __init__(self, config = None):
         threading.Thread.__init__(self)
-        self.ip = MessageServerIP
-        self.port = MessageServerPort
+        if(config == None):
+            self.name = MasterQueue
+            self.ip = MessageServerIP
+            self.port = MessageServerPort
+        else:
+            self.name = config.name
+            self.ip = config.ip
+            self.port = config.port
+
         self.recipiefile = "recipies/Recipe.bsmx"
         self.recipename = "My Beer"
         self.recipe = BeerData()
@@ -67,9 +75,9 @@ class BrewMaster(threading.Thread):
         return result
 
     def listen(self):
-        print("[*] Broadcasts :", self.listBroadcasts())
-        print("[*] Commands   :", self.listWorkerCommands())
-        self.info()
+        #print("[*] Broadcasts :", self.listBroadcasts())
+        #print("[*] Commands   :", self.listWorkerCommands())
+        #self.info()
 
         print('[*] Waiting for worker updates. To exit press CTRL+C')
         self.channel.basic_consume(self.update, queue=MasterQueue, no_ack=True)

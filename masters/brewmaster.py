@@ -1,5 +1,5 @@
 from workers.brewworker import *
-from recipies.beerparser import *
+from recipes.beerparser import *
 from schedules.mash import *
 from schedules.boil import *
 from schedules.fermentation import *
@@ -30,8 +30,7 @@ class BrewMaster(threading.Thread):
         self.recipename = "My Beer"
         self.recipe = BeerData()
         self.recipeloaded = False
-        self.recipedata = None
-        self.recipies = []
+        self.recipes = {}
         self.loadRecipies()
 
         self.instructions = {MessageInfo, MessageLoad, MessageExecute, MessageUpdate}
@@ -47,29 +46,50 @@ class BrewMaster(threading.Thread):
         self.listen()
 
     def loadRecipies(self, file = None):
-        if(file != None):
-            self.recipiefile = file
-        log.debug('Loading recipe file {0}...'.format(self.recipiefile))
-        beer = BeerParser()
-        self.recipedata = beer.get_recipies(self.recipiefile)
-        for item in self.recipedata:
-            self.recipies.append(item.name)
-        log.debug('...done loading recipe file {0}'.format(self.recipiefile))
+        try:
+            if(file != None):
+                self.recipiefile = file
+            log.debug('Loading recipe file {0}...'.format(self.recipiefile))
+            beer = BeerParser()
+            recipedata = beer.get_recipes(self.recipiefile)
+            self.recipes = {}
+            for item in recipedata:
+                name = item.recipeName().strip()
+                if(name != None):
+                    self.recipes[name] = item
+            log.debug('...done loading recipe file {0}'.format(self.recipiefile))
+            for item in self.recipes:
+                print(item)
+            log.debug('- eof -')
+        except:
+            log.error('Failed to load recipes {0}'.format(self.recipiefile))
 
     def load(self, recipe):
-        if(len(self.recipies) == 0):
-            log.debug('No recipies found in {}'.format(self.recipiefile), log.WARNING)
-        self.recipename = recipe
-        log.debug('Loading {0}'.format(recipe))
-        beer = BeerParser()
-        self.recipe = None
-        if(not self.recipedata.data.__contains__(self.recipename)):
-            log.debug('Recipe {0} not found in data file', log.WARNING)
-            #Fake result
-            self.recipe = self.recipiesdata[0]
-            return
-        self.recipe = self.recipiesdata.children[self.recipiename]
-        self.recipeloaded = True
+        try:
+            if(len(self.recipes) == 0):
+                log.debug('No recipes found in {}'.format(self.recipiefile), log.WARNING)
+            self.recipename = recipe.strip()
+            log.debug('Loading {0}'.format(recipe))
+            beer = BeerParser()
+            self.recipe = None
+            if(not self.recipename in self.recipes):
+                log.debug('Recipe {0} not found in data file', log.WARNING)
+                #Fake result
+                self.recipe = self.recipes.values()[0]
+                print self.recipe
+                return
+            self.recipe = self.recipes[self.recipiename]
+            self.recipeloaded = True
+        except:
+            log.error('Unable to find recipe {0}'.format(self.recipie))
+
+    def brewworkers(self):
+        #TODO: Implement
+        pass
+
+    def brews(self):
+        #TODO: Implement
+        pass
 
     def clearWorkers(self):
         self.workers = []

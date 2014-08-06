@@ -1,3 +1,7 @@
+import HTMLParser
+
+RECIPE_NAME_NODE = "F_R_NAME"
+
 class BeerData:
     def __init__(self):
         self.name = "empty"
@@ -5,6 +9,12 @@ class BeerData:
         self.children = dict()
         self.subdata = list()
         self.parent = None
+
+    def recipeName(self):
+        html_parser = HTMLParser.HTMLParser()
+        if(self.data.__contains__(RECIPE_NAME_NODE)):
+            return html_parser.unescape(self.data["F_R_NAME"])
+        return None
 
 
 class BeerParser():
@@ -20,7 +30,7 @@ class BeerParser():
         # print "'",c,"'"
         return c
 
-    def find_recipies(self, f):
+    def find_recipes(self, f):
         # Jump over formatting BOM
         c = '?'
         while (c != '<'):
@@ -109,11 +119,11 @@ class BeerParser():
 
     # print "data[", self.tag, " ] =", self.data, " (", len(self.current.data), " )"
 
-    def get_recipies(self, file):
+    def get_recipes(self, file):
         if (self.tag != "root"):
             init()
         f = open(file, "r")
-        self.find_recipies(f)
+        self.find_recipes(f)
         self.next(f)
         if (self.token == self.T_OPEN):
             self.open_tag()
@@ -133,11 +143,11 @@ class BeerParser():
             print
             "Recipe list not found!"
         f.close()
-        return self.recipies.subdata
+        return self.recipes.subdata
 
     def init(self):
-        self.recipies = BeerData()
-        self.current = self.recipies
+        self.recipes = BeerData()
+        self.current = self.recipes
         self.tag = "root"
         self.current.name = self.tag
         self.last = self.T_NONE
@@ -146,8 +156,8 @@ class BeerParser():
         self.depth = 0
 
     def __init__(self):
-        self.recipies = BeerData()
-        self.current = self.recipies
+        self.recipes = BeerData()
+        self.current = self.recipes
         self.tag = "root"
         self.current.name = self.tag
         self.last = self.T_NONE

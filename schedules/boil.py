@@ -1,5 +1,5 @@
 import HTMLParser
-from recipies import *
+from recipes import *
 from schedules.schedule import *
 
 Hop = 0

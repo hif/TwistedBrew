@@ -1,6 +1,6 @@
 import yaml
-import io
 from masters import defaults
+import utils.logging as log
 
 # The default config file name
 DEFAULT_CONFIG = 'twisted_brew.yml'
@@ -40,8 +40,8 @@ class IOConfig():
 
 class MasterConfig():
     def __init__(self):
-        self.name = ""
-        self.ip = ""
+        self.name = ''
+        self.ip = ''
         self.port = 0
         self.verifyData()
 
@@ -103,13 +103,13 @@ class BrewConfig():
         self.readConfig()
 
     def __str__(self):
-        tmp = ""
+        tmp = ''
         if(not self.master == None):
             tmp = tmp + str(self.master)
-            tmp = tmp + "\r\n"
+            tmp = tmp + '\r\n'
         for worker in self.workers:
             tmp = tmp + str(worker)
-            tmp = tmp + "\r\n"
+            tmp = tmp + '\r\n'
         return tmp
 
     def readConfig(self, file = ''):
@@ -120,25 +120,17 @@ class BrewConfig():
         masterfound = False
         for name, section in data.iteritems():
             if(isMaster(name)):
-                #print(section)
                 if(masterfound == True):
-                    print("Warning, more than one master found, discarding")
+                    log.debug('More than one master found, discarding', log.WARNING)
                 else:
                     masterfound = True
                     self.master = MasterConfig()
                     self.master.setFromYaml(section)
             elif(isWorkers(name)):
                 for workernode in section:
-                    #print(workernode[CONFIG_WORKER])
                     worker = WorkerConfig()
                     worker.setFromYaml(workernode[CONFIG_WORKER])
                     self.workers.append(worker)
             else:
-                print ("Warning, unknown module found {0}!".format(str(name)))
+                log.debug('Unknown module found {0}!'.format(str(name)), log.WARNING)
 
-
-#cfg = BrewConfig()
-#cfg = BrewConfig("mash_config.yml")
-#cfg.readConfig()
-
-#print(cfg)

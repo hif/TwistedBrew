@@ -10,7 +10,7 @@ f = "dummy"
 #fermentationworker = "AA(Fermentationworker)"
 
 master = BrewMaster()
-master.loadRecipe(r, f)
+master.load(r, f)
 master.start()
 
 print("[*] Giving workers time to register")

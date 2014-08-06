@@ -1,8 +1,8 @@
 from devices.device import Device
 
 class SSR(Device):
-    def __init__(self):
-        Device.__init__(self)
+    def __init__(self, config):
+        Device.__init__(self, config)
 
     def init(self):
         #TODO:Implment

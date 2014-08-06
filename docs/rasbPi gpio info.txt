@@ -1,0 +1,13 @@
+# Enable gpio17 and set as output
+echo "17" > /sys/class/gpio/export
+echo "out" > /sys/class/gpio/gpio17/direction
+# set gpio17 on and off
+echo 1 > /sys/class/gpio/gpio17/value
+echo 0 > /sys/class/gpio/gpio17/value
+
+# Enable the one-wire system in kernel
+sudo modprobe w1-gpio && sudo modprobe w1_therm
+# Read and print temp from prob with ID 28-00000607f0de
+cat /sys/bus/w1/devices/28-00000607f0de/w1_slave | sed -n 's/^.*\(t=[^ ]*\).*/\1/p' | sed 's/t=//' | awk '{x=$1}END{print(x/1000)}'
+
+

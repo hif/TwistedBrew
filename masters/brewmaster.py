@@ -167,7 +167,15 @@ class BrewMaster(threading.Thread):
         # TODO:Implement handling updates from workers
         print('****** UPDATE *****' + str(body))
 
+    def verifyworker(self, worker):
+        for worker in self.workers:
+            if worker.name == worker:
+                return True
+        return False
+
     def send(self, worker, data):
+        if not self.verifyworker(worker):
+            log.debug('Worker {0} not available'.format(worker), log.WARNING)
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
         channel.queue_declare(queue=worker)
@@ -243,7 +251,9 @@ class BrewMaster(threading.Thread):
             log.debug('No such command in BrewMaster', log.ERROR)
             return
         method = getattr(self, command)
-        if command in self.broadcastcommands:
+        if worker is not None and worker != '' and command in self.workercommands:
+            method(worker)
+        elif command in self.broadcastcommands:
             method()
         else:
-            method(worker)
+            log.debug('Master requested to send an unauthorized command: {0}'.format(command))

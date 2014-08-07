@@ -17,4 +17,4 @@ def debug(message, messagetype=INFO):
 
 
 def error(message):
-    message(u'[{0}] {1}'.format(ERROR, message))
+    logmessage(u'[{0}] {1}'.format(ERROR, message))

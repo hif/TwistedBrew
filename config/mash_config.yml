@@ -12,10 +12,10 @@ workers:
         outputs:
             - output:
                 name: "Mash Tun"
-                type: "SSR"
+                device: "SSR"
                 io: "gpio0"
         inputs:
             - input:
                 name: "Temperature"
-                type: "Probe"
+                device: "Probe"
                 io: "gpio1"

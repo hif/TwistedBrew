@@ -12,12 +12,12 @@ workers:
         outputs:
             - output:
                 name: "Mash Tun"
-                type: "SSR"
+                device: "SSR"
                 io: "gpio0"
         inputs:
             - input:
                 name: "Temperature"
-                type: "Probe"
+                device: "Probe"
                 io: "gpio1"
 
     - worker:
@@ -28,12 +28,12 @@ workers:
         outputs:
             - output:
                 name: "Boiler"
-                type: "SSR"
+                device: "SSR"
                 io: "gpio2"
         inputs:
             - input:
                 name: "Temperature"
-                type: "Probe"
+                device: "Probe"
                 io: "gpio3"
 
     - worker:
@@ -44,10 +44,10 @@ workers:
         outputs:
             - output:
                 name: "Fermenter"
-                type: "SSR"
+                device: "SSR"
                 io: "gpio4"
         inputs:
             - input:
                 name: "Temperature"
-                type: "Probe"
+                device: "Probe"
                 io: "gpio5"

@@ -15,7 +15,7 @@ CONFIG_NAME = 'name'
 CONFIG_IP = 'ip'
 CONFIG_PORT = 'port'
 CONFIG_CLASS = 'class'
-CONFIG_TYPE = 'type'
+CONFIG_DEVICE = 'device'
 CONFIG_INPUTS = 'inputs'
 CONFIG_INPUT = 'input'
 CONFIG_OUTPUTS = 'outputs'
@@ -99,11 +99,11 @@ class WorkerConfig(MasterConfig):
         self.classname = yamldata[CONFIG_CLASS]
         for iooutput in yamldata[CONFIG_OUTPUTS]:
             iooutput = iooutput[CONFIG_OUTPUT]
-            self.outputs[iooutput[CONFIG_NAME]] = IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_TYPE],
+            self.outputs[iooutput[CONFIG_NAME]] = IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE],
                                                            iooutput[CONFIG_IO])
         for ioinput in yamldata[CONFIG_INPUTS]:
             ioinput = ioinput[CONFIG_INPUT]
-            self.inputs[ioinput[CONFIG_NAME]] = IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_TYPE], ioinput[CONFIG_IO])
+            self.inputs[ioinput[CONFIG_NAME]] = IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE], ioinput[CONFIG_IO])
 
 
 class BrewConfig():

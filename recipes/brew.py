@@ -1,7 +1,6 @@
 import HTMLParser
 import yaml
 
-
 BREW_NAME_NODE = "F_R_NAME"
 BREW_BREWER_NODE = "F_R_BREWER"
 BREW_STYLE_NODE = "F_R_STYLE"

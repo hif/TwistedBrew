@@ -11,22 +11,6 @@ MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: '
                     MessageStop: 'stop'}
 
 
-def loadworker(config):
-    modulename = config.classname.lower()
-    if not modulename.endswith('worker'):
-        log.debug('Worker module {0} not found'.format(modulename), log.ERROR)
-        return None
-    modulename = modulename[:-6]
-    package = 'workers.' + modulename
-    module = __import__(package)
-    workerclass = getattr(getattr(module, modulename), config.classname)
-    instance = workerclass(config.name)
-    instance.ip = config.ip
-    instance.port = config.port
-    instance.inputs = config.inputs
-    instance.outputs = config.outputs
-    return instance
-
 
 class BrewWorker(threading.Thread):
     def __init__(self, name):

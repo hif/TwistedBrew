@@ -1,10 +1,12 @@
 from workers.brewworker import *
 from recipes.beerparser import *
 import recipes.brew
+from recipes.brew import Brew
 from schedules.mash import *
 from schedules.boil import *
 from schedules.fermentation import *
 import utils.logging as log
+from datamanager import DataManager
 
 
 class Worker():
@@ -42,6 +44,8 @@ class BrewMaster(threading.Thread):
         self.workercommands = {"reset", "pause", "resume", "mash", "boil", "ferment"}
         self.workers = []
 
+        self.dbconnectionstring = DefaultDBConnectionString
+
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue=MasterQueue)
@@ -62,16 +66,28 @@ class BrewMaster(threading.Thread):
                 name = recipes.brew.recipename(item).strip()
                 if name is not None:
                     self.recipes[name] = item
-                    brews.append(recipes.brew.Brew(item))
+                    brews.append(Brew(item))
             log.debug('...done loading recipe file {0}'.format(self.recipiefile))
             self.storebrews(brews)
         except Exception, e:
             log.error('Failed to load recipes {0} ({1})'.format(self.recipiefile, e.message))
 
-    @staticmethod
-    def storebrews(brews):
+    def storebrews(self, brews):
+        manager = DataManager(DefaultDBConnectionString)
         for brew in brews:
             log.debug(u'Storing {0}'.format(brew.name))
+        manager.insertbrews(brews)
+
+    def storeworkers(self, workers):
+        manager = DataManager(self.dbconnectionstring)
+        for worker in workers:
+            log.debug(u'Storing {0}'.format(worker.name))
+        manager.insertworkers(workers)
+
+    def storeworker(self, worker):
+        manager = DataManager(self.dbconnectionstring)
+        log.debug(u'Storing {0}'.format(worker.name))
+        manager.insertworker(worker)
 
     def load(self, recipe):
         try:
@@ -93,19 +109,16 @@ class BrewMaster(threading.Thread):
         except Exception, e:
             log.error('Unable to find recipe {0} ({1})'.format(self.recipe, e))
 
-    def brewworkers(self):
-        # TODO: Implement
-        pass
-
-    def brews(self):
-        # TODO: Implement
-        pass
-
     def clearworkers(self):
         self.workers = []
+        manager = DataManager(self.dbconnectionstring)
+        manager.clearworkers()
+
 
     def addworker(self, worker, workertype):
-        self.workers.append(Worker(worker, workertype))
+        newworker = Worker(worker, workertype)
+        self.workers.append(newworker)
+        self.storeworker(newworker)
 
     def getworkers(self, workertype):
         result = []

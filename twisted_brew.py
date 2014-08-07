@@ -1,8 +1,8 @@
 import sys
 from utils import brewutils
-import config.brewconfig as cfg
+import masters.defaults as defaults
 
-configfile = cfg.DEFAULT_CONFIG
+configfile = defaults.DEFAULT_CONFIG
 if len(sys.argv) > 1:
     configfile = sys.argv[1]
 

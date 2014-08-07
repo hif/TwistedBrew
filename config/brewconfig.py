@@ -4,9 +4,6 @@ from masters import defaults
 import utils.logging as log
 
 
-# The default config file name
-DEFAULT_CONFIG = 'twisted_brew.yml'
-
 # Config file keys
 CONFIG_MASTER = 'master'
 CONFIG_WORKERS = 'workers'
@@ -107,7 +104,7 @@ class WorkerConfig(MasterConfig):
 
 
 class BrewConfig():
-    def __init__(self, configfile=DEFAULT_CONFIG):
+    def __init__(self, configfile):
         self.master = None
         self.workers = []
         self.file = configfile

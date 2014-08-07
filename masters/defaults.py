@@ -1,3 +1,6 @@
+# The default config file name
+DEFAULT_CONFIG = 'config/twisted_brew.yml'
+
 MessageServerIP = "localhost"
 MessageServerPort = 5672
 BroadcastExchange = "BrewBroadcast"

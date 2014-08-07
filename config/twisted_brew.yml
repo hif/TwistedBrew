@@ -1,29 +1,29 @@
 master:
     name: "BrewMaster"
     ip: "localhost"
-    port: "5672"
+    port: 5672
 
 workers:
     - worker:
         name: "Mash Dude"
         ip: "localhost"
-        port: "5672"
+        port: 5672
         class: "MashWorker"
         outputs:
             - output:
                 name: "Mash Tun"
                 device: "SSR"
-                io: "gpio0"
+                io: "/sys/class/gpio/gpio17/value"
         inputs:
             - input:
                 name: "Temperature"
                 device: "Probe"
-                io: "gpio1"
+                io: "/sys/bus/w1/devices/28-00000607f0de/w1_slave"
 
     - worker:
         name: "Mr Boiler"
         ip: "localhost"
-        port: "5672"
+        port: 5672
         class: "BoilWorker"
         outputs:
             - output:
@@ -39,7 +39,7 @@ workers:
     - worker:
         name: "Fermat"
         ip: "localhost"
-        port: "5672"
+        port: 5672
         class: "FermentationWorker"
         outputs:
             - output:

@@ -1,6 +1,7 @@
 from config import brewconfig
 from masters import brewmaster
 from workers import brewworker
+import masters.defaults as defaults
 import utils.logging as log
 
 
@@ -24,7 +25,7 @@ def loadworker(config):
         log.error('Unable to load worker from config: {0}'.format(e))
         return None
 
-def startfromconfig(configfile=brewconfig.DEFAULT_CONFIG):
+def startfromconfig(configfile=defaults.DEFAULT_CONFIG):
     try:
         config = brewconfig.BrewConfig(configfile)
         master = None

@@ -5,14 +5,16 @@ INFO = 'i'
 WARNING = 'w'
 ERROR = 'e'
 
-def logMessage(msg):
+
+def logmessage(msg):
     print(msg)
 
-def debug(message, type=INFO):
-    if(not DEBUG_BREW):
+
+def debug(message, messagetype=INFO):
+    if not DEBUG_BREW:
         return
-    logMessage('[{0}] {1}'.format(type, str(message)))
+    logmessage(u'[{0}] {1}'.format(messagetype, message))
 
 
 def error(message):
-    message('[{0}] {1}'.format(ERROR, str(message)))
+    message(u'[{0}] {1}'.format(ERROR, message))

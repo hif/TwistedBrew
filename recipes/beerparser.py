@@ -1,7 +1,3 @@
-import HTMLParser
-
-RECIPE_NAME_NODE = "F_R_NAME"
-
 class BeerData:
     def __init__(self):
         self.name = "empty"
@@ -9,12 +5,6 @@ class BeerData:
         self.children = dict()
         self.subdata = list()
         self.parent = None
-
-    def recipeName(self):
-        html_parser = HTMLParser.HTMLParser()
-        if(self.data.__contains__(RECIPE_NAME_NODE)):
-            return html_parser.unescape(self.data["F_R_NAME"])
-        return None
 
 
 class BeerParser():
@@ -25,7 +15,8 @@ class BeerParser():
     T_EOF = 4
     T_SKIP = 5
 
-    def nc(self, f):
+    @staticmethod
+    def nc(f):
         c = f.read(1)
         # print "'",c,"'"
         return c
@@ -33,80 +24,80 @@ class BeerParser():
     def find_recipes(self, f):
         # Jump over formatting BOM
         c = '?'
-        while (c != '<'):
+        while c != '<':
             c = self.nc(f)
-            if (not c):
+            if not c:
                 return
         f.seek(f.tell() - 1)
         # Find second <Data>
         found = 0
         while found < 2:
             self.next(f)
-            if (self.data == "Data"):
+            if self.data == "Data":
                 found += 1
 
     def next(self, f):
         # print "at depth", self.depth
         c = self.nc(f)
-        if (not c):
+        if not c:
             self.token = self.T_EOF
             return
-        while (c == ' ' or c == '\n' or c == '\t' or c == '\r' ):
+        while c == ' ' or c == '\n' or c == '\t' or c == '\r':
             c = self.nc(f)
-            if (not c):
+            if not c:
                 break
-        if (not c):
+        if not c:
             self.token = self.T_EOF
             return
         self.data = ""
 
-        if ( c == '<' ):
+        if c == '<':
             c = self.nc(f)
-            if (c != '/'):
+            if c != '/':
                 self.token = self.T_OPEN
                 self.data += c
             else:
                 self.token = self.T_CLOSE
             c = self.nc(f)
-            while (c != '>'):
+            while c != '>':
                 self.data += c
                 c = self.nc(f)
         else:
             self.token = self.T_DATA
             self.data += c
             c = self.nc(f)
-            while (c != '<'):
+            while c != '<':
                 self.data += c
                 c = self.nc(f)
             f.seek(f.tell() - 1)
 
     def open_tag(self):
         # Ignore <Data> tags
-        if (self.data == "Data"):
+        if self.data == "Data":
             self.token = self.T_SKIP
-            return;
+            return
         lasttag = self.tag
         self.tag = self.data
-        if (self.last == self.T_OPEN):
+        if self.last == self.T_OPEN:
             temp = BeerData()
             temp.name = lasttag
             temp.parent = self.current
-            if (self.current.parent != None):
+            if self.current.parent is not None:
                 self.current.children[lasttag] = temp
             self.current.subdata.append(temp)
             self.current = temp
             self.depth += 1
-        elif (self.last == self.T_NONE):
+        elif self.last == self.T_NONE:
             self.depth = 1
         self.last = self.T_OPEN
 
         # print "<OPEN>"
 
     def close_tag(self):
-        if (self.data == "Data"):
+        if self.data == "Data":
             self.token = self.T_SKIP
-            return;
-        if (self.last == self.T_CLOSE):
+            return
+        if self.last == self.T_CLOSE:
             self.current = self.current.parent
             self.depth -= 1
         self.last = self.T_CLOSE
@@ -119,23 +110,23 @@ class BeerParser():
 
     # print "data[", self.tag, " ] =", self.data, " (", len(self.current.data), " )"
 
-    def get_recipes(self, file):
-        if (self.tag != "root"):
-            init()
-        f = open(file, "r")
+    def get_recipes(self, recipefile):
+        if self.tag != "root":
+            self.init()
+        f = open(recipefile, "r")
         self.find_recipes(f)
         self.next(f)
-        if (self.token == self.T_OPEN):
+        if self.token == self.T_OPEN:
             self.open_tag()
             while self.depth > 0:
                 self.next(f)
-                if ( self.token == self.T_EOF ):
+                if self.token == self.T_EOF:
                     break
-                elif (self.token == self.T_SKIP):
+                elif self.token == self.T_SKIP:
                     continue
-                elif (self.token == self.T_OPEN):
+                elif self.token == self.T_OPEN:
                     self.open_tag()
-                elif (self.token == self.T_CLOSE):
+                elif self.token == self.T_CLOSE:
                     self.close_tag()
                 else:  # self.token == self.T_DATA):
                     self.data_field()

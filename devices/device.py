@@ -1,4 +1,4 @@
-from config.brewconfig import IOConfig
+
 
 class Device():
     def __init__(self, config):

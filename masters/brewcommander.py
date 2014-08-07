@@ -3,17 +3,18 @@ import masters.defaults as default
 import utils.logging as log
 import masters.messages as msg
 
+
 class BrewCommander():
-    def __init__(self, ip = default.MessageServerIP, port = default.MessageServerPort):
+    def __init__(self, ip=default.MessageServerIP, port=default.MessageServerPort):
         self.ip = ip
         self.port = port
 
-    def sendMaster(self, command, params = None):
+    def sendmaster(self, command, params=None):
         data = command
-        if(params != None and params != ''):
+        if params is not None and params != '':
             data = '{0}{1}{2}'.format(data, msg.MessageSplit, params)
 
-        if(command != msg.MessageLoad):
+        if command != msg.MessageLoad:
             data = '{0}{1}{2}'.format(msg.MessageExecute, msg.MessageSplit, data)
 
         log.debug('Commanding master - {0}'.format(data))

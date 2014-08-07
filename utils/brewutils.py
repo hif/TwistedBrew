@@ -2,17 +2,18 @@ from config import brewconfig
 from masters import brewmaster
 from workers import brewworker
 
-def startFromConfig(file = brewconfig.DEFAULT_CONFIG):
-    config = brewconfig.BrewConfig(file)
+
+def startfromconfig(configfile=brewconfig.DEFAULT_CONFIG):
+    config = brewconfig.BrewConfig(configfile)
     master = None
-    if(not config.master == None):
+    if config.master is not None:
         master = brewmaster.BrewMaster(config.master)
     workers = []
     for workerconfig in config.workers:
-        workers.append(brewworker.loadWorker(workerconfig))
+        workers.append(brewworker.loadworker(workerconfig))
 
     for worker in workers:
         worker.start()
-    if(not master == None):
+    if master is not None:
         master.start()
     return master

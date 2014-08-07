@@ -1,5 +1,4 @@
 import HTMLParser
-from recipes import *
 from schedules.schedule import *
 
 Hop = 0
@@ -8,6 +7,9 @@ HopUnit = "Grams"
 
 
 class BoilStep:
+    def __init__(self):
+        pass
+
     name = ""
     type = Hop
     unit = HopUnit
@@ -15,7 +17,8 @@ class BoilStep:
     min = 0
 
     def __str__(self):
-        return 'name:{0} - type:{1} - unit:{2} - amount:{3} - min:{4}'.format(self.name, self.type, self.unit, self.amount, self.min)
+        return 'name:{0} - type:{1} - unit:{2} - amount:{3} - min:{4}'.format(self.name, self.type, self.unit,
+                                                                              self.amount, self.min)
 
 
 class BoilSchedule(Schedule):
@@ -28,7 +31,7 @@ class BoilSchedule(Schedule):
         self.name = html_parser.unescape(recipe.data["F_R_NAME"])
         # Hops
         for ingredient in recipe.children["Ingredients"].subdata:
-            if (ingredient.name == "Hops" and int(ingredient.data["F_H_DRY_HOP_TIME"][-9]) == 0):
+            if ingredient.name == "Hops" and int(ingredient.data["F_H_DRY_HOP_TIME"][-9]) == 0:
                 boilstep = BoilStep()
                 boilstep.name = html_parser.unescape(ingredient.data["F_H_NAME"])
                 boilstep.type = Hop
@@ -38,7 +41,7 @@ class BoilSchedule(Schedule):
                 self.steps.append(boilstep)
         # Misc ingredients
         for ingredient in recipe.children["Ingredients"].subdata:
-            if (ingredient.name == "Misc"):
+            if ingredient.name == "Misc":
                 boilstep = BoilStep()
                 boilstep.name = html_parser.unescape(ingredient.data["F_M_NAME"])
                 boilstep.type = Misc

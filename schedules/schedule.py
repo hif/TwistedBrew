@@ -4,24 +4,24 @@ units = ["mg", "g", "oz", "lb", "kg", "ml", "tsp", "tbsp", "cup", "pt", "qt", "l
 use = ["boil", "mash", "primary", "secondary", "bottling"]
 
 
-def convert_f2c(S):
+def convert_f2c(s):
     """(str): float
 
     Converts a Fahrenheit temperature represented as a string
     to a Celsius temperature.
     """
-    fahrenheit = float(S)
+    fahrenheit = float(s)
     celsius = round((fahrenheit - 32) * 5 / 9, 1)
     return str(celsius)
 
 
-def convert_o2g(S):
+def convert_o2g(s):
     """(str): float
 
     Converts a Ounces represented as a string
     to grams.
     """
-    ounce = float(S)
+    ounce = float(s)
     grams = round(ounce / 0.035274, 1)
     return str(grams)
 
@@ -32,28 +32,29 @@ class Schedule:
         self.steps = []
 
     def __str__(self):
-        str = self.name + "\r\n"
+        result = self.name + "\r\n"
         for step in self.steps:
-            str  = str + step
+            result = result + step
+        return result
 
     def parse(self, recipe):
         pass
 
-    def toYaml(self):
+    def toyaml(self):
         l = list()
         l.append(self.name)
         for item in self.steps:
             l.append(item)
         return yaml.dump_all(l)
 
-    def fromYaml(self, yamldata):
+    def fromyaml(self, yamldata):
         l = yaml.load_all(yamldata)
         self.name = ""
         self.steps = list()
         index = 0
         for item in l:
-            if (index == 0):
+            if index == 0:
                 self.name = item
             else:
                 self.steps.append(item)
-            index = index + 1
+            index += 1

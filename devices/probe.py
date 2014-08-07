@@ -1,25 +1,26 @@
 from devices.device import Device
 
+
 class Probe(Device):
     def __init__(self, config):
         Device.__init__(self, config)
 
     def init(self):
-        #TODO:Implment
+        # TODO:Implment
         pass
 
     def check(self):
-        #TODO:Implment
+        # TODO:Implment
         pass
 
     def register(self):
-        #TODO:Implment
+        # TODO:Implment
         pass
 
     def write(self, value):
-        #TODO:Implment
+        # TODO:Implment
         pass
 
     def read(self):
-        #TODO:Implment
+        # TODO:Implment
         pass

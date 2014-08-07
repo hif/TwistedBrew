@@ -1,15 +1,17 @@
 import HTMLParser
-from recipes import *
 from schedules.schedule import *
 
 
 class MashStep:
+    def __init__(self):
+        pass
+
     name = ''
     temp = 0.0
     min = 0
 
     def __str__(self):
-        str = 'name:{0} - temp:{1} - min:{2}'.format(self.name, self.temp, self.min)
+        return 'name:{0} - temp:{1} - min:{2}'.format(self.name, self.temp, self.min)
 
 
 class MashSchedule(Schedule):
@@ -21,7 +23,7 @@ class MashSchedule(Schedule):
         # Mash Schedule extracted
         self.name = html_parser.unescape(recipe.data["F_R_NAME"])
         for mashItem in recipe.children["F_R_MASH"].children["steps"].subdata:
-            if ( mashItem.name == "MashStep" ):
+            if mashItem.name == "MashStep":
                 mashstep = MashStep()
                 mashstep.name = html_parser.unescape(mashItem.data["F_MS_NAME"])
                 mashstep.temp = convert_f2c(mashItem.data["F_MS_STEP_TEMP"])

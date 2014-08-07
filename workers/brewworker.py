@@ -7,11 +7,13 @@ from masters.messages import *
 import utils.logging as log
 
 
-MessageFunctions = {MessageInfo:'info', MessagePause:'pause', MessageResume:'resume', MessageReset:'reset', MessageStop:'stop'}
+MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
+                    MessageStop: 'stop'}
 
-def loadWorker(config):
+
+def loadworker(config):
     modulename = config.classname.lower()
-    if(not modulename.endswith('worker')):
+    if not modulename.endswith('worker'):
         log.debug('Worker module {0} not found'.format(modulename), log.ERROR)
         return None
     modulename = modulename[:-6]
@@ -25,8 +27,8 @@ def loadWorker(config):
     instance.outputs = config.outputs
     return instance
 
-class BrewWorker(threading.Thread):
 
+class BrewWorker(threading.Thread):
     def __init__(self, name):
         threading.Thread.__init__(self)
         self.name = name
@@ -40,7 +42,7 @@ class BrewWorker(threading.Thread):
         self.inputs = {}
 
     def __str__(self):
-        return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'.\
+        return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.outputs), len(self.inputs))
 
     def work(self, ch, method, properties, body):
@@ -50,16 +52,16 @@ class BrewWorker(threading.Thread):
         self.listen()
 
     def listen(self):
-        self.onStart()
+        self.onstart()
         self.channel.queue_bind(exchange=BroadcastExchange, queue=self.name)
         self.channel.basic_consume(self.receive, queue=self.name, no_ack=True)
         self.channel.start_consuming()
 
     def stop(self):
-        self.onStop()
+        self.onstop()
         self.channel.stop_consuming()
 
-    def sendMaster(self, data):
+    def sendmaster(self, data):
         log.debug('Sending to master - ' + data)
 
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
@@ -70,60 +72,61 @@ class BrewWorker(threading.Thread):
         connection.close()
 
     def receive(self, ch, method, properties, body):
-        if(MessageFunctions.__contains__(body) and hasattr(self, MessageFunctions[body])):
+        if MessageFunctions.__contains__(body) and hasattr(self, MessageFunctions[body]):
             command = MessageFunctions[body]
-            getattr(self,command)()
+            getattr(self, command)()
             return
         self.work(ch, method, properties, body)
 
-    def work(self, ch, method, properties, body):
-        log.debug('Receiving data...')
-        log.debug(body)
-
     def info(self):
         log.debug('{0} is sending info to master'.format(self.name))
-        if(self.onInfo()):
-            self.sendMaster(MessageInfo + MessageSplit + self.name + MessageSplit + self.__class__.__name__)
+        if self.oninfo():
+            self.sendmaster(MessageInfo + MessageSplit + self.name + MessageSplit + self.__class__.__name__)
         else:
-            self.reportError('Info failed')
+            self.reporterror('Info failed')
 
     def pause(self):
         log.debug('{0} is sending paused to master'.format(self.name))
-        if(self.onPause()):
-            self.sendMaster(MessagePaused + ':' + self.name)
+        if self.onpause():
+            self.sendmaster(MessagePaused + ':' + self.name)
         else:
-            self.reportError('Pause failed')
+            self.reporterror('Pause failed')
+
     def resume(self):
         log.debug('{0} is sending resumed to master'.format(self.name))
-        if(self.onResume()):
-            self.sendMaster(MessageResumed + ':' + self.name)
+        if self.onresume():
+            self.sendmaster(MessageResumed + ':' + self.name)
         else:
-            self.reportError('Resume failed')
+            self.reporterror('Resume failed')
 
     def reset(self):
         log.debug('{0} is sending ready to master'.format(self.name))
-        if(self.onReset()):
-            self.sendMaster(MessageReady + ':' + self.name)
+        if self.onreset():
+            self.sendmaster(MessageReady + ':' + self.name)
         else:
-            self.reportError('Reset failed')
+            self.reporterror('Reset failed')
 
-    def reportError(self, err):
-        log.error(err)
+    def reporterror(self, err):
+        log.error('{0}: {1}'.format(self.name, err))
 
-    def onStart(self):
-        pass
+    def onstart(self):
+        log.debug('Starting {0}'.format(self))
 
-    def onStop(self):
+    def onstop(self):
         log.debug('Stopping {0}'.format(self))
 
-    def onInfo(self):
+    def oninfo(self):
+        log.debug('Info {0}'.format(self))
         return True
 
-    def onPause(self):
+    def onpause(self):
+        log.debug('Pause {0}'.format(self))
         return True
 
-    def onResume(self):
+    def onresume(self):
+        log.debug('Resume {0}'.format(self))
         return True
 
-    def onReset(self):
+    def onreset(self):
+        log.debug('Reset {0}'.format(self))
         return True

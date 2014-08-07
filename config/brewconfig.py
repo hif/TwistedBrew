@@ -1,6 +1,8 @@
 import yaml
+
 from masters import defaults
 import utils.logging as log
+
 
 # The default config file name
 DEFAULT_CONFIG = 'twisted_brew.yml'
@@ -20,52 +22,59 @@ CONFIG_OUTPUTS = 'outputs'
 CONFIG_OUTPUT = 'output'
 CONFIG_IO = 'io'
 
+
 # Check if master or workers sections
-def isMaster(node):
+def ismaster(node):
     return node == CONFIG_MASTER
-def isWorkers(node):
+
+
+def isworkers(node):
     return str(node).startswith(CONFIG_WORKERS)
-def isWorker(node):
+
+
+def isworker(node):
     return str(node).startswith(CONFIG_WORKER)
 
 
 class IOConfig():
-    def __init__(self, name, type, io):
+    def __init__(self, name, device, io):
         self.name = name
-        self.type = type
+        self.device = device
         self.io = io
 
     def __str__(self):
-        return '{0} of type {1} using io {2}'.format(self.name, self.type, self.io)
+        return '{0} of type {1} using io {2}'.format(self.name, self.device, self.io)
+
 
 class MasterConfig():
     def __init__(self):
         self.name = ''
         self.ip = ''
         self.port = 0
-        self.verifyData()
+        self.verifydata()
 
     def set(self, name, ip=defaults.MessageServerIP, port=defaults.MessageServerPort):
         self.name = name
         self.ip = ip
         self.port = port
 
-    def verifyData(self):
-        if(self.name == None):
+    def verifydata(self):
+        if self.name is None:
             self.name = defaults.MasterQueue
-        if(self.ip == None):
+        if self.ip is None:
             self.ip = defaults.MessageServerIP
-        if(self.port == None):
+        if self.port is None:
             self.port = defaults.MessageServerPort
 
-    def setFromYaml(self, yamldata):
+    def setfromyaml(self, yamldata):
         self.name = yamldata[CONFIG_NAME]
         self.ip = yamldata[CONFIG_IP]
         self.port = yamldata[CONFIG_PORT]
-        self.verifyData()
+        self.verifydata()
 
     def __str__(self):
         return 'Master({0}) - {1}:{2}\r\n'.format(self.name, self.ip, self.port)
+
 
 class WorkerConfig(MasterConfig):
     def __init__(self):
@@ -82,54 +91,56 @@ class WorkerConfig(MasterConfig):
             tmp = tmp + '* Input: {0}\r\n'.format(config)
         return tmp
 
-    def setFromYaml(self, yamldata):
+    def setfromyaml(self, yamldata):
         self.name = yamldata[CONFIG_NAME]
         self.ip = yamldata[CONFIG_IP]
         self.port = yamldata[CONFIG_PORT]
-        self.verifyData()
+        self.verifydata()
         self.classname = yamldata[CONFIG_CLASS]
-        for output in yamldata[CONFIG_OUTPUTS]:
-            output = output[CONFIG_OUTPUT]
-            self.outputs[output[CONFIG_NAME]] = IOConfig(output[CONFIG_NAME], output[CONFIG_TYPE], output[CONFIG_IO])
-        for input in yamldata[CONFIG_INPUTS]:
-            input = input[CONFIG_INPUT]
-            self.inputs[input[CONFIG_NAME]] = IOConfig(input[CONFIG_NAME], input[CONFIG_TYPE], input[CONFIG_IO])
+        for iooutput in yamldata[CONFIG_OUTPUTS]:
+            iooutput = iooutput[CONFIG_OUTPUT]
+            self.outputs[iooutput[CONFIG_NAME]] = IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_TYPE],
+                                                           iooutput[CONFIG_IO])
+        for ioinput in yamldata[CONFIG_INPUTS]:
+            ioinput = ioinput[CONFIG_INPUT]
+            self.inputs[ioinput[CONFIG_NAME]] = IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_TYPE], ioinput[CONFIG_IO])
+
 
 class BrewConfig():
-    def __init__(self, file = DEFAULT_CONFIG):
+    def __init__(self, configfile=DEFAULT_CONFIG):
         self.master = None
         self.workers = []
-        self.file = file
-        self.readConfig()
+        self.file = configfile
+        self.readconfig()
 
     def __str__(self):
         tmp = ''
-        if(not self.master == None):
-            tmp = tmp + str(self.master)
-            tmp = tmp + '\r\n'
+        if self.master is not None:
+            tmp += str(self.master)
+            tmp += '\r\n'
         for worker in self.workers:
-            tmp = tmp + str(worker)
-            tmp = tmp + '\r\n'
+            tmp += str(worker)
+            tmp += '\r\n'
         return tmp
 
-    def readConfig(self, file = ''):
-        if(file == ''):
-            file = self.file
-        raw = open(file, 'r')
+    def readconfig(self, configfile=''):
+        if configfile == '':
+            configfile = self.file
+        raw = open(configfile, 'r')
         data = yaml.load(raw)
         masterfound = False
         for name, section in data.iteritems():
-            if(isMaster(name)):
-                if(masterfound == True):
+            if ismaster(name):
+                if masterfound:
                     log.debug('More than one master found, discarding', log.WARNING)
                 else:
                     masterfound = True
                     self.master = MasterConfig()
-                    self.master.setFromYaml(section)
-            elif(isWorkers(name)):
+                    self.master.setfromyaml(section)
+            elif isworkers(name):
                 for workernode in section:
                     worker = WorkerConfig()
-                    worker.setFromYaml(workernode[CONFIG_WORKER])
+                    worker.setfromyaml(workernode[CONFIG_WORKER])
                     self.workers.append(worker)
             else:
                 log.debug('Unknown module found {0}!'.format(str(name)), log.WARNING)

@@ -88,21 +88,21 @@ class BrewWorker(threading.Thread):
     def pause(self):
         log.debug('{0} is sending paused to master'.format(self.name))
         if self.onpause():
-            self.sendmaster(MessagePaused + ':' + self.name)
+            self.sendmaster(MessagePaused + MessageSplit + self.name)
         else:
             self.reporterror('Pause failed')
 
     def resume(self):
         log.debug('{0} is sending resumed to master'.format(self.name))
         if self.onresume():
-            self.sendmaster(MessageResumed + ':' + self.name)
+            self.sendmaster(MessageResumed + MessageSplit + self.name)
         else:
             self.reporterror('Resume failed')
 
     def reset(self):
         log.debug('{0} is sending ready to master'.format(self.name))
         if self.onreset():
-            self.sendmaster(MessageReady + ':' + self.name)
+            self.sendmaster(MessageReady + MessageSplit + self.name)
         else:
             self.reporterror('Reset failed')
 

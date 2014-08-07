@@ -144,7 +144,7 @@ class BrewMaster(threading.Thread):
         if str(body).startswith(MessageLoad):
             self.handleload(body)
             return
-        log.debug('Unknown master message', log.WARNING)
+        log.debug('Ignorable reply from from worker: {0}'.format(body))
 
     def handleinfo(self, body):
         data = str(body).split(MessageSplit)

@@ -2,9 +2,12 @@ import utils.logging as log
 
 
 class Device():
-    def __init__(self, config):
-        self.name = config.name
-        self.io = config.io
+    def __init__(self, config = None):
+        self.name = "None"
+        self.io = "None"
+        if(config is not None):
+            self.name = config.name
+            self.io = config.io
 
     def init(self):
         pass

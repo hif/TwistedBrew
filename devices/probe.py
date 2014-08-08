@@ -3,7 +3,7 @@ import utils.logging as log
 import subprocess
 
 class Probe(Device):
-    def __init__(self, config):
+    def __init__(self, config=None):
         Device.__init__(self, config)
 
     def init(self):

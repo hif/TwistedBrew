@@ -1,5 +1,5 @@
 from devices.device import Device
-
+import utils.logging as log
 
 class Probe(Device):
     def __init__(self, config):
@@ -9,13 +9,12 @@ class Probe(Device):
         # TODO:Implment
         pass
 
-    def check(self):
-        # TODO:Implment
-        pass
-
     def register(self):
-        # TODO:Implment
-        pass
+        try:
+            #something
+            return
+        except Exception, e:
+            raise Exception('Cannot register')
 
     def write(self, value):
         # TODO:Implment

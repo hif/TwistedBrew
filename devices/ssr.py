@@ -1,5 +1,6 @@
 from devices.device import Device
-
+import utils.logging as log
+import subprocess
 
 class SSR(Device):
     def __init__(self, config):
@@ -9,13 +10,13 @@ class SSR(Device):
         # TODO:Implment
         pass
 
-    def check(self):
-        # TODO:Implment
-        pass
-
     def register(self):
-        # TODO:Implment
-        pass
+        try:
+            fo = open(self.io, mode='wb')
+            fo.write('')
+            return
+        except Exception, e:
+            raise Exception('Cannot register')
 
     def write(self, value):
         # TODO:Implment

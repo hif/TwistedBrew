@@ -15,8 +15,12 @@ probe = Probe(probeconfig)
 ssr = SSR(ssrconfig)
 
 # Use built in function to initialize, check if registered and if not register the device
-probe.autostart()
-ssr.autostart()
+ok, message = probe.autostart()
+if not ok:
+    log.error(message)
+ok. message = ssr.autostart()
+if not ok:
+    log.error(message)
 
 # Example of accessing device data intially read from YAML(here faked)
 print ('Device of type {0} is named {1} and uses io path {2}'.format(probe.devicetype(), probe.name, probe.io))

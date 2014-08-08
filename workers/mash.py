@@ -6,13 +6,13 @@ class MashWorker(BrewWorker):
     def __init__(self, name):
         BrewWorker.__init__(self, name)
 
-    def onstart(self):
+    def on_start(self):
         log.debug('Waiting for mash schedule. To exit press CTRL+C')
 
     def work(self, ch, method, properties, body):
         log.debug('Receiving mash schedule...')
         scde = MashSchedule()
-        scde.fromyaml(body)
+        scde.from_yaml(body)
         print(scde.name)
         for step in scde.steps:
             print("Name: ", step.name)

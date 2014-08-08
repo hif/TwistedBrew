@@ -1,33 +1,45 @@
 from config import brewconfig
 from masters import brewmaster
-from workers import brewworker
 import masters.defaults as defaults
 import utils.logging as log
 import HTMLParser
 from web.twistedbrew.models import Brew
 
-
-def loadworker(config):
+def load_device(config):
     try:
-        modulename = config.classname.lower()
-        if not modulename.endswith('worker'):
-            log.debug('Worker module {0} not found'.format(modulename), log.ERROR)
-            return None
-        modulename = modulename[:-6]
-        package = 'workers.' + modulename
+        module_name = config.device.lower()
+        package = 'devices.' + module_name
         module = __import__(package)
-        workerclass = getattr(getattr(module, modulename), config.classname)
-        instance = workerclass(config.name)
+        device_class = getattr(getattr(module, module_name), config.device)
+        instance = device_class(config)
+        return instance
+    except Exception, e:
+        log.error('Unable to load device from config: {0}'.format(e))
+        return None
+
+def load_worker(config):
+    try:
+        module_name = config.classname.lower()
+        if not module_name.endswith('worker'):
+            log.debug('Worker module {0} not found'.format(module_name), log.ERROR)
+            return None
+        module_name = module_name[:-6]
+        package = 'workers.' + module_name
+        module = __import__(package)
+        worker_class = getattr(getattr(module, module_name), config.classname)
+        instance = worker_class(config.name)
         instance.ip = config.ip
         instance.port = config.port
-        instance.inputs = config.inputs
-        instance.outputs = config.outputs
+        for input in config.inputs:
+            instance.inputs[input.name] = load_device(input)
+        for output in config.outputs:
+            instance.outputs[output.name] = load_device(output)
         return instance
     except Exception, e:
         log.error('Unable to load worker from config: {0}'.format(e))
         return None
 
-def startfromconfig(configfile=defaults.DEFAULT_CONFIG):
+def start_from_config(configfile=defaults.DEFAULT_CONFIG):
     try:
         config = brewconfig.BrewConfig(configfile)
         master = None
@@ -35,7 +47,7 @@ def startfromconfig(configfile=defaults.DEFAULT_CONFIG):
             master = brewmaster.BrewMaster(config.master)
         workers = []
         for workerconfig in config.workers:
-            workers.append(loadworker(workerconfig))
+            workers.append(load_worker(workerconfig))
 
         for worker in workers:
             worker.start()
@@ -58,29 +70,29 @@ BREW_STYLE_WEB_NODE = "F_S_WEB_LINK"
 
 __brew_html_parser__ = HTMLParser.HTMLParser()
 
-def modelbrew(data):
+def create_brew_model(data):
     brew = Brew()
-    brew.name = recipename(data)
-    brew.brewer = lookupinfo(data, BREW_BREWER_NODE)
-    brew.style = lookupstyleinfo(data, BREW_STYLE_NAME_NODE)
-    brew.category = lookupstyleinfo(data, BREW_STYLE_CATEGORY_NODE)
-    brew.description = lookupstyleinfo(data, BREW_STYLE_DESCRIPTION_NODE)
-    brew.profile = lookupstyleinfo(data, BREW_STYLE_PROFILE_NODE)
-    brew.ingredients = lookupstyleinfo(data, BREW_STYLE_INGREDIENTS_NODE)
-    brew.weblink = lookupstyleinfo(data, BREW_STYLE_WEB_NODE)
+    brew.name = lookup_brew_name(data)
+    brew.brewer = lookup_brew_info(data, BREW_BREWER_NODE)
+    brew.style = lookup_brewstyle_info(data, BREW_STYLE_NAME_NODE)
+    brew.category = lookup_brewstyle_info(data, BREW_STYLE_CATEGORY_NODE)
+    brew.description = lookup_brewstyle_info(data, BREW_STYLE_DESCRIPTION_NODE)
+    brew.profile = lookup_brewstyle_info(data, BREW_STYLE_PROFILE_NODE)
+    brew.ingredients = lookup_brewstyle_info(data, BREW_STYLE_INGREDIENTS_NODE)
+    brew.weblink = lookup_brewstyle_info(data, BREW_STYLE_WEB_NODE)
     return brew
 
-def lookupinfo(data, key):
+def lookup_brew_info(data, key):
     if data.data.__contains__(key):
         return __brew_html_parser__.unescape(data.data[key])
     return None
 
 
-def recipename(data):
-    return lookupinfo(data, BREW_NAME_NODE)
+def lookup_brew_name(data):
+    return lookup_brew_info(data, BREW_NAME_NODE)
 
 
-def lookupstyleinfo(data, key):
+def lookup_brewstyle_info(data, key):
     if not data.children.__contains__(BREW_STYLE_NODE):
         return None
     style = data.children[BREW_STYLE_NODE]

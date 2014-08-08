@@ -15,6 +15,10 @@ if len(sys.argv) > 1:
 
 print('Starting Twisted Brew (config:{0})'.format(configfile))
 
-master = brewutils.startfromconfig(configfile)
+master = brewutils.start_from_config(configfile)
 if not master is None:
     master.info()
+
+# Uncomment next two lines to insert mesurement debug data
+#from web.twistedbrew.models import Measurement
+#Measurement.populate()

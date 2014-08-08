@@ -42,36 +42,36 @@ def test(brewmaster):
     for worker in brewmaster.workers:
         print('    - {0}'.format(worker))
 
-    mashworker = brewmaster.getworkers("MashWorker")[0]
-    boilworker = brewmaster.getworkers("BoilWorker")[0]
-    fermentationworker = brewmaster.getworkers("FermentationWorker")[0]
+    mashworker = brewmaster.get_workers("MashWorker")[0]
+    boilworker = brewmaster.get_workers("BoilWorker")[0]
+    fermentationworker = brewmaster.get_workers("FermentationWorker")[0]
 
-    brewmaster.sendcommand('mash', mashworker)
+    brewmaster.send_command('mash', mashworker)
     time.sleep(1)
-    brewmaster.sendcommand('boil', boilworker)
+    brewmaster.send_command('boil', boilworker)
     time.sleep(1)
-    brewmaster.sendcommand('ferment', fermentationworker)
+    brewmaster.send_command('ferment', fermentationworker)
     time.sleep(1)
-    brewmaster.sendcommand('pause', mashworker)
+    brewmaster.send_command('pause', mashworker)
     time.sleep(1)
-    brewmaster.sendcommand('reset', boilworker)
+    brewmaster.send_command('reset', boilworker)
     time.sleep(1)
-    brewmaster.sendcommand('resume', fermentationworker)
+    brewmaster.send_command('resume', fermentationworker)
 
     time.sleep(1)
     print("[*] Giving all processes time to finish their work before killing all")
     time.sleep(1)
     print("[*] Killing workers")
-    brewmaster.sendcommand('stop', mashworker)
-    brewmaster.sendcommand('stop', boilworker)
-    brewmaster.sendcommand('stop', fermentationworker)
+    brewmaster.send_command('stop', mashworker)
+    brewmaster.send_command('stop', boilworker)
+    brewmaster.send_command('stop', fermentationworker)
     time.sleep(1)
     print("[*] Killing master")
     brewmaster.shutdown()
 
 
 def startautomatically():
-    return brewutils.startfromconfig()
+    return brewutils.start_from_config()
 
 # master = startManually()
 master = startautomatically()

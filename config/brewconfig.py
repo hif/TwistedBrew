@@ -77,8 +77,8 @@ class WorkerConfig(MasterConfig):
     def __init__(self):
         MasterConfig.__init__(self)
         self.classname = ''
-        self.outputs = {}
-        self.inputs = {}
+        self.outputs = []
+        self.inputs = []
 
     def __str__(self):
         tmp = 'Worker ({0} as {3}) - {1}:{2}\r\n'.format(self.name, self.ip, self.port, self.classname)
@@ -96,11 +96,10 @@ class WorkerConfig(MasterConfig):
         self.classname = yamldata[CONFIG_CLASS]
         for iooutput in yamldata[CONFIG_OUTPUTS]:
             iooutput = iooutput[CONFIG_OUTPUT]
-            self.outputs[iooutput[CONFIG_NAME]] = IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE],
-                                                           iooutput[CONFIG_IO])
+            self.outputs.append(IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE], iooutput[CONFIG_IO]))
         for ioinput in yamldata[CONFIG_INPUTS]:
             ioinput = ioinput[CONFIG_INPUT]
-            self.inputs[ioinput[CONFIG_NAME]] = IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE], ioinput[CONFIG_IO])
+            self.inputs.append(IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE], ioinput[CONFIG_IO]))
 
 
 class BrewConfig():

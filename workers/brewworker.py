@@ -36,16 +36,16 @@ class BrewWorker(threading.Thread):
         self.listen()
 
     def listen(self):
-        self.onstart()
+        self.on_start()
         self.channel.queue_bind(exchange=BroadcastExchange, queue=self.name)
         self.channel.basic_consume(self.receive, queue=self.name, no_ack=True)
         self.channel.start_consuming()
 
     def stop(self):
-        self.onstop()
+        self.on_stop()
         self.channel.stop_consuming()
 
-    def sendmaster(self, data):
+    def send_to_master(self, data):
         log.debug('Sending to master - ' + data)
 
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
@@ -64,53 +64,53 @@ class BrewWorker(threading.Thread):
 
     def info(self):
         log.debug('{0} is sending info to master'.format(self.name))
-        if self.oninfo():
-            self.sendmaster(MessageInfo + MessageSplit + self.name + MessageSplit + self.__class__.__name__)
+        if self.on_info():
+            self.send_to_master(MessageInfo + MessageSplit + self.name + MessageSplit + self.__class__.__name__)
         else:
-            self.reporterror('Info failed')
+            self.report_error('Info failed')
 
     def pause(self):
         log.debug('{0} is sending paused to master'.format(self.name))
-        if self.onpause():
-            self.sendmaster(MessagePaused + MessageSplit + self.name)
+        if self.on_pause():
+            self.send_to_master(MessagePaused + MessageSplit + self.name)
         else:
-            self.reporterror('Pause failed')
+            self.report_error('Pause failed')
 
     def resume(self):
         log.debug('{0} is sending resumed to master'.format(self.name))
-        if self.onresume():
-            self.sendmaster(MessageResumed + MessageSplit + self.name)
+        if self.on_resume():
+            self.send_to_master(MessageResumed + MessageSplit + self.name)
         else:
-            self.reporterror('Resume failed')
+            self.report_error('Resume failed')
 
     def reset(self):
         log.debug('{0} is sending ready to master'.format(self.name))
-        if self.onreset():
-            self.sendmaster(MessageReady + MessageSplit + self.name)
+        if self.on_reset():
+            self.send_to_master(MessageReady + MessageSplit + self.name)
         else:
-            self.reporterror('Reset failed')
+            self.report_error('Reset failed')
 
-    def reporterror(self, err):
+    def report_error(self, err):
         log.error('{0}: {1}'.format(self.name, err))
 
-    def onstart(self):
+    def on_start(self):
         log.debug('Starting {0}'.format(self))
 
-    def onstop(self):
+    def on_stop(self):
         log.debug('Stopping {0}'.format(self))
 
-    def oninfo(self):
+    def on_info(self):
         log.debug('Info {0}'.format(self))
         return True
 
-    def onpause(self):
+    def on_pause(self):
         log.debug('Pause {0}'.format(self))
         return True
 
-    def onresume(self):
+    def on_resume(self):
         log.debug('Resume {0}'.format(self))
         return True
 
-    def onreset(self):
+    def on_reset(self):
         log.debug('Reset {0}'.format(self))
         return True

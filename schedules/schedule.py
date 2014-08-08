@@ -40,15 +40,15 @@ class Schedule:
     def parse(self, recipe):
         pass
 
-    def toyaml(self):
+    def to_yaml(self):
         l = list()
         l.append(self.name)
         for item in self.steps:
             l.append(item)
         return yaml.dump_all(l)
 
-    def fromyaml(self, yamldata):
-        l = yaml.load_all(yamldata)
+    def from_yaml(self, yaml_data):
+        l = yaml.load_all(yaml_data)
         self.name = ""
         self.steps = list()
         index = 0

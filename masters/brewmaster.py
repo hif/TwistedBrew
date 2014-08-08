@@ -5,7 +5,7 @@ from schedules.boil import *
 from schedules.fermentation import *
 import utils.logging as log
 import utils.brewutils
-from web.twistedbrew.models import Brew, Worker
+from web.twistedbrew.models import Brew, Worker, Command, Measurement
 
 
 class BrewMaster(threading.Thread):
@@ -21,18 +21,20 @@ class BrewMaster(threading.Thread):
             self.ip = config.ip
             self.port = config.port
 
-        self.recipiefile = DefaultRecipeFile
+        self.recipie_file = DefaultRecipeFile
         if configfile is not None:
-            self.recipiefile = configfile
-        self.recipename = "My Beer"
+            self.recipie_file = configfile
+        self.recipe_name = "My Beer"
         self.recipe = BeerData()
-        self.recipeloaded = False
+        self.recipe_loaded = False
         self.recipes = {}
-        self.loadrecipies()
+        self.load_recipies()
 
-        self.instructions = {MessageInfo, MessageLoad, MessageExecute, MessageUpdate}
-        self.broadcastcommands = {"info", "reset"}
-        self.workercommands = {"reset", "pause", "resume", "mash", "boil", "ferment"}
+        self.instructions = {}
+        self.broadcasts = {}
+        self.messages = {}
+        self.register_commands()
+
         self.workers = []
 
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
@@ -42,62 +44,95 @@ class BrewMaster(threading.Thread):
     def run(self):
         self.listen()
 
-    def loadrecipies(self, recipefile=None):
+    def register_commands(self):
+        Command.objects.all().delete()
+        self.instructions = {
+            MessageInfo:"Register worker info",
+            MessageLoad:"Load recipe",
+            MessageExecute:"Send message to worker",
+            MessageUpdate:"Register mesurement update",
+        }
+        self.store_commands(self.instructions, "Instruction")
+        self.broadcasts = {
+            "info":"Drop current workers and make all available workers register with master",
+            "reset":"Reset all workers",
+        }
+        self.store_commands(self.broadcasts, "Broadcast")
+        self.messages = {
+            "reset":"Reset worker",
+            "pause":"Pause worker",
+            "resume":"Resume worker",
+            "mash":"Make worker start a mash process",
+            "boil":"Make worker start a boil process",
+            "ferment":"Make a worker start a fermentation process",
+        }
+        self.store_commands(self.messages, "Message")
+
+    def store_commands(self, commands, type):
+        for name, description in commands.iteritems():
+            tmp = Command()
+            tmp.type = type
+            tmp.name = name
+            tmp.description = description
+            tmp.save()
+
+
+    def load_recipies(self, recipefile=None):
         try:
             Brew.objects.all().delete()
             if recipefile is not None:
-                self.recipiefile = recipefile
-            log.debug('Loading recipe file {0}...'.format(self.recipiefile))
+                self.recipie_file = recipefile
+            log.debug('Loading recipe file {0}...'.format(self.recipie_file))
             beer = BeerParser()
-            recipedata = beer.get_recipes(self.recipiefile)
+            recipedata = beer.get_recipes(self.recipie_file)
             self.recipes = {}
             brews = []
             for item in recipedata:
-                name = utils.brewutils.recipename(item).strip()
+                name = utils.brewutils.lookup_brew_name(item).strip()
                 if name is not None:
                     self.recipes[name] = item
                     # Save to database
-                    brew = utils.brewutils.modelbrew(item)
+                    brew = utils.brewutils.create_brew_model(item)
                     brew.save()
-            log.debug('...done loading recipe file {0}'.format(self.recipiefile))
+            log.debug('...done loading recipe file {0}'.format(self.recipie_file))
         except Exception, e:
-            log.error('Failed to load recipes {0} ({1})'.format(self.recipiefile, e.message))
+            log.error('Failed to load recipes {0} ({1})'.format(self.recipie_file, e.message))
 
     def load(self, recipe):
         try:
             if len(self.recipes) == 0:
-                log.debug('No recipes found in {}'.format(self.recipiefile), log.WARNING)
-            self.recipename = recipe.strip()
+                log.debug('No recipes found in {}'.format(self.recipie_file), log.WARNING)
+            self.recipe_name = recipe.strip()
             log.debug('Loading {0}'.format(recipe))
             self.recipe = None
-            if not self.recipename in self.recipes:
+            if not self.recipe_name in self.recipes:
                 log.debug('Recipe {0} not found in data file', log.WARNING)
                 # Fake result
                 self.recipe = self.recipes.values()[0]
-                self.recipeloaded = True
+                self.recipe_loaded = True
                 print self.recipe
                 #
                 return
-            self.recipe = self.recipes[self.recipename]
-            self.recipeloaded = True
+            self.recipe = self.recipes[self.recipe_name]
+            self.recipe_loaded = True
         except Exception, e:
             log.error('Unable to find recipe {0} ({1})'.format(self.recipe, e))
 
-    def addworker(self, worker, workertype):
-        newworker = Worker()
-        newworker.name = worker
-        newworker.type = workertype
-        self.workers.append(newworker)
-        newworker.save()
+    def add_worker(self, worker, workertype):
+        new_worker = Worker()
+        new_worker.name = worker
+        new_worker.type = workertype
+        self.workers.append(new_worker)
+        new_worker.save()
 
-    def getworkers(self, workertype):
+    def get_workers(self, workertype):
         result = []
         for worker in self.workers:
             if worker.type == workertype:
                 result.append(worker.name)
         return result
 
-    def getworkertypes(self):
+    def get_worker_types(self):
         result = []
         for worker in self.workers:
             if not result.__contains__(worker.type):
@@ -116,48 +151,51 @@ class BrewMaster(threading.Thread):
         log.debug('Handling message')
         log.debug(body)
         if str(body).startswith(MessageUpdate):
-            self.handleupdate(body)
+            self.handle_update(body)
             return
         if str(body).startswith(MessageInfo):
-            self.handleinfo(body)
+            self.handle_info(body)
             return
         if str(body).startswith(MessageExecute):
-            self.handleexecute(body)
+            self.handle_execute(body)
             return
         if str(body).startswith(MessageLoad):
-            self.handleload(body)
+            self.handle_load(body)
             return
         log.debug('Ignorable reply from from worker: {0}'.format(body))
 
-    def handleinfo(self, body):
+    def handle_info(self, body):
         data = str(body).split(MessageSplit)
-        self.addworker(data[1], data[2])
+        self.add_worker(data[1], data[2])
 
-    def handleexecute(self, body):
+    def handle_execute(self, body):
         data = str(body).split(MessageSplit)
         command = data[1]
         worker = ''
         if len(data) > 2:
             worker = data[2]
-        self.sendcommand(command, worker)
+        self.send_command(command, worker)
 
-    def handleload(self, body):
+    def handle_load(self, body):
         data = str(body).split(MessageSplit)
         self.load(data[1])
 
-    def handleupdate(self, body):
+    def handle_update(self, body):
         log.debug('Receiving worker update...')
-        # TODO:Implement handling updates from workers
-        print('****** UPDATE *****' + str(body))
+        data = body.split(MessageSplit)
+        measurement = Measurement()
+        measurement.user = data[1]
+        measurement.value = data[2]
+        measurement.save()
 
-    def verifyworker(self, worker):
+    def verify_worker(self, worker):
         for worker in self.workers:
             if worker.name == worker:
                 return True
         return False
 
     def send(self, worker, data):
-        if not self.verifyworker(worker):
+        if not self.verify_worker(worker):
             log.debug('Worker {0} not available'.format(worker), log.WARNING)
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
@@ -166,7 +204,7 @@ class BrewMaster(threading.Thread):
         channel.basic_publish(exchange='', routing_key=worker, body=data)
         connection.close()
 
-    def sendall(self, data):
+    def send_all(self, data):
         log.debug('Sending:{0}'.format(data))
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
@@ -175,20 +213,20 @@ class BrewMaster(threading.Thread):
         channel.basic_publish(exchange=BroadcastExchange, routing_key='', body=data)
         connection.close()
 
-    def sendschedule(self, worker, schedule):
+    def send_schedule(self, worker, schedule):
         schedule.parse(self.recipe)
-        self.send(worker, schedule.toyaml())
+        self.send(worker, schedule.to_yaml())
 
     def info(self):
         Worker.objects.all().delete()
-        self.sendall(MessageInfo)
+        self.send_all(MessageInfo)
 
-    def resetall(self):
-        self.sendall(MessageReset)
+    def reset_all(self):
+        self.send_all(MessageReset)
 
     def reset(self, worker=None):
         if worker is None:
-            self.resetall()
+            self.reset_all()
         else:
             self.send(worker, MessageReset)
 
@@ -202,34 +240,28 @@ class BrewMaster(threading.Thread):
         self.send(worker, MessageStop)
 
     def mash(self, worker):
-        if not self.recipeloaded:
+        if not self.recipe_loaded:
             log.debug('No recipe loaded!', log.WARNING)
             return
-        self.sendschedule(worker, MashSchedule())
+        self.send_schedule(worker, MashSchedule())
         log.debug('Mashing Schedule Sent')
 
     def boil(self, worker):
-        if not self.recipeloaded:
+        if not self.recipe_loaded:
             log.debug('No recipe loaded!', log.ERROR)
             return
-        self.sendschedule(worker, BoilSchedule())
+        self.send_schedule(worker, BoilSchedule())
         log.debug('Boil Schedule Sent')
 
     def ferment(self, worker):
-        if not self.recipeloaded:
+        if not self.recipe_loaded:
             log.debug('No recipe loaded!', log.ERROR)
             return
         scde = FermentationSchedule()
-        self.sendschedule(worker, scde)
+        self.send_schedule(worker, scde)
         log.debug('Fermentation Schedule Sent')
 
-    def listbroadcasts(self):
-        return self.broadcastcommands
-
-    def listworkercommands(self):
-        return self.workercommands
-
-    def sendcommand(self, command, worker):
+    def send_command(self, command, worker):
         if not hasattr(self, command):
             log.debug('No such command in BrewMaster', log.ERROR)
             return

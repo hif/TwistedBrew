@@ -6,7 +6,7 @@ import utils.logging as log
 
 # Fake the configs that are normally read from YAML file and built by a brewworker
 # Mash probe
-probeconfig = IOConfig('Temperature', 'Probe', 'C:\\temp\\28-00000607f0de\\w1_slave')
+probeconfig = IOConfig('Temperature', 'Probe', '/sys/bus/w1/devices/28-00000607f0de/w1_slave')
 # Mash SSR
 ssrconfig = IOConfig('Mash Tun', 'SSR', '/sys/class/gpio/gpio17/value')
 

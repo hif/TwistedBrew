@@ -53,7 +53,7 @@ class BrewMaster(threading.Thread):
             self.recipes = {}
             brews = []
             for item in recipedata:
-                name = recipes.brew.recipename(item).strip()
+                name = utils.brewutils.recipename(item).strip()
                 if name is not None:
                     self.recipes[name] = item
                     # Save to database

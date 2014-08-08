@@ -6,11 +6,11 @@ from twistedbrew.models import Brew, Worker
 
 def home(request):
     context = RequestContext(request)
-    worker_list = Worker.objects.order_by('-type') #[:5]
+    worker_list = Worker.objects.order_by('-type')
+    brew_list = Brew.objects.order_by('-name')
     context_dict = {
         'workers': worker_list,
-        'first_worker': worker_list[0].name,
-        'boldmessage': "Get ready for something awesome fellow brewers!",
+        'brews': brew_list,
     }
 
     return render_to_response('twistedbrew/home.html', context_dict, context)

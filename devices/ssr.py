@@ -19,7 +19,7 @@ class SSR(Device):
 
         try:
             fo = open(io[:16]+"export", mode='w')
-            fo.write('gpio_numb')
+            fo.write(gpio_numb)
             fo.close()
             fo = open(io[:23]+"direction", mode='w')
             fo.write("out")

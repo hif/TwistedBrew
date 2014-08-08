@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin python
 import time
 
 from masters.brewmaster import BrewMaster

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin python
 from config import brewconfig
 from masters import brewmaster
 import masters.defaults as defaults

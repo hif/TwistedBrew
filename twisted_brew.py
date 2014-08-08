@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin python
 import django.conf
 import web.web.settings
 

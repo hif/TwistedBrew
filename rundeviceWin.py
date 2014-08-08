@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin python
 from devices.device import Device
 from devices.probe import Probe
 from devices.ssr import SSR

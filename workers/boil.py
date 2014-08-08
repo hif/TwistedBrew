@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin python
 from workers.brewworker import *
 from schedules.boil import *
 

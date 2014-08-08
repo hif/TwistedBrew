@@ -23,5 +23,5 @@ class Probe(Device):
         pass
 
     def read(self):
-        # TODO:Implment
-        pass
+        fo = open(self.io, mode='r')
+        fo.readall()

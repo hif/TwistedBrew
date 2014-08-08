@@ -10,7 +10,12 @@ class Device():
         pass
 
     def check(self):
-        pass
+        try:
+            with open(self.io) as file:
+                return True
+        except IOError as e:
+            log.error("Unable to find/open (0)".format(self.io))
+            return False
 
     def register(self):
         pass

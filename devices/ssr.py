@@ -14,7 +14,7 @@ class SSR(Device):
     def register(self):
         found = re.search('\d{1,2}', self.io)
         gpio_numb = found.group()
-        log.debug(gpio_numb)
+        #log.debug(gpio_numb)
 
 
         try:

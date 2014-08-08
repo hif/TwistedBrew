@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import utils.logging as log
 
 

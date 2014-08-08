@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 class BeerData:
     def __init__(self):
         self.name = "empty"

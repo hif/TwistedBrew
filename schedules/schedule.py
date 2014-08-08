@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import yaml
 
 units = ["mg", "g", "oz", "lb", "kg", "ml", "tsp", "tbsp", "cup", "pt", "qt", "l", "gal", "items"]

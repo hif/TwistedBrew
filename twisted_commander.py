@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import masters.brewcommander
 import masters.defaults

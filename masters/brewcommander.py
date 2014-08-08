@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pika
 import masters.defaults as default
 import utils.logging as log

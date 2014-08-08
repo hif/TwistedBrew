@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # The default config file name
 DEFAULT_CONFIG = 'config/twisted_brew.yml'
 

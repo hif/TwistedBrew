@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from workers.brewworker import *
 from recipes.beerparser import *
 from schedules.mash import *

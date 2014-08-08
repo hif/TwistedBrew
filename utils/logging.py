@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Change to False to diable debugging messages
 DEBUG_BREW = True
 # Debug message types

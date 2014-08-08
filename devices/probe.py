@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from devices.device import Device
 import utils.logging as log
 import subprocess

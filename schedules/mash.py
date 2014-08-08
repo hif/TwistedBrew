@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import HTMLParser
 from schedules.schedule import *
 

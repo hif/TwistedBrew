@@ -1,1 +1,1 @@
-__author__ = 'hif'
+#!/usr/bin/env python

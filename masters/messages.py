@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 MessageExecute = "EXEC"
 MessageLoad = "LOAD"
 MessageUpdate = "UPDATE"

@@ -28,5 +28,4 @@ print ('Device of type {0} is named {1} and uses io path {2}'.format(ssr.devicet
 # Do something with the devices
 
 # Do something more
-probe.read()
-log.debug(ssr.read())
+

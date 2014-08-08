@@ -1,3 +1,10 @@
+import django.conf
+import web.web.settings
+
+
+django.conf.settings.configure()
+django.conf.settings.DATABASES = web.web.settings.DATABASES
+
 import sys
 from utils import brewutils
 import masters.defaults as defaults

@@ -15,10 +15,9 @@ class SSR(Device):
         found = re.search('\d{1,2}', self.io)
         gpio_numb = found.group()
         #log.debug(gpio_numb)
-
+        log.debug(io[:16]+"export")
 
         try:
-            log.debug(io[:16]+"export")
             fo = open(io[:16]+"export", mode='w')
             fo.write(gpio_numb)
             fo.close()

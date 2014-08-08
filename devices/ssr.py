@@ -13,22 +13,26 @@ class SSR(Device):
 
     def register(self):
         found = re.search('\d{1,2}', self.io)
-        gpionumb = found.group()
+        gpio_numb = found.group()
+        log.debug(gpio_numb)
 
 
         try:
             fo = open(io[:16]+"export", mode='w')
-            fo.write('gpionumb')
+            fo.write('gpio_numb')
             fo = open(io[:23]+"direction", mode='w')
-            fo.write('out')
+            fo.write("out")
             return
         except Exception, e:
-            raise Exception("Cannot register gpio{0}".format(gpionumb))
+            raise Exception("Cannot register gpio{0}".format(gpio_numb))
 
     def write(self, value):
-        # TODO:Implment
-        pass
+        fo = open(self.io, mode='w')
+        fo.write(value)
 
     def read(self):
-        # TODO:Implment
-        pass
+        fo = open(self.io, mode='r')
+        value = fo.read()
+        return value
+
+

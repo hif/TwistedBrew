@@ -5,15 +5,13 @@ from devices.ssr import SSR
 from config.brewconfig import IOConfig
 import utils.logging as log
 
-# Fake the configs that are normally read from YAML file and built by a brewworker
-# Mash probe
-probeconfig = IOConfig('Temperature', 'Probe', 'C:\\temp\\28-00000607f0de\\w1_slave\\test')
-# Mash SSR
-ssrconfig = IOConfig('Mash Tun', 'SSR', 'C:\\temp\\gpio17\\value\\test')
-
-# Construct the devices
-probe = Probe(probeconfig)
-ssr = SSR(ssrconfig)
+# Fix for RasberryPi
+probe = Probe()
+probe.name = 'Temperature'
+probe.io = 'C:\\temp\\28-00000607f0de\\w1_slave'
+ssr = SSR()
+ssr.name = 'Mash Tun'
+ssr.io = 'C:\\temp\\gpio17\\value'
 
 # Use built in function to initialize, check if registered and if not register the device
 ok, message = probe.autostart()
@@ -30,3 +28,5 @@ print ('Device of type {0} is named {1} and uses io path {2}'.format(ssr.devicet
 # Do something with the devices
 
 # Do something more
+probe.read()
+log.debug(ssr.read())

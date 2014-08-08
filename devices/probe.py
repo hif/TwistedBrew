@@ -7,16 +7,11 @@ class Probe(Device):
         Device.__init__(self, config)
 
     def init(self):
-        # TODO:Implment
+        # TODO: Implment
         pass
 
     def register(self):
-        try:
-            subprocess.call(["sudo modprobe", "w1-gpio"])
-            subprocess.call(["sudo modprobe", "w1_therm"])
-            return
-        except Exception, e:
-            raise Exception('Cannot register')
+        log.error("Can not register probe at \"{0}\", try to run \"sudo modprobe w1-gpio && sudo modprobe w1_therm\" in commandline or check your probe connections".format(self.io))
 
     def write(self, value):
         # TODO:Implment
@@ -24,4 +19,10 @@ class Probe(Device):
 
     def read(self):
         fo = open(self.io, mode='r')
-        fo.readall()
+        probe_crc = fo.readline()[-4:].rstrip()
+        log.debug(probe_crc)
+        if probe_crc != 'YES':
+            log.debug('Temp reading wrong, do not update temp, wait for next reading')
+        else:
+            probe_heat = fo.readline().split('=')[1]
+            log.debug(float(probe_heat)/1000)

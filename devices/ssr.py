@@ -11,16 +11,18 @@ class SSR(Device):
         pass
 
     def register(self):
-        gpioNumb = re.search('\d{1,2}', self.io)
+        found = re.search('\d{1,2}', self.io)
+        gpionumb = found.group()
+
 
         try:
             fo = open(io[:16]+"export", mode='w')
-            fo.write('gpioNumb')
+            fo.write('gpionumb')
             fo = open(io[:23]+"direction", mode='w')
             fo.write('out')
             return
         except Exception, e:
-            raise Exception('Cannot register')
+            raise Exception("Cannot register gpio{0}".format(gpionumb))
 
     def write(self, value):
         # TODO:Implment

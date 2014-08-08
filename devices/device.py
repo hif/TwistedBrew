@@ -14,7 +14,7 @@ class Device():
             with open(self.io) as file:
                 return True
         except IOError as e:
-            log.error("Unable to find/open (0)".format(self.io))
+            log.debug("Unable to find/open \"{0}\"".format(self.io), messagetype=log.WARNING)
             return False
 
     def register(self):

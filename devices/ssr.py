@@ -20,8 +20,10 @@ class SSR(Device):
         try:
             fo = open(io[:16]+"export", mode='w')
             fo.write('gpio_numb')
+            fo.close()
             fo = open(io[:23]+"direction", mode='w')
             fo.write("out")
+            fo.close()
             return
         except Exception, e:
             raise Exception("Cannot register gpio{0}".format(gpio_numb))
@@ -29,10 +31,12 @@ class SSR(Device):
     def write(self, value):
         fo = open(self.io, mode='w')
         fo.write(value)
+        fo.close()
 
     def read(self):
         fo = open(self.io, mode='r')
         value = fo.read()
+        fo.close()
         return value
 
 

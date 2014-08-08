@@ -27,3 +27,4 @@ class Probe(Device):
         else:
             probe_heat = fo.readline().split('=')[1]
             log.debug(float(probe_heat)/1000)
+        fo.close()

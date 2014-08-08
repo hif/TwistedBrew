@@ -55,3 +55,9 @@ class Command(models.Model):
 
     def __unicode__(self):
         return '{0} ({1})'.format(self.name, self.type)
+
+#class Commander(models.Model):
+#    command = models.CharField(max_length=100)
+#
+#    def __unicode__(self):
+#        return self.command

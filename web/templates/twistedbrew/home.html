@@ -23,6 +23,14 @@
             <li>No brews found.</li>
             {% endfor %}
          </ul>
+        <h2>Commander</h2>
+        Last message: {{ lastmessage }}
+        <br />
+        <form action="/" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit" />
+        </form>
     </body>
 
 </html>

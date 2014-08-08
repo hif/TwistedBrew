@@ -18,12 +18,11 @@ class SSR(Device):
 
 
         try:
+            log.debug(io[:16]+"export")
             fo = open(io[:16]+"export", mode='w')
-            print(io[:16]+"export")
             fo.write(gpio_numb)
             fo.close()
             fo = open(io[:23]+"direction", mode='w')
-            print(io[:23]+"direction")
             fo.write("out")
             fo.close()
             return

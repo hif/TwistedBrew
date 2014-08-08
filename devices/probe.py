@@ -1,5 +1,6 @@
 from devices.device import Device
 import utils.logging as log
+import subprocess
 
 class Probe(Device):
     def __init__(self, config):
@@ -11,7 +12,8 @@ class Probe(Device):
 
     def register(self):
         try:
-            #something
+            subprocess.call(["sudo modprobe", "w1-gpio"])
+            subprocess.call(["sudo modprobe", "w1_therm"])
             return
         except Exception, e:
             raise Exception('Cannot register')

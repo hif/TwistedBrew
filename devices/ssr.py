@@ -1,6 +1,6 @@
 from devices.device import Device
 import utils.logging as log
-import subprocess
+import re
 
 class SSR(Device):
     def __init__(self, config):
@@ -11,9 +11,13 @@ class SSR(Device):
         pass
 
     def register(self):
+        gpioNumb = re.search('\d{1,2}', self.io)
+
         try:
-            fo = open(self.io, mode='wb')
-            fo.write('')
+            fo = open(io[:16]+"export", mode='w')
+            fo.write('gpioNumb')
+            fo = open(io[:23]+"direction", mode='w')
+            fo.write('out')
             return
         except Exception, e:
             raise Exception('Cannot register')

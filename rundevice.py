@@ -37,10 +37,13 @@ print ('Device of type {0} is named {1} and uses io path {2}'.format(probe.devic
 print ('Device of type {0} is named {1} and uses io path {2}'.format(ssr.devicetype(), ssr.name, ssr.io))
 
 # Do something with the devices
-
-# Do something more
-log.debug(ssr.read())
 ssr.write('1')
 time.sleep(5)
 ssr.write('0')
+
+i = 0
+while i < 10:
+    log.debug(probe.read())
+    time.sleep(1)
+    i += 1
 

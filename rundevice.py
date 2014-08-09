@@ -38,8 +38,10 @@ print ('Device of type {0} is named {1} and uses io path {2}'.format(ssr.devicet
 
 # Do something with the devices
 ssr.write('1')
+log.debug('Turning SSR ON')
 time.sleep(5)
 ssr.write('0')
+log.debug('Turning SSR OFF')
 
 i = 0
 while i < 10:

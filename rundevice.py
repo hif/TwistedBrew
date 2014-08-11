@@ -4,6 +4,7 @@ from devices.probe import Probe
 from devices.ssr import SSR
 #from config.brewconfig import IOConfig
 import utils.logging as log
+import time
 
 # Fake the configs that are normally read from YAML file and built by a brewworker
 # Mash probe
@@ -36,8 +37,15 @@ print ('Device of type {0} is named {1} and uses io path {2}'.format(probe.devic
 print ('Device of type {0} is named {1} and uses io path {2}'.format(ssr.devicetype(), ssr.name, ssr.io))
 
 # Do something with the devices
+ssr.write('1')
+log.debug('Turning SSR ON')
+time.sleep(5)
+ssr.write('0')
+log.debug('Turning SSR OFF')
 
-# Do something more
-probe.read()
-
+i = 0
+while i < 10:
+    log.debug(probe.read())
+    time.sleep(1)
+    i += 1
 

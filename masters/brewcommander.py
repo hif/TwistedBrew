@@ -26,3 +26,12 @@ class BrewCommander():
 
         channel.basic_publish(exchange='', routing_key=default.MasterQueue, body=data)
         connection.close()
+
+    def parse_command(self, line):
+        cmd = line
+        param = ''
+        if line.__contains__(' '):
+            index = line.find(' ')
+            cmd = line[:index]
+            param = line[(index + 1):]
+        return cmd, param

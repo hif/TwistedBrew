@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 # imports from within the Django web app must be scoped below the web package
 from twistedbrew.models import Brew, Worker
 from twistedbrew.forms import CommanderForm
+from masters.brewcommander import BrewCommander
 
 def home(request):
     context = RequestContext(request)
@@ -23,6 +24,9 @@ def home(request):
             # Now call the index() view.
             # The user will be shown the homepage.
             lastmessage = form.cleaned_data['command']
+            commander = BrewCommander()
+            command, params = commander.parse_command(lastmessage)
+            commander.sendmaster(command, params)
             #return HttpResponseRedirect('/')
         else:
             # The supplied form contained errors - just print them to the terminal.

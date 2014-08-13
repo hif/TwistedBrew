@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h2>Commands</h2>
+        <ul>
+            {% for command in commands %}
+            <li>{{ command.name }} - {{ command.type }}</li>
+            {% empty %}
+            <li>No commands found.</li>
+            {% endfor %}
+         </ul>
+</body>
+</html>

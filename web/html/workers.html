@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h2>Workers</h2>
+        <ul>
+            {% for worker in workers %}
+            <li>{{ worker.name }} - {{ worker.type }}</li>
+            {% empty %}
+            <li>No brew workers found.</li>
+            {% endfor %}
+            </ul>
+</body>
+</html>

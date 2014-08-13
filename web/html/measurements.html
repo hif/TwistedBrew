@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Twisted Brew{% endblock %}
+
+{% block real_content %}
+    <h2>Measurements</h2>
+        <table>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Value</th>
+            </tr>
+            {% for measure in measurements %}
+            <tr>
+            <td>{{ measure.timestamp }}</td>
+            <td>{{ measure.user }}</td>
+            <td>{{ measure.value }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No measurements found.</td></tr>
+            {% endfor %}
+            </table>
+{% endblock %}

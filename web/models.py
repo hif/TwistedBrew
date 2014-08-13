@@ -1,5 +1,6 @@
 from django.db import models
 import random
+import time
 
 COLUMN_SMALL_SIZE = 128
 COLUMN_LARGE_SIZE = 4096
@@ -38,11 +39,13 @@ class Measurement(models.Model):
         random.seed()
         count = 0
         while count < size:
+            time.sleep(1)
             tmp = Measurement()
             tmp.user = 'debug'
             tmp.value = random.random()*100.0
             tmp.save()
             count += 1
+            print 'Added measurement {0} of {1}'.format(count, size)
 
     def __unicode__(self):
         return '{0} [{1}] {2}'.format(self.timestamp, self.user, self.value)

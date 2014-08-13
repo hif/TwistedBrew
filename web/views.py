@@ -2,8 +2,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-# imports from within the Django web_x app must be scoped below the web_x package
-from models import Brew, Worker, Command
+from models import Brew, Worker, Command, Measurement
 from forms import CommanderForm
 from masters.brewcommander import BrewCommander
 
@@ -49,7 +48,7 @@ def home(request):
 
 def brews(request):
     context = RequestContext(request)
-    brew_list = Brew.objects.order_by('-name')
+    brew_list = Brew.objects.order_by('name')
 
     context_dict = {
         'brews': brew_list,
@@ -60,7 +59,7 @@ def brews(request):
 
 def workers(request):
     context = RequestContext(request)
-    worker_list = Worker.objects.order_by('-name')
+    worker_list = Worker.objects.order_by('type')
 
     context_dict = {
         'workers': worker_list,
@@ -71,10 +70,19 @@ def workers(request):
 
 def commands(request):
     context = RequestContext(request)
-    command_list = Command.objects.order_by('-name')
+    command_list = Command.objects.order_by('type')
 
     context_dict = {
         'commands': command_list,
     }
-
     return render_to_response('commands.html', context_dict, context)
+
+
+def measurements(request):
+    context = RequestContext(request)
+    measurement_list = Measurement.objects.order_by('-timestamp')
+
+    context_dict = {
+        'measurements': measurement_list,
+    }
+    return render_to_response('measurements.html', context_dict, context)

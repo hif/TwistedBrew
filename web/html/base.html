@@ -9,26 +9,25 @@
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
     <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
     </head>
-  <body class="{% block bodyclass %}{% endblock %}">
+  <body>
+  <div class="container-fluid">
   {% block content %}
 
-     <div id="content">
-
          {% block navigation %}
-             <ul id="top">
-                <li><a href="/">Home</a></li>
-                <li><a href="/brews/">Brews</a></li>
-                <li><a href="/workers/">Workers</a></li>
-                <li><a href="/commands/">Commands</a></li>
-                <li><a href="/measurements/">Measurements</a></li>
-                <li><a href="/commander/">Commander</a></li>
-             </ul>
+			<div class="row">
+             	<div class="col-md-1"><a href="/">Home</a></div>
+                <div class="col-md-1"><a href="/brews/">Brews</a></div>
+                <div class="col-md-1"><a href="/workers/">Workers</a></div>
+                <div class="col-md-1"><a href="/commands/">Commands</a></div>
+                <div class="col-md-1"><a href="/measurements/">Measurements</a></div>
+                <div class="col-md-1"><a href="/commander/">Commander</a></div>
+        	</div>
+ </div>
          {% endblock %}
-
+ <div class="container-fluid">
          {% block real_content %}
          {% endblock %}
-
-     </div> <!-- end content -->
+</div> <!-- end content -->
 
 
   {% endblock %} 

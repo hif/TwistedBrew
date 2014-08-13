@@ -5,7 +5,7 @@
     <h2>Commander</h2>
         Last message: {{ lastmessage }}
         <br />
-        <form action="/" method="post">
+        <form action="/commander/" method="post">
             {% csrf_token %}
             {{ form }}
             <input type="submit" value="Submit" />

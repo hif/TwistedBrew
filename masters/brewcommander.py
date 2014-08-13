@@ -30,12 +30,12 @@ class BrewCommander():
     def sendmaster(self, command, params=None):
         data = command
         if params is not None and params != '':
-            data = '{0}{1}{2}'.format(data, msg.MessageSplit, params)
+            data = u'{0}{1}{2}'.format(data, msg.MessageSplit, params)
 
         if command != msg.MessageLoad:
-            data = '{0}{1}{2}'.format(msg.MessageExecute, msg.MessageSplit, data)
+            data = u'{0}{1}{2}'.format(msg.MessageExecute, msg.MessageSplit, data)
 
-        log.debug('Commanding master - {0}'.format(data))
+        log.debug(u'Commanding master - {0}'.format(data))
 
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()

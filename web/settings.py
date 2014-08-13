@@ -1,5 +1,11 @@
 # Django settings for web project.
 
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
+
+TEMPLATE_CONTEXT_PROCESSORS = TCP + (
+    'django.core.context_processors.request',
+)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -19,15 +25,15 @@ DATABASES = {
         #'HOST': '127.0.0.1',             # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         #'PORT': '5432',                      # Set to empty string for default.
     },
-    'postgres': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'twistedbrew',               # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': '127.0.0.1',             # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '5432',                      # Set to empty string for default.
-    }
+#    'postgres': {
+#        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#        'NAME': 'twistedbrew',               # Or path to database file if using sqlite3.
+#        # The following settings are not used with sqlite3:
+#        'USER': 'admin',
+#        'PASSWORD': 'admin',
+#        'HOST': '127.0.0.1',             # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+#        'PORT': '5432',                      # Set to empty string for default.
+#    }
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -121,9 +127,11 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '/Users/hif/PycharmProjects/TwistedBrew/web/html',
+    'C:\\Users\\hreidarj\\PycharmProjects\\TwistedBrewDjango\\web\\html'
 )
 
 INSTALLED_APPS = (
+    'suit',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

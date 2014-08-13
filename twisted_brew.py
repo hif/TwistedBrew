@@ -1,10 +1,11 @@
 #!/usr/bin python
 import django.conf
-import web.web.settings
+
+import web.settings
 
 
 django.conf.settings.configure()
-django.conf.settings.DATABASES = web.web.settings.DATABASES
+django.conf.settings.DATABASES = web.settings.DATABASES
 
 import sys
 from utils import brewutils
@@ -21,5 +22,5 @@ if not master is None:
     master.info()
 
 # Uncomment next two lines to insert mesurement debug data
-#from web.twistedbrew.models import Measurement
+#from web_x.twistedbrew.models import Measurement
 #Measurement.populate()

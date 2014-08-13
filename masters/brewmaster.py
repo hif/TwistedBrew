@@ -6,7 +6,7 @@ from schedules.boil import *
 from schedules.fermentation import *
 import utils.logging as log
 import utils.brewutils
-from web.twistedbrew.models import Brew, Worker, Command, Measurement
+from web.models import Brew, Worker, Command, Measurement
 
 
 class BrewMaster(threading.Thread):

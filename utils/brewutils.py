@@ -1,10 +1,12 @@
 #!/usr/bin python
+import HTMLParser
+
 from config import brewconfig
 from masters import brewmaster
 import masters.defaults as defaults
 import utils.logging as log
-import HTMLParser
-from web.twistedbrew.models import Brew
+from web.models import Brew
+
 
 def load_device(config):
     try:

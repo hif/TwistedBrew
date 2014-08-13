@@ -5,6 +5,23 @@ import utils.logging as log
 import masters.messages as msg
 
 
+class BrewCommand():
+    def __init__(self):
+        self.command = ''
+        self.worker = ''
+        self.parameters = ''
+
+    def __str__(self):
+        w = self.worker
+        if(w is None or w == ''):
+            w = '-N/A-'
+        if(w is None or w == ''):
+            w = '-N/A-'
+        return '{0} to {1} with {2}'.format(self.command, w, p)
+
+    def list_parameters(self):
+        return self.parameters.split(msg.MessageSplit)
+
 class BrewCommander():
     def __init__(self, ip=default.MessageServerIP, port=default.MessageServerPort):
         self.ip = ip

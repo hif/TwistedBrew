@@ -10,6 +10,7 @@ def home(request):
     context = RequestContext(request)
     welcome_message = 'Welcome to Twisted Brew'
     context_dict = {
+        'home_active' : True,
         'welcome_message': welcome_message,
     }
 
@@ -20,6 +21,7 @@ def brews(request):
     brew_list = Brew.objects.order_by('name')
 
     context_dict = {
+        'brews_active' : True,
         'brews': brew_list,
     }
 
@@ -31,6 +33,7 @@ def workers(request):
     worker_list = Worker.objects.order_by('type')
 
     context_dict = {
+        'workers_active' : True,
         'workers': worker_list,
     }
 
@@ -42,6 +45,7 @@ def commands(request):
     command_list = Command.objects.order_by('type')
 
     context_dict = {
+        'commands_active' : True,
         'commands': command_list,
     }
     return render_to_response('commands.html', context_dict, context)
@@ -52,6 +56,7 @@ def measurements(request):
     measurement_list = Measurement.objects.order_by('-timestamp')
 
     context_dict = {
+        'measurements_active' : True,
         'measurements': measurement_list,
     }
     return render_to_response('measurements.html', context_dict, context)
@@ -88,6 +93,7 @@ def commander(request):
     # Render the form with error messages (if any).
 
     context_dict = {
+        'commander_active' : True,
         'workers': worker_list,
         'brews': brew_list,
         'form':form,

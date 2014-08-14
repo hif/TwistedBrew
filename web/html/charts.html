@@ -5,15 +5,7 @@
     <h2>Charts</h2>
 
     <canvas id="myChart" width="400" height="400"></canvas>
-
     <script type="text/javascript">
-
-        window.onLoad = function() {
-                init();
-            }
-
-            function init() {
-                var ctx = $("#myChart").get(0).getContext("2d");
 
                 var data = {
                     labels: ["January", "February", "March", "April", "May", "June", "July"],
@@ -34,9 +26,8 @@
                         }
                     ]
                 }
-
-                var myNewChart = new Chart(ctx).Line(data);
-            }
+                var ctx = document.getElementById('myChart').getContext("2d");
+                new Chart(ctx).Line(data);
 
      </script>
 

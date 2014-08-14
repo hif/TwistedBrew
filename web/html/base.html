@@ -10,6 +10,9 @@
     <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
     </head>
   <body>
+  <script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/Chart.js' %}"></script>
   <nav class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -41,9 +44,6 @@
 
   {% endblock %} 
   {% block footer %}{% endblock %}
-  <script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
-  <script src="{% static 'js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'js/Chart.js' %}"></script>
  </div>
  </body> 
  </html>

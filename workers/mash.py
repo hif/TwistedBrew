@@ -12,10 +12,12 @@ class MashWorker(BrewWorker):
 
     def work(self, ch, method, properties, body):
         log.debug('Receiving mash schedule...')
-        scde = MashSchedule()
-        scde.from_yaml(body)
-        print(scde.name)
-        for step in scde.steps:
+        self.schedule = MashSchedule()
+        self.schedule.from_yaml(body)
+        print(self.schedule.name)
+        for step in self.schedule.steps:
             print("Name: ", step.name)
             print("Temp: ", step.temp)
             print("Min : ", step.min)
+        self.next_step()
+

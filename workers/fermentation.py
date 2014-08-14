@@ -12,8 +12,8 @@ class FermentationWorker(BrewWorker):
 
     def work(self, ch, method, properties, body):
         log.debug('Receiving fermentation schedule...')
-        scde = FermentationSchedule()
-        scde.from_yaml(body)
-        print(scde.name)
-        for step in scde.steps:
+        self.schedule = FermentationSchedule()
+        self.schedule.from_yaml(body)
+        print(self.schedule.name)
+        for step in self.schedule.steps:
             print(step)

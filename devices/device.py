@@ -2,6 +2,8 @@
 import utils.logging as log
 
 
+DEVICE_DEBUG = True
+
 class Device():
     def __init__(self, config = None):
         self.name = "None"

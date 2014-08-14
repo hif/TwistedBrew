@@ -1,5 +1,5 @@
 #!/usr/bin python
-from devices.device import Device
+from devices.device import Device, DEVICE_DEBUG
 import utils.logging as log
 import re
 
@@ -12,6 +12,8 @@ class SSR(Device):
         pass
 
     def register(self):
+        if DEVICE_DEBUG:
+            return True
         found = re.search('\d{1,2}', self.io)
         gpio_numb = found.group()
         #log.debug(gpio_numb)
@@ -25,16 +27,22 @@ class SSR(Device):
             fo = open(self.io[:23]+"direction", mode='w')
             fo.write("out")
             fo.close()
-            return
+            return True
         except Exception, e:
             raise Exception("Cannot register gpio{0}".format(gpio_numb))
+        return False
 
     def write(self, value):
+        if DEVICE_DEBUG:
+            return True
         fo = open(self.io, mode='w')
         fo.write(value)
         fo.close()
+        return True
 
     def read(self):
+        if DEVICE_DEBUG:
+            return 1
         fo = open(self.io, mode='r')
         value = fo.read()
         fo.close()

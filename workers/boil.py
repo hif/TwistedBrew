@@ -12,8 +12,8 @@ class BoilWorker(BrewWorker):
 
     def work(self, ch, method, properties, body):
         log.debug('Receiving boil schedule...')
-        scde = BoilSchedule()
-        scde.from_yaml(body)
-        print(scde.name)
-        for step in scde.steps:
+        self.schedule = BoilSchedule()
+        self.schedule.from_yaml(body)
+        print(self.schedule.name)
+        for step in self.schedule.steps:
             print(step)

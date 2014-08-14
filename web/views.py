@@ -61,6 +61,11 @@ def measurements(request):
     }
     return render_to_response('measurements.html', context_dict, context)
 
+def charts(request):
+    context = RequestContext(request)
+
+    return render_to_response('charts.html', context)
+
 def commander(request):
     context = RequestContext(request)
     worker_list = Worker.objects.order_by('-type')

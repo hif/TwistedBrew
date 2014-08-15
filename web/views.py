@@ -64,7 +64,18 @@ def measurements(request):
 def charts(request):
     context = RequestContext(request)
 
-    return render_to_response('charts.html', context)
+    import json
+    chart_time = json.dumps(['00:00','00:05','00:10','00:15','00:20','00:25','00:30','00:35'])
+    chart_data = [10,15,20,30,50]
+    chart_set = [60]*8
+
+    context_dict = {
+        'charts_active': True,
+        'chart_time': chart_time,
+        'chart_data': chart_data,
+        'chart_set': chart_set,
+    }
+    return render_to_response('charts.html', context_dict, context)
 
 def commander(request):
     context = RequestContext(request)

@@ -7,7 +7,7 @@
     <canvas id="myChart" width="800" height="400"></canvas>
     <script type="text/javascript">
 
-                var data = {
+                var start_data = {
                     labels: {{ chart_time|safe }},
                     datasets: [
                         {
@@ -28,7 +28,19 @@
                 };
 
                 var ctx = document.getElementById('myChart').getContext("2d");
-                new Chart(ctx).Line(data);
+                new Chart(ctx).Line(start_data);
+
+    $.ajax({
+    type: "GET",
+    url: "127.0.0.1:8000/charts_update/",
+    dataType: "jsonp",
+    success: function(update_data) {
+        alert(update_data);
+    },
+    failure: function(update_data) {
+        alert('Got an error dude');
+    }
+    });
 
      </script>
 

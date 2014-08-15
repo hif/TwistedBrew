@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^measurements[/]$', views.measurements, name='measurements'),
     url(r'^commander[/]$', views.commander, name='commander'),
     url(r'^charts[/]$', views.charts, name='charts'),
+    url(r'^charts_update[/]$', views.charts_update, name='charts_update'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

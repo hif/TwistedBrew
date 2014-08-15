@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 from models import Brew, Worker, Command, Measurement
 from forms import CommanderForm
 from masters.brewcommander import BrewCommander
+import json
 
 def home(request):
     context = RequestContext(request)
@@ -64,10 +65,9 @@ def measurements(request):
 def charts(request):
     context = RequestContext(request)
 
-    import json
     chart_time = json.dumps(['00:00','00:05','00:10','00:15','00:20','00:25','00:30','00:35'])
     chart_data = [10,15,20,30,50]
-    chart_set = [60]*8
+    chart_set = [100]*8
 
     context_dict = {
         'charts_active': True,
@@ -76,6 +76,13 @@ def charts(request):
         'chart_set': chart_set,
     }
     return render_to_response('charts.html', context_dict, context)
+
+def charts_update(request):
+    context = RequestContext(request)
+
+    update_data = [50,60]
+
+    return HttpResponse(json.dumps(update_data), content_type = "application/json")
 
 def commander(request):
     context = RequestContext(request)

@@ -13,9 +13,6 @@ MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: '
                     MessageStop: 'stop'}
 
 
-BREWWORKER_SECTION_HEAT = 0
-BREWWORKER_SECTION_MAINTAIN = 1
-
 class BrewWorker(threading.Thread):
     def __init__(self, name):
         threading.Thread.__init__(self)
@@ -30,8 +27,6 @@ class BrewWorker(threading.Thread):
         self.inputs = {}
         self.schedule = None
         self.step = -1
-        self.process = None
-        self.section = BREWWORKER_SECTION_HEAT
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
@@ -69,34 +64,6 @@ class BrewWorker(threading.Thread):
             getattr(self, command)()
             return
         self.work(ch, method, properties, body)
-
-    def next_step(self):
-        try:
-            self.section = BREWWORKER_SECTION_HEAT
-            self.step += 1
-            if(self.step >= len(self.schedule.steps)):
-                return False
-            pid = PID(float(self.schedule.steps[self.step].temp))
-            self.process = ProcessPID(pid, self.inputs['Temperature'], 5, self.pid_callback)
-            self.process.run()
-            return True
-        except Exception, e:
-            log.error('Error in next_step: {0}'.format(e.message))
-
-
-    def pid_callback(self, measured_value, calc):
-        log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
-        if self.section == BREWWORKER_SECTION_HEAT:
-            if measured_value >= float(self.schedule.steps[self.step].temp):
-                self.section == BREWWORKER_SECTION_MAINTAIN
-            else:
-                self.outputs['Mash Tun'].write(calc)
-        else:
-            if measured_value >= int(self.schedule.steps[self.step].min):
-                self.process.status = PID_TERMINATE
-                self.next_step()
-            else:
-                self.outputs['Mash Tun'].write(calc)
 
     def info(self):
         log.debug('{0} is sending info to master'.format(self.name))

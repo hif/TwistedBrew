@@ -4,6 +4,9 @@ import utils.logging as log
 
 DEVICE_DEBUG = True
 
+DEVICE_OFF = 0
+DEVICE_ON = 1
+
 class Device():
     def __init__(self, config = None):
         self.name = "None"
@@ -11,9 +14,16 @@ class Device():
         if(config is not None):
             self.name = config.name
             self.io = config.io
+        self.state = DEVICE_OFF
 
     def init(self):
         pass
+
+    def start_device(self):
+        self.state = DEVICE_ON
+
+    def stop_device(self):
+        self.state = DEVICE_OFF
 
     def check(self):
         try:
@@ -35,7 +45,7 @@ class Device():
     def devicetype(self):
         return self.__class__.__name__
 
-    def autostart(self):
+    def auto_setup(self):
         """
         Calls the default startup sequence for any device using the device interface functions.
         First it is initalized, the checks for registration in the OS (if needed) and finally
@@ -49,3 +59,4 @@ class Device():
             return True, None
         except Exception, e:
             return False, e.message
+

@@ -10,6 +10,7 @@ class Probe(Device):
         self.test_watts = 500
         self.test_init_temp = 10
         self.test_cur_temp = -99999
+        self.test_last_temp = self.test_cur_temp
 
     def init(self):
         # TODO: Implment
@@ -41,6 +42,10 @@ class Probe(Device):
         if self.test_cur_temp == -99999:
             self.test_cur_temp = self.test_init_temp
         else:
-            self.test_cur_temp += 1
+            add = 10.0 * abs(1.0 - (float(self.test_cur_temp)/float(self.test_last_temp)))
+            if add == 0:
+                add = 1
+            self.test_last_temp = self.test_cur_temp
+            self.test_cur_temp += add
         return self.test_cur_temp
 

@@ -78,7 +78,6 @@ def charts(request):
     return render_to_response('charts.html', context_dict, context)
 
 def charts_update(request):
-    context = RequestContext(request)
 
     update_data = [50,60]
 

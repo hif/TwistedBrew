@@ -31,22 +31,22 @@
 
      var ctx = document.getElementById('myChart').getContext("2d");
      new Chart(ctx).Line(start_data);
+     var update_data = 0;
 
     function updateChart() {
-        $('input').on('click', function () {
             console.log("Inside updateChart function!");
             $.ajax({
                 type: "GET",
                 url: "http://127.0.0.1:8000/charts_update",
                 dataType: "jsonp",
+
                 success: function (update_data) {
                     console.log('Got data: ' + update_data);
                 },
                 failure: function (update_data) {
-                    console.log('Got an error dude');
+                    console.log("Got an error!");
                 }
             });
-        });
 }
      </script>
 

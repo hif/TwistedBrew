@@ -5,50 +5,49 @@
     <h2>Charts</h2>
 
     <canvas id="myChart" width="800" height="400"></canvas>
+    <br><br><input type='button' value='Update' onclick="updateChart();">
+
     <script type="text/javascript">
 
-                var start_data = {
-                    labels: {{ chart_time|safe }},
-                    datasets: [
-                        {
-                            fillColor: "rgba(255, 10, 10, 0.4)",
-                            strokeColor: "rgba(255, 10, 10,1)",
-                            pointColor: "rgba(255, 10, 10,1)",
-                            pointStrokeColor: "#fff",
-                            data: {{ chart_data }}
-                        },
-                        {
-                            fillColor: "rgba(35, 200, 0, 0.1)",
-                            strokeColor: "rgba(35, 200, 0,1)",
-                            pointColor: "rgba(35, 200, 0,1)",
-                            pointStrokeColor: "#fff",
-                            data: {{ chart_set }}
-                        }
-                    ]
-                };
+     var start_data = {
+         labels: {{ chart_time|safe }},
+         datasets: [
+             {
+                 fillColor: "rgba(255, 10, 10, 0.4)",
+                 strokeColor: "rgba(255, 10, 10,1)",
+                 pointColor: "rgba(255, 10, 10,1)",
+                 pointStrokeColor: "#fff",
+                 data: {{ chart_data }}
+             },
+             {
+                 fillColor: "rgba(35, 200, 0, 0.1)",
+                 strokeColor: "rgba(35, 200, 0,1)",
+                 pointColor: "rgba(35, 200, 0,1)",
+                 pointStrokeColor: "#fff",
+                 data: {{ chart_set }}
+             }
+         ]
+     };
 
-                var ctx = document.getElementById('myChart').getContext("2d");
-                new Chart(ctx).Line(start_data);
+     var ctx = document.getElementById('myChart').getContext("2d");
+     new Chart(ctx).Line(start_data);
 
-
-    $(function () {
-    $('input').on('click', function () {
-        $.ajax({
-        type: "GET",
-        url: "127.0.0.1:8000/charts_update/",
-        dataType: "jsonp",
-        success: function(update_data) {
-            console.log(update_data)
-        },
-        failure: function(update_data) {
-            console.log('Got an error dude');
-        }
+    function updateChart() {
+        $('input').on('click', function () {
+            console.log("Inside updateChart function!");
+            $.ajax({
+                type: "GET",
+                url: "http://127.0.0.1:8000/charts_update",
+                dataType: "jsonp",
+                success: function (update_data) {
+                    console.log('Got data: ' + update_data);
+                },
+                failure: function (update_data) {
+                    console.log('Got an error dude');
+                }
+            });
         });
-    });
-});
-
+}
      </script>
-
-    <br><br><input type='button' value='Update'>
 
 {% endblock %}

@@ -20,6 +20,7 @@ def load_device(config):
         log.error('Unable to load device from config: {0}'.format(e))
         return None
 
+
 def load_worker(config):
     try:
         module_name = config.classname.lower()
@@ -33,14 +34,13 @@ def load_worker(config):
         instance = worker_class(config.name)
         instance.ip = config.ip
         instance.port = config.port
-        for input in config.inputs:
-            instance.inputs[input.name] = load_device(input)
-        for output in config.outputs:
-            instance.outputs[output.name] = load_device(output)
+        instance.input_config = config.inputs
+        instance.output_config = config.outputs
         return instance
     except Exception, e:
         log.error('Unable to load worker from config: {0}'.format(e))
         return None
+
 
 def start_from_config(configfile=defaults.DEFAULT_CONFIG):
     try:
@@ -73,6 +73,7 @@ BREW_STYLE_WEB_NODE = "F_S_WEB_LINK"
 
 __brew_html_parser__ = HTMLParser.HTMLParser()
 
+
 def create_brew_model(data):
     brew = Brew()
     brew.name = lookup_brew_name(data)
@@ -84,6 +85,7 @@ def create_brew_model(data):
     brew.ingredients = lookup_brewstyle_info(data, BREW_STYLE_INGREDIENTS_NODE)
     brew.weblink = lookup_brewstyle_info(data, BREW_STYLE_WEB_NODE)
     return brew
+
 
 def lookup_brew_info(data, key):
     if data.data.__contains__(key):

@@ -6,7 +6,6 @@ import pika
 from masters.defaults import *
 from masters.messages import *
 import utils.logging as log
-from utils.pid import PID, ProcessPID, PID_ACTIVE, PID_INACTIVE, PID_TERMINATE
 
 
 MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
@@ -23,6 +22,8 @@ class BrewWorker(threading.Thread):
         self.channel = self.connection.channel()
         self.channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
         self.channel.queue_declare(queue=self.name)
+        self.input_config = None
+        self.output_config = None
         self.outputs = {}
         self.inputs = {}
         self.schedule = None
@@ -31,6 +32,24 @@ class BrewWorker(threading.Thread):
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.outputs), len(self.inputs))
+
+    def load_device(self, config):
+        try:
+            module_name = config.device.lower()
+            package = 'devices.' + module_name
+            module = __import__(package)
+            device_class = getattr(getattr(module, module_name), config.device)
+            instance = device_class(config)
+            return instance
+        except Exception, e:
+            log.error('Unable to load device from config: {0}'.format(e))
+            return None
+
+    def create_device_threads(self):
+        for i in self.input_config:
+            self.inputs[i.name] = self.load_device(i)
+        for o in self.output_config:
+            self.outputs[o.name] = self.load_device(o)
 
     def work(self, ch, method, properties, body):
         log.debug('Waiting for schedule. To exit press CTRL+C')

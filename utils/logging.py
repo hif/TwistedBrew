@@ -8,7 +8,7 @@ WARNING = 'w'
 ERROR = 'e'
 
 
-def logmessage(msg):
+def log_message(msg):
     print(msg)
 
 
@@ -16,13 +16,13 @@ def debug(message, messagetype=INFO):
     if not DEBUG_BREW:
         return
     try:
-        logmessage(u'[{0}] {1}'.format(messagetype, message))
+        log_message(u'[{0}] {1}'.format(messagetype, message))
     except:
-        logmessage(u'[{0}] {1}'.format(messagetype, message.decode('utf-8')))
+        log_message(u'[{0}] {1}'.format(messagetype, message.decode('utf-8')))
 
 def error(message):
     message = message.encode('utf-8')
     try:
-        logmessage(u'[{0}] {1}'.format(ERROR, message))
+        log_message(u'[{0}] {1}'.format(ERROR, message))
     except:
-        logmessage(u'[{0}] {1}'.format(ERROR, message.decode('utf-8')))
+        log_message(u'[{0}] {1}'.format(ERROR, message.decode('utf-8')))

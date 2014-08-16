@@ -1,4 +1,5 @@
 #!/usr/bin python
+import threading
 import utils.logging as log
 
 
@@ -6,12 +7,16 @@ DEVICE_DEBUG = True
 
 DEVICE_OFF = 0
 DEVICE_ON = 1
+DEVICE_DEFAULT_CYCLETIME = 10.0
 
-class Device():
-    def __init__(self, config = None):
+class Device(threading.Thread):
+    def __init__(self, config=None):
+        threading.Thread.__init__(self)
         self.name = "None"
         self.io = "None"
-        if(config is not None):
+        self.callback = None
+        self.cycletime = DEVICE_DEFAULT_CYCLETIME
+        if config is not None:
             self.name = config.name
             self.io = config.io
         self.state = DEVICE_OFF
@@ -19,11 +24,18 @@ class Device():
     def init(self):
         pass
 
+    def assign_callback(self, callback):
+        self.callback = callback
+
     def start_device(self):
         self.state = DEVICE_ON
+        self.start()
 
     def stop_device(self):
         self.state = DEVICE_OFF
+
+    def run(self):
+        pass
 
     def check(self):
         try:

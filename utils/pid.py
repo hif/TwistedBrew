@@ -67,3 +67,11 @@ class PID():
             output = PID_LOWER_LIMIT
         output = output/PID_UPPER_LIMIT
         return output
+
+    @staticmethod
+    def calc_heating(current, watts, seconds, liters):
+        # 4,184 watts will heat a liter up by 1C every second.
+        liter_watts = watts/4.184
+        time_watts = liter_watts * seconds
+        result = time_watts / liters
+        return result

@@ -8,20 +8,17 @@ import datetime
 
 SSR_DEFAULT_CYCLETIME = 2.0
 
-class SSR(Device, threading.Thread):
+class SSR(Device):
     def __init__(self, config=None):
         threading.Thread.__init__(self)
         Device.__init__(self, config)
         self.cycletime = SSR_DEFAULT_CYCLETIME
         self.on_percent = 0.0
+        self.last_on_time = 0.0
 
     def init(self):
         # TODO:Implment
         pass
-
-    def start_device(self):
-        Device.start_device(self)
-        self.start()
 
     def register(self):
         if DEVICE_DEBUG:
@@ -86,7 +83,9 @@ class SSR(Device, threading.Thread):
                     on_start = datetime.datetime.now()
                     log.debug('Turning on SSR')
 
-                time.sleep(on_percent * self.cycletime)
+                on_time = on_percent * self.cycletime
+                time.sleep(on_time)
+                self.callback(on_time)
 
                 if DEVICE_DEBUG:
                     log.debug('SSR was on for {0}'.format(datetime.datetime.now()-on_start))

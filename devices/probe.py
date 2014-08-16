@@ -1,16 +1,17 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG
+from devices.device import Device, DEVICE_DEBUG, DEVICE_ON, DEVICE_OFF
 import utils.logging as log
-import subprocess
+import time
+
+
+PROBE_DEFAULT_CYCLETIME = 5.0
+
 
 class Probe(Device):
     def __init__(self, config=None):
         Device.__init__(self, config)
-        self.test_volume = 50
-        self.test_watts = 500
-        self.test_init_temp = 10
-        self.test_cur_temp = -99999
-        self.test_last_temp = self.test_cur_temp
+        self.cycletime = PROBE_DEFAULT_CYCLETIME
+        self.test_temperture = 0.0
 
     def init(self):
         # TODO: Implment
@@ -27,7 +28,7 @@ class Probe(Device):
 
     def read(self):
         if DEVICE_DEBUG:
-            return self.test()
+            return self.test_temperature
         fo = open(self.io, mode='r')
         probe_crc = fo.readline()[-4:].rstrip()
         #log.debug(probe_crc)
@@ -38,14 +39,9 @@ class Probe(Device):
             return float(probe_heat)/1000
         fo.close()
 
-    def test(self):
-        if self.test_cur_temp == -99999:
-            self.test_cur_temp = self.test_init_temp
-        else:
-            add = 10.0 * abs(1.0 - (float(self.test_cur_temp)/float(self.test_last_temp)))
-            if add == 0:
-                add = 1
-            self.test_last_temp = self.test_cur_temp
-            self.test_cur_temp += add
-        return self.test_cur_temp
+    def run(self):
+        while self.state != DEVICE_OFF:
+            measured_value = float(self.read())
+            self.callback(measured_value)
+            time.sleep(self.cycletime)
 

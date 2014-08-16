@@ -14,10 +14,10 @@ ssr.name = 'Mash Tun'
 ssr.io = 'C:\\temp\\gpio17\\value'
 
 # Use built in function to initialize, check if registered and if not register the device
-ok, message = probe.autostart()
+ok, message = probe.auto_setup()
 if not ok:
     log.error(message)
-ok, message = ssr.autostart()
+ok, message = ssr.auto_setup()
 if not ok:
     log.error(message)
 

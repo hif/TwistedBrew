@@ -103,7 +103,7 @@ class BrewMaster(threading.Thread):
         try:
             if len(self.recipes) == 0:
                 log.debug('No recipes found in {}'.format(self.recipie_file), log.WARNING)
-            self.recipe_name = recipe.strip()
+            self.recipe_name = recipe.strip().decode('utf-8')
             log.debug('Loading {0}'.format(recipe))
             self.recipe = None
             if not self.recipe_name in self.recipes:

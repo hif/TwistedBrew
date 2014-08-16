@@ -22,6 +22,9 @@ PID_ACTIVE = 0
 PID_INACTIVE = 1
 PID_TERMINATE = 2
 
+PID_UPPER_LIMIT = 256.0
+PID_LOWER_LIMIT = -256.0
+
 class ProcessPID(threading.Thread):
     def __init__(self, pid, device, dt, callback):
         threading.Thread.__init__(self)
@@ -54,8 +57,13 @@ class PID():
 
     def calculate(self, measured_value, dt):
         error = self.setpoint - measured_value
-        self.integral += (error * dt)
+        self.integral = error * dt
         derivative = (error - self.previous_error)/dt
-        output = (self.kp * error) + (self.ki * self.integral) + (self.kd * derivative)
+        output = float((self.kp * error) + (self.ki * self.integral) + (self.kd * derivative))
         self.previous_error = error
+        if output > PID_UPPER_LIMIT:
+            output = PID_UPPER_LIMIT
+        elif output < PID_LOWER_LIMIT:
+            output = PID_LOWER_LIMIT
+        output = output/PID_UPPER_LIMIT
         return output

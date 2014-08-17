@@ -34,7 +34,9 @@
 
      function updateChart(json_data) {
         console.log(json_data);
-        tempChart.datasets[0].addData(json_data.newvalue ,json_data.newlabel);
+        console.log(json_data.newvalue);
+        console.log(json_data.newlabel);
+        tempChart.addData([json_data.newvalue, 100] ,json_data.newlabel);
         tempChart.update();
      }
 
@@ -45,8 +47,8 @@
              dataType: "json",
              success: function (response) {
                  console.log(response);
-                 console.log(responce.newlabel);
-                 var update_data = JSON.parse(response);
+                 console.log(response.newlabel);
+                 var update_data = response;
                  console.log('Got data: ' + update_data);
                  updateChart(update_data);
              },

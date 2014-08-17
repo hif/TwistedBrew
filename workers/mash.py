@@ -2,6 +2,7 @@
 from workers.brewworker import *
 from schedules.mash import *
 from datetime import datetime as dt
+from datetime import timedelta as timedelta
 import time
 from utils.pid import PID
 from devices.device import DEVICE_DEBUG
@@ -11,6 +12,7 @@ from devices.device import DEVICE_DEBUG
 MASH_DEBUG_INIT_TEMP = 10.0
 MASH_DEBUG_WATTS = 5500.0
 MASH_DEBUG_LITERS = 50.0
+MASH_DEBUG_COOLING = 0.1
 
 class MashWorker(BrewWorker):
     def __init__(self, name):
@@ -32,6 +34,7 @@ class MashWorker(BrewWorker):
     def work(self, ch, method, properties, body):
         try:
             log.debug('Receiving mash schedule...')
+            self.step = -1
             self.schedule = MashSchedule()
             self.schedule.from_yaml(body)
             print(self.schedule.name)
@@ -58,8 +61,12 @@ class MashWorker(BrewWorker):
     def is_step_done(self):
         if self.hold_temperature_timer is None:
             return False
-        if (dt.now()-self.hold_temperature_timer) - self.pause_time >= self.current_hold_time:
+        pause_total = timedelta(seconds=self.pause_time)
+        finish_time = dt.now()-self.hold_temperature_timer
+        mash_time = self.current_hold_time + pause_total
+        if finish_time >= mash_time:
             return True
+        log.debug('Time untill step done: {0}'.format(finish_time - mash_time))
         return False
 
     def start_all_devices(self):
@@ -72,6 +79,7 @@ class MashWorker(BrewWorker):
         self.outputs['Mash Tun'].start_device()
 
     def stop_all_devices(self):
+        log.debug('Stop all devices called')
         #self.process.status = PID_TERMINATE
         if len(self.inputs) != 0:
             self.inputs['Temperature'].stop_device()
@@ -88,7 +96,7 @@ class MashWorker(BrewWorker):
                 return False
             self.current_goal_temperature = float(self.schedule.steps[self.step].temp)
             # Convert time in minutes to seconds
-            self.current_hold_time = float(self.schedule.steps[self.step].min) * 60.0
+            self.current_hold_time = timedelta(minutes = int(self.schedule.steps[self.step].min))
             self.pid = PID(float(self.schedule.steps[self.step].temp))
             #self.process = ProcessPID(pid, self.inputs['Temperature'], MASH_PID_CYCLE_TIME, self.temperature__callback)
 
@@ -122,8 +130,9 @@ class MashWorker(BrewWorker):
                     self.inputs['Temperature'].test_temperature = \
                         PID.calc_heating(self.current_temperature,
                                          MASH_DEBUG_WATTS,
-                                         self.outputs['Mash Tun'].cycletime,
-                                         MASH_DEBUG_LITERS)
+                                         heating_time,
+                                         MASH_DEBUG_LITERS,
+                                         MASH_DEBUG_COOLING)
                 except Exception, e:
                     log.debug('Mash worker unable to update test temperature for debug: {0}'.format(e.message))
         except Exception, e:

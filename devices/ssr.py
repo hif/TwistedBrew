@@ -76,6 +76,7 @@ class SSR(Device):
             if DEVICE_DEBUG:
                 loop_start = datetime.datetime.now()
 
+            on_time = on_percent * self.cycletime
             if self.on_percent > 0.0:
                 self.set_ssr_state(True)
 
@@ -83,13 +84,12 @@ class SSR(Device):
                     on_start = datetime.datetime.now()
                     log.debug('Turning on SSR')
 
-                on_time = on_percent * self.cycletime
                 time.sleep(on_time)
-                self.callback(on_time)
 
                 if DEVICE_DEBUG:
                     log.debug('SSR was on for {0}'.format(datetime.datetime.now()-on_start))
 
+            self.callback(on_time)
             if self.on_percent < 1.0:
                 self.set_ssr_state(False)
 

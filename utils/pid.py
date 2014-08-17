@@ -69,9 +69,9 @@ class PID():
         return output
 
     @staticmethod
-    def calc_heating(current, watts, seconds, liters):
+    def calc_heating(current, watts, seconds, liters, cooling):
         # 4,184 watts will heat a liter up by 1C every second.
-        liter_watts = watts/4.184
-        time_watts = liter_watts * seconds
-        result = time_watts / liters
-        return result
+        time_watts = watts/seconds
+        liter_watts = time_watts/4.184
+        result = liter_watts / liters
+        return current + result - cooling

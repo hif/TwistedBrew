@@ -62,12 +62,13 @@ def measurements(request):
     }
     return render_to_response('measurements.html', context_dict, context)
 
+
 def charts(request):
     context = RequestContext(request)
 
-    chart_time = json.dumps(['00:00','00:05','00:10','00:15','00:20','00:25','00:30','00:35'])
-    chart_data = [10,15,20,30,50]
-    chart_set = [100]*8
+    chart_time = json.dumps(['00:00','00:05'])
+    chart_data = [0,10]
+    chart_set = [100,100]
 
     context_dict = {
         'charts_active': True,
@@ -77,11 +78,13 @@ def charts(request):
     }
     return render_to_response('charts.html', context_dict, context)
 
+
 def charts_update(request):
 
-    update_data = [50,60]
+    update_data = {"newlabel":"00:05","newvalue":20}
 
     return HttpResponse(json.dumps(update_data), content_type = "application/json")
+
 
 def commander(request):
     context = RequestContext(request)

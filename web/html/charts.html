@@ -4,8 +4,8 @@
 {% block real_content %}
     <h2>Charts</h2>
 
-    <canvas id="myChart" width="800" height="400"></canvas>
-    <br><br><input type='button' value='Update' onclick="updateChart();">
+    <canvas id="myChart" width="400" height="200"></canvas>
+    <br><br><input type='button' value='Update' onclick="getChartData();">
 
     <script type="text/javascript">
 
@@ -30,24 +30,32 @@
      };
 
      var ctx = document.getElementById('myChart').getContext("2d");
-     new Chart(ctx).Line(start_data);
-     var update_data = 0;
+     var tempChart = new Chart(ctx).Line(start_data);
 
-    function updateChart() {
-            console.log("Inside updateChart function!");
-            $.ajax({
-                type: "GET",
-                url: "http://127.0.0.1:8000/charts_update",
-                dataType: "jsonp",
+     function updateChart(json_data) {
+        console.log(json_data);
+        tempChart.datasets[0].addData(json_data.newvalue ,json_data.newlabel);
+        tempChart.update();
+     }
 
-                success: function (update_data) {
-                    console.log('Got data: ' + update_data);
-                },
-                failure: function (update_data) {
-                    console.log("Got an error!");
-                }
-            });
-}
+     function getChartData() {
+         $.ajax({
+             type: "GET",
+             url: "http://127.0.0.1:8000/charts_update",
+             dataType: "json",
+             success: function (response) {
+                 console.log(response);
+                 console.log(responce.newlabel);
+                 var update_data = JSON.parse(response);
+                 console.log('Got data: ' + update_data);
+                 updateChart(update_data);
+             },
+             failure: function (response) {
+                 console.log("Error, got no data!");
+             }
+         });
+     }
+
      </script>
 
 {% endblock %}

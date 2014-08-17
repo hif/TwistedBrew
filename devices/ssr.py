@@ -26,6 +26,7 @@ class SSR(Device):
         found = re.search('\d{1,2}', self.io)
         gpio_numb = found.group()
         #log.debug(gpio_numb)
+
         #log.debug(self.io[:16]+"export")
         #log.debug(self.io[:23]+"direction")
 

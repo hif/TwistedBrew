@@ -53,20 +53,12 @@ var options = {
             tickSize: 5,
             tickFormatter: function (v, axis) {
                 if (v % 10 == 0) {
-                    return v + "%";
+                    return v ;
                 } else {
                     return "";
                 }
             },
-            axisLabel: "CPU loading",
-            axisLabelUseCanvas: true,
-            axisLabelFontSizePixels: 12,
-            axisLabelFontFamily: 'Verdana, Arial',
-            axisLabelPadding: 6
-        }, {
-            max: 5120,
-            position: "right",
-            axisLabel: "Disk",
+            axisLabel: "Temp °C",
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
             axisLabelFontFamily: 'Verdana, Arial',

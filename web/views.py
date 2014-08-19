@@ -66,13 +66,13 @@ def measurements(request):
 def charts(request):
     context = RequestContext(request)
 
-    chart_time = json.dumps(['00:00','00:05'])
-    chart_data = [0,10]
-    chart_set = [100,100]
+    chart_time = json.dumps(['00:00','00:05','00:10','00:15'])
+    chart_data = [0,10,15,20]
+    chart_set = [65,65,65,65]
 
     context_dict = {
         'charts_active': True,
-        'chart_time': chart_time,
+        'chart_label': chart_time,
         'chart_data': chart_data,
         'chart_set': chart_set,
     }
@@ -81,7 +81,7 @@ def charts(request):
 
 def charts_update(request):
 
-    update_data = {"newlabel":"00:05","newvalue":20}
+    update_data = {"setTemp":25,"probeTemp":65}
 
     return HttpResponse(json.dumps(update_data), content_type = "application/json")
 

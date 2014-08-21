@@ -84,7 +84,7 @@ def charts(request):
 def charts_update(request):
 
     latest_temp = Measurement.objects.values_list('value')
-    update_data = {"setTemp":25,"probeTemp":random.choice(latest_temp)}
+    update_data = {"setTempServer":65,"probeTempServer":random.choice(latest_temp)}
 
     return HttpResponse(json.dumps(update_data), content_type = "application/json")
 

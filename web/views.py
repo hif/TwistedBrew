@@ -5,7 +5,8 @@ from django.shortcuts import render_to_response
 from models import Brew, Worker, Command, Measurement
 from forms import CommanderForm
 from masters.brewcommander import BrewCommander
-import json
+import utils.logging as log
+import json, random
 
 def home(request):
     context = RequestContext(request)
@@ -66,22 +67,24 @@ def measurements(request):
 def charts(request):
     context = RequestContext(request)
 
-    chart_time = json.dumps(['00:00','00:05'])
-    chart_data = [0,10]
-    chart_set = [100,100]
+    chart_time = json.dumps(['00:00','00:05','00:10','00:15'])
+    chart_data = [0,10,15,20]
+    chart_set = [65,65,65,65]
 
     context_dict = {
         'charts_active': True,
-        'chart_time': chart_time,
+        'chart_label': chart_time,
         'chart_data': chart_data,
         'chart_set': chart_set,
     }
+
     return render_to_response('charts.html', context_dict, context)
 
 
 def charts_update(request):
 
-    update_data = {"newlabel":"00:05","newvalue":20}
+    latest_temp = Measurement.objects.values_list('value')
+    update_data = {"setTempServer":65,"probeTempServer":random.choice(latest_temp)}
 
     return HttpResponse(json.dumps(update_data), content_type = "application/json")
 

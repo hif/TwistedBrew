@@ -4,60 +4,129 @@
 {% block real_content %}
     <h2>Charts</h2>
 
-    <canvas id="myChart" width="400" height="200"></canvas>
-    <br><br><input type='button' value='Update' onclick="getChartData();">
 
-    <script type="text/javascript">
+<script type="text/javascript">
+var setTempchartData = [], probeTempchartData = [];
+var setTemp = 0, probeTemp = 0;
+var chartData;
+var totalPoints = 100;
+var updateInterval = 2000;
+var now = new Date().getTime();
 
-     var start_data = {
-         labels: {{ chart_time|safe }},
-         datasets: [
-             {
-                 fillColor: "rgba(255, 10, 10, 0.4)",
-                 strokeColor: "rgba(255, 10, 10,1)",
-                 pointColor: "rgba(255, 10, 10,1)",
-                 pointStrokeColor: "#fff",
-                 data: {{ chart_data }}
-             },
-             {
-                 fillColor: "rgba(35, 200, 0, 0.1)",
-                 strokeColor: "rgba(35, 200, 0,1)",
-                 pointColor: "rgba(35, 200, 0,1)",
-                 pointStrokeColor: "#fff",
-                 data: {{ chart_set }}
-             }
-         ]
-     };
+var dataset = [
+        { label: "Set Temp:" + setTemp + "°C", data: setTempchartData, lines: {fill: true,  lineWidth: 1.5 }, color: "rgba(0, 255, 0, 0.5)" },
+        { label: "Probe Temp:" + probeTemp + "°C", data: probeTempchartData, lines: {lineWidth: 1.2}, color: "rgba(255, 0, 0, 0.8)" }
+    ];
 
-     var ctx = document.getElementById('myChart').getContext("2d");
-     var tempChart = new Chart(ctx).Line(start_data);
+var options = {
+    series: {
+        lines: {
+            lineWidth: 1.2
+        }
+    },
+    xaxis: {
+        mode: "time",
+        tickSize: [10, "second"], // controls the space between each tick on shown on the xaxis,
+        tickFormatter: function (v, axis) {
+            var date = new Date(v);
+            if (date.getSeconds() % 60 == 0) { // controls the space between printed ticks (so they don't overlap)
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
 
-     function updateChart(json_data) {
-        console.log(json_data);
-        console.log(json_data.newvalue);
-        console.log(json_data.newlabel);
-        tempChart.addData([json_data.newvalue, 100] ,json_data.newlabel);
-        tempChart.update();
-     }
+                return hours + ":" + minutes + ":" + seconds;
+            } else {
+                return "";
+            }
+        },
+        axisLabel: "Time",
+        axisLabelUseCanvas: true,
+        axisLabelFontSizePixels: 12,
+        axisLabelFontFamily: 'Verdana, Arial',
+        axisLabelPadding: 10
+    },
+    yaxes: [
+        {
+            min: 0,
+            max: 110,
+            tickSize: 5,
+            tickFormatter: function (v, axis) {
+                if (v % 5 == 0) {
+                    return v ;
+                } else {
+                    return "";
+                }
+            },
+            axisLabel: "Temp °C",
+            axisLabelUseCanvas: true,
+            axisLabelFontSizePixels: 12,
+            axisLabelFontFamily: 'Verdana, Arial',
+            axisLabelPadding: 6
+        }
+    ],
+    legend: {
+        noColumns: 0,
+        position:"nw"
+    },
+    grid: {
+        backgroundColor: { colors: ["#ffffff", "#EDF5FF"] }
+    }
+};
 
-     function getChartData() {
-         $.ajax({
-             type: "GET",
-             url: "http://127.0.0.1:8000/charts_update",
-             dataType: "json",
-             success: function (response) {
-                 console.log(response);
-                 console.log(response.newlabel);
-                 var update_data = response;
-                 console.log('Got data: ' + update_data);
-                 updateChart(update_data);
-             },
-             failure: function (response) {
-                 console.log("Error, got no data!");
-             }
-         });
-     }
+function initData() {
+    for (var i = 0; i < totalPoints; i++) {
+        var chartData = [now += updateInterval, 0];
 
-     </script>
+        setTempchartData.push(chartData);
+        probeTempchartData.push(chartData);
+    }
+}
+
+function update(_data) {
+    setTempchartData.shift();
+    probeTempchartData.shift();
+    setTemp = _data.setTempServer;
+    probeTemp =_data.probeTempServer;
+
+    now += updateInterval;
+
+    chartData = [now, setTemp];
+    setTempchartData.push(chartData);
+    chartData = [now, probeTemp];
+    probeTempchartData.push(chartData);
+    dataset[0].label = "Set Temp:" + setTemp + "°C";
+    dataset[1].label = "Probe Temp:" + probeTemp + "°C";
+
+    $.plot($("#flot-placeholder1"), dataset, options);
+    setTimeout(GetData, updateInterval);
+}
+
+function GetData() {
+    $.ajaxSetup({ cache: false });
+
+    $.ajax({
+        url: "http://127.0.0.1:8000/charts_update",
+        dataType: 'json',
+        success: update,
+        error: function () {
+            setTimeout(GetData, updateInterval);
+        }
+    });
+}
+
+$(document).ready(function () {
+    initData();
+
+    $.plot($("#flot-placeholder1"), dataset, options);
+    setTimeout(GetData, updateInterval);
+});
+
+
+</script>
+<!-- HTML -->
+<div>Mash Temp Graph</div>
+<div id="flot-placeholder1" style="width:1000px;height:500px;margin:0"></div>
+<div>Fermentation Temp Graph</div>
+<div id="flot-placeholder2" style="width:1000px;height:500px;margin:0"></div>
 
 {% endblock %}

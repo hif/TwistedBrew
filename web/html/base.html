@@ -12,7 +12,15 @@
   <body>
   <script src="{% static 'js/jquery-2.1.1.js' %}"></script>
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'js/Chart.js' %}"></script>
+{#<script src="{% static 'js/Chart.js' %}"></script>#}
+  <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static 'js/flot/excanvas.min.js' %}"></script><![endif]-->
+  <script src="{% static 'js/flot/jquery.flot.min.js' %}"></script>
+  <script src="{% static 'js/flot/jquery.flot.time.js' %}"></script>
+  <script src="{% static 'js/flot/jshashtable-3.0.js' %}"></script>
+  <script src="{% static 'js/flot/jquery.numberformatter-1.2.4.min.js' %}"></script>
+  <script src="{% static 'js/flot/jquery.flot.symbol.min.js' %}"></script>
+  <script src="{% static 'js/flot/jquery.flot.axislabels.js' %}"></script>
+
   <nav class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->

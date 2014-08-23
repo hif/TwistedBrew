@@ -3,9 +3,10 @@ from devices.device import Device
 import time
 import datetime
 import threading
+import Queue
 
 # Psudo Code
-#previous_error = 0
+# previous_error = 0
 #integral = 0
 #start:
 #  error = setpoint - measured_value
@@ -24,6 +25,7 @@ PID_TERMINATE = 2
 
 PID_UPPER_LIMIT = 256.0
 PID_LOWER_LIMIT = -256.0
+
 
 class ProcessPID(threading.Thread):
     def __init__(self, pid, device, dt, callback):
@@ -44,7 +46,7 @@ class ProcessPID(threading.Thread):
 
 
 class PID():
-    def __init__(self, setpoint, kp = 1, ki = 1, kd = 1):
+    def __init__(self, setpoint, kp=1, ki=1, kd=1):
         # Parameters
         self.kp = kp
         self.ki = ki
@@ -58,20 +60,31 @@ class PID():
     def calculate(self, measured_value, dt):
         error = self.setpoint - measured_value
         self.integral = error * dt
-        derivative = (error - self.previous_error)/dt
+        derivative = (error - self.previous_error) / dt
         output = float((self.kp * error) + (self.ki * self.integral) + (self.kd * derivative))
         self.previous_error = error
         if output > PID_UPPER_LIMIT:
             output = PID_UPPER_LIMIT
         elif output < PID_LOWER_LIMIT:
             output = PID_LOWER_LIMIT
-        output = output/PID_UPPER_LIMIT
+        output = output / PID_UPPER_LIMIT
         return output
 
+
+    heating_delay = Queue.Queue()
+
     @staticmethod
-    def calc_heating(current, watts, seconds, liters, cooling):
+    def calc_heating(current, watts, seconds, liters, cooling, delay=10, minimum=10.0):
         # 4,184 watts will heat a liter up by 1C every second.
-        time_watts = watts/seconds
-        liter_watts = time_watts/4.184
+        time_watts = watts / seconds
+        liter_watts = time_watts / 4184
         result = liter_watts / liters
-        return current + result - cooling
+        PID.heating_delay.put(result)
+        if PID.heating_delay.qsize() >= delay:
+            result = PID.heating_delay.get()
+        else:
+            result = 0.0
+        result = current + result - (cooling * seconds)
+        if result < minimum:
+            return minimum
+        return result

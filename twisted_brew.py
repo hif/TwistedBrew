@@ -22,5 +22,6 @@ if not master is None:
     master.info()
 
 # Uncomment next two lines to insert mesurement debug data
-#from web.models import Measurement
+from web.models import Measurement
 #Measurement.populate()
+Measurement.clear()

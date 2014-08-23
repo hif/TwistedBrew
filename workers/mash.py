@@ -12,7 +12,7 @@ from devices.device import DEVICE_DEBUG
 MASH_DEBUG_INIT_TEMP = 10.0
 MASH_DEBUG_WATTS = 5500.0
 MASH_DEBUG_LITERS = 50.0
-MASH_DEBUG_COOLING = 0.1
+MASH_DEBUG_COOLING = 0.001
 
 class MashWorker(BrewWorker):
     def __init__(self, name):
@@ -20,7 +20,7 @@ class MashWorker(BrewWorker):
         #self.process = None
         self.pid = None
         self.current_temperature = 0.0
-        self.current_goal_temperature = 0.0
+        self.current_set_temperature = 0.0
         self.current_hold_time = 0.0
         self.hold_temperature_timer = None
         self.hold_temperature_pause_timer = None
@@ -94,7 +94,7 @@ class MashWorker(BrewWorker):
             self.step += 1
             if self.step >= len(self.schedule.steps):
                 return False
-            self.current_goal_temperature = float(self.schedule.steps[self.step].temp)
+            self.current_set_temperature = float(self.schedule.steps[self.step].temp)
             # Convert time in minutes to seconds
             self.current_hold_time = timedelta(minutes = int(self.schedule.steps[self.step].min))
             self.pid = PID(float(self.schedule.steps[self.step].temp))
@@ -111,7 +111,8 @@ class MashWorker(BrewWorker):
             calc = self.pid.calculate(measured_value, self.inputs['Temperature'].cycletime)
             log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
             self.current_temperature = measured_value
-            if self.hold_temperature_timer is None and measured_value >= self.current_goal_temperature:
+            self.send_update([self.current_temperature, self.current_set_temperature])
+            if self.hold_temperature_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_temperature_timer = dt.now()
 
             if self.is_step_done():

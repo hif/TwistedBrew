@@ -187,6 +187,7 @@ class BrewMaster(threading.Thread):
         measurement = Measurement()
         measurement.user = data[1]
         measurement.value = data[2]
+        measurement.set_point = data[3]
         measurement.save()
 
     def verify_worker(self, worker):

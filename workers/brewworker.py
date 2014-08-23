@@ -77,6 +77,12 @@ class BrewWorker(threading.Thread):
         channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
         connection.close()
 
+    def send_update(self, data):
+        message = MessageUpdate + MessageSplit + self.name
+        for item in data:
+            message += "{0}{1}".format(MessageSplit, item)
+        self.send_to_master(message)
+
     def receive(self, ch, method, properties, body):
         if MessageFunctions.__contains__(body) and hasattr(self, MessageFunctions[body]):
             command = MessageFunctions[body]

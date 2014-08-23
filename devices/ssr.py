@@ -90,7 +90,8 @@ class SSR(Device):
                 if DEVICE_DEBUG:
                     log.debug('SSR was on for {0}'.format(datetime.datetime.now()-on_start))
 
-            self.callback(on_time)
+                self.callback(on_time)
+
             if self.on_percent < 1.0:
                 self.set_ssr_state(False)
 

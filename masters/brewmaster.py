@@ -185,9 +185,10 @@ class BrewMaster(threading.Thread):
         log.debug('Receiving worker update...')
         data = body.split(MessageSplit)
         measurement = Measurement()
-        measurement.user = data[1]
-        measurement.value = data[2]
-        measurement.set_point = data[3]
+        measurement.worker = data[1]
+        measurement.device = data[2]
+        measurement.value = data[3]
+        measurement.set_point = data[4]
         measurement.save()
 
     def verify_worker(self, worker):

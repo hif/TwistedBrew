@@ -29,8 +29,9 @@ class Worker(models.Model):
 
 
 class Measurement(models.Model):
-    user = models.CharField(max_length=COLUMN_SMALL_SIZE)
     timestamp = models.DateTimeField(auto_now=True)
+    worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    device = models.CharField(max_length=COLUMN_SMALL_SIZE)
     value = models.FloatField()
     set_point = models.FloatField()
 
@@ -43,7 +44,8 @@ class Measurement(models.Model):
         while count < size:
             time.sleep(1)
             tmp = Measurement()
-            tmp.user = 'debug'
+            tmp.worker = 'debug'
+            tmp.device = 'debug'
             tmp.value = random.random()*100.0
             tmp.save()
             count += 1

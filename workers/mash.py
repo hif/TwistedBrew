@@ -10,7 +10,7 @@ from devices.device import DEVICE_DEBUG
 
 #MASH_PID_CYCLE_TIME = 5.0
 MASH_DEBUG_INIT_TEMP = 10.0
-MASH_DEBUG_WATTS = 5500.0
+MASH_DEBUG_WATTS = 55000.0# 10 x 5500.0
 MASH_DEBUG_LITERS = 50.0
 MASH_DEBUG_COOLING = 0.001
 
@@ -111,7 +111,7 @@ class MashWorker(BrewWorker):
             calc = self.pid.calculate(measured_value, self.inputs['Temperature'].cycletime)
             log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
             self.current_temperature = measured_value
-            self.send_update([self.current_temperature, self.current_set_temperature])
+            self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
             if self.hold_temperature_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_temperature_timer = dt.now()
 
@@ -126,6 +126,8 @@ class MashWorker(BrewWorker):
     def heating_callback(self, heating_time):
         try:
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
+            device = self.outputs['Mash Tun']
+            self.send_update(device, [heating_time, device.cycletime])
             if DEVICE_DEBUG:
                 try:
                     self.inputs['Temperature'].test_temperature = \

@@ -6,14 +6,18 @@
         <table class="table table-hover">
             <tr>
                 <th>Timestamp</th>
-                <th>User</th>
+                <th>Worker</th>
+                <th>Device</th>
                 <th>Value</th>
                 <th>Set Point</th>
             </tr>
             {% for measure in measurements %}
             <tr>
-            <td>{{ measure.timestamp }}</td>
-            <td>{{ measure.user }}</td>
+            <td>
+                {{ measure.timestamp|date:"G"}}:{{ measure.timestamp|date:"i"}}:{{ measure.timestamp|date:"s"}}
+            </td>
+            <td>{{ measure.worker }}</td>
+            <td>{{ measure.device }}</td>
             <td>{{ measure.value }}</td>
             <td>{{ measure.set_point }}</td>
             </tr>

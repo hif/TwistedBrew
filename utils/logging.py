@@ -20,6 +20,13 @@ def debug(message, messagetype=INFO):
     except:
         log_message(u'[{0}] {1}'.format(messagetype, message.decode('utf-8')))
 
+def warn(message):
+    message = message.encode('utf-8')
+    try:
+        log_message(u'[{0}] {1}'.format(WARNING, message))
+    except:
+        log_message(u'[{0}] {1}'.format(WARNING, message.decode('utf-8')))
+
 def error(message):
     message = message.encode('utf-8')
     try:

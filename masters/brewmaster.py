@@ -149,8 +149,8 @@ class BrewMaster(threading.Thread):
         self.channel.stop_consuming()
 
     def handle(self, ch, method, properties, body):
-        log.debug('Handling message')
-        log.debug(body)
+        #log.debug('Handling message')
+        #log.debug(body)
         if str(body).startswith(MessageUpdate):
             self.handle_update(body)
             return
@@ -182,7 +182,7 @@ class BrewMaster(threading.Thread):
         self.load(data[1])
 
     def handle_update(self, body):
-        log.debug('Receiving worker update...')
+        #log.debug('Receiving worker update...')
         data = body.split(MessageSplit)
         measurement = Measurement()
         measurement.worker = data[1]

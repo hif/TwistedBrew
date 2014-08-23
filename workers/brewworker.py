@@ -31,25 +31,28 @@ class BrewWorker(threading.Thread):
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
-            format(self.name, str(self.__class__.__name__), len(self.outputs), len(self.inputs))
+            format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
 
-    def load_device(self, config):
+    @staticmethod
+    def load_device(config, cycle_time=0.0):
         try:
             module_name = config.device.lower()
             package = 'devices.' + module_name
             module = __import__(package)
             device_class = getattr(getattr(module, module_name), config.device)
             instance = device_class(config)
+            if cycle_time > 0:
+                instance.cycle_time = cycle_time
             return instance
         except Exception, e:
             log.error('Unable to load device from config: {0}'.format(e))
             return None
 
-    def create_device_threads(self):
+    def create_device_threads(self, cycle_time=0):
         for i in self.input_config:
-            self.inputs[i.name] = self.load_device(i)
+            self.inputs[i.name] = self.load_device(i, cycle_time)
         for o in self.output_config:
-            self.outputs[o.name] = self.load_device(o)
+            self.outputs[o.name] = self.load_device(o, cycle_time)
 
     def work(self, ch, method, properties, body):
         log.debug('Waiting for schedule. To exit press CTRL+C')
@@ -68,8 +71,7 @@ class BrewWorker(threading.Thread):
         self.channel.stop_consuming()
 
     def send_to_master(self, data):
-        log.debug('Sending to master - ' + data)
-
+        #log.debug('Sending to master - ' + data)
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
         channel.queue_declare(queue=MasterQueue)

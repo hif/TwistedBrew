@@ -1,16 +1,12 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG, DEVICE_ON, DEVICE_OFF
+from devices.device import Device, DEVICE_DEBUG
 import utils.logging as log
 import time
-
-
-PROBE_DEFAULT_CYCLETIME = 5.0
 
 
 class Probe(Device):
     def __init__(self, config=None):
         Device.__init__(self, config)
-        self.cycletime = PROBE_DEFAULT_CYCLETIME
         self.test_temperture = 0.0
 
     def init(self):
@@ -40,8 +36,8 @@ class Probe(Device):
         fo.close()
 
     def run(self):
-        while self.state != DEVICE_OFF:
+        while self.enabled:
             measured_value = float(self.read())
             self.callback(measured_value)
-            time.sleep(self.cycletime)
+            time.sleep(self.cycle_time)
 

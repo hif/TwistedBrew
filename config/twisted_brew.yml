@@ -20,34 +20,35 @@ workers:
                 device: "Probe"
                 io: "/sys/bus/w1/devices/28-00000607f0de/w1_slave"
 
-    - worker:
-        name: "Mr Boiler"
-        ip: "localhost"
-        port: 5672
-        class: "BoilWorker"
-        outputs:
-            - output:
-                name: "Boiler"
-                device: "SSR"
-                io: "gpio2"
-        inputs:
-            - input:
-                name: "Temperature"
-                device: "Probe"
-                io: "gpio3"
-
-    - worker:
-        name: "Fermat"
-        ip: "localhost"
-        port: 5672
-        class: "FermentationWorker"
-        outputs:
-            - output:
-                name: "Fermenter"
-                device: "SSR"
-                io: "gpio4"
-        inputs:
-            - input:
-                name: "Temperature"
-                device: "Probe"
-                io: "gpio5"
+#    - worker:
+#        name: "Mr Boiler"
+#        ip: "localhost"
+#        port: 5672
+#        class: "BoilWorker"
+#        outputs:
+#            - output:
+#                name: "Boiler"
+#                device: "SSR"
+#                io: "gpio2"
+#        inputs:
+#            - input:
+#                name: "Temperature"
+#                device: "Probe"
+#                io: "gpio3"
+#
+#    - worker:
+#        name: "Fermat"
+#        ip: "localhost"
+#        port: 5672
+#        class: "FermentationWorker"
+#        outputs:
+#            - output:
+#                name: "Fermenter"
+#                device: "SSR"
+#                io: "gpio4"
+#        inputs:
+#            - input:
+#                name: "Temperature"
+#                device: "Probe"
+#                io: "gpio5"
+#

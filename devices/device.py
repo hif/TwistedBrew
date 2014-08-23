@@ -4,9 +4,6 @@ import utils.logging as log
 
 
 DEVICE_DEBUG = True
-
-DEVICE_OFF = 0
-DEVICE_ON = 1
 DEVICE_DEFAULT_CYCLETIME = 10.0
 
 class Device(threading.Thread):
@@ -15,11 +12,11 @@ class Device(threading.Thread):
         self.name = "None"
         self.io = "None"
         self.callback = None
-        self.cycletime = DEVICE_DEFAULT_CYCLETIME
+        self.cycle_time = DEVICE_DEFAULT_CYCLETIME
         if config is not None:
             self.name = config.name
             self.io = config.io
-        self.state = DEVICE_OFF
+        self.enabled = False
 
     def init(self):
         pass
@@ -28,11 +25,11 @@ class Device(threading.Thread):
         self.callback = callback
 
     def start_device(self):
-        self.state = DEVICE_ON
+        self.enabled = True
         self.start()
 
     def stop_device(self):
-        self.state = DEVICE_OFF
+        self.enabled = False
 
     def run(self):
         pass

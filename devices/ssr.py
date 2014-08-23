@@ -1,18 +1,17 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG, DEVICE_OFF, DEVICE_ON
+from devices.device import Device, DEVICE_DEBUG
 import utils.logging as log
 import re
 import threading
 import time
 import datetime
 
-SSR_DEFAULT_CYCLETIME = 2.0
+SSR_DEVICE_DEBUG = False
 
 class SSR(Device):
     def __init__(self, config=None):
         threading.Thread.__init__(self)
         Device.__init__(self, config)
-        self.cycletime = SSR_DEFAULT_CYCLETIME
         self.on_percent = 0.0
         self.last_on_time = 0.0
 
@@ -70,39 +69,39 @@ class SSR(Device):
         return value
 
     def run(self):
-        while self.state != DEVICE_OFF:
+        while self.enabled:
             # grab the current value if it should be changed during the cycle
             on_percent = self.on_percent
 
-            if DEVICE_DEBUG:
+            if SSR_DEVICE_DEBUG:
                 loop_start = datetime.datetime.now()
 
-            on_time = on_percent * self.cycletime
+            on_time = on_percent * self.cycle_time
             if self.on_percent > 0.0:
                 self.set_ssr_state(True)
 
-                if DEVICE_DEBUG:
+                if SSR_DEVICE_DEBUG:
                     on_start = datetime.datetime.now()
                     log.debug('Turning on SSR')
 
                 time.sleep(on_time)
 
-                if DEVICE_DEBUG:
+                if SSR_DEVICE_DEBUG:
                     log.debug('SSR was on for {0}'.format(datetime.datetime.now()-on_start))
-
-                self.callback(on_time)
 
             if self.on_percent < 1.0:
                 self.set_ssr_state(False)
 
-                if DEVICE_DEBUG:
+                if SSR_DEVICE_DEBUG:
                     log.debug('Turning off SSR')
                     off_start = datetime.datetime.now()
 
-                time.sleep((1.0-on_percent)*self.cycletime)
+                time.sleep((1.0-on_percent)*self.cycle_time)
 
-                if DEVICE_DEBUG:
+                if SSR_DEVICE_DEBUG:
                     log.debug('SSR was off for {0}'.format(datetime.datetime.now()-off_start))
 
-            if DEVICE_DEBUG:
+            self.callback(on_time)
+
+            if SSR_DEVICE_DEBUG:
                 log.debug(' * On/Off cycle lasted for {0} *'.format(datetime.datetime.now()-loop_start))

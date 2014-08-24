@@ -19,18 +19,20 @@ LOG_TYPE_TEXT = {DEBUG: 'Debug', INFO: 'Info', WARNING: 'Warning', ERROR: 'Error
 
 def log_message(msg, type):
     try:
-        umsg = unicode(msg)
-    except:
-        umsg = msg.decode('utf-8')
-    if LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:
-        print(u'[{0}] {1}'.format(type, umsg))
-    if LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_DB:
-        db_item = Message()
-        db_item.timestamp = dt.now()
-        db_item.type = LOG_TYPE_TEXT[type]
-        db_item.text = umsg
-        db_item.save()
-
+        try:
+            umsg = unicode(msg)
+        except:
+            umsg = msg.decode('utf-8')
+        if LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:
+            print(u'[{0}] {1}'.format(type, umsg))
+        if LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_DB:
+            db_item = Message()
+            db_item.timestamp = dt.now()
+            db_item.type = LOG_TYPE_TEXT[type]
+            db_item.text = umsg
+            db_item.save()
+    except Exception, e:
+        log_message('Unable to log {0} message: {1}'.format(LOG_TYPE_TEXT[type], ERROR))
 
 def debug(message):
     if not DEBUG_BREW:

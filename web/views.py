@@ -5,8 +5,9 @@ from django.shortcuts import render_to_response
 from models import Brew, Worker, Command, Measurement
 from forms import CommanderForm
 from masters.brewcommander import BrewCommander
-import utils.logging as log
 import json, random
+import utils.logging as log
+from utils.dateutils import *
 
 def home(request):
     context = RequestContext(request)
@@ -83,8 +84,24 @@ def charts(request):
 
 def charts_update(request):
 
-    latest_temp = Measurement.objects.values_list('value')
-    update_data = {"setTempServer":65,"probeTempServer":random.choice(latest_temp)}
+    latest_timestamps_js = []
+
+    if request.POST:
+        last_timestamp = request.POST.getlist('timestamp')
+
+    latest_measurement_set = Measurement.objects.filter(device__contains='Temperature')
+
+    latest_timestamps = list()
+    latest_probe_temps = list()
+    latest_set_points = list()
+
+    if latest_measurement_set:
+        for item in latest_measurement_set:
+            latest_timestamps.append(datetime_to_ms(item.timestamp))
+            latest_probe_temps.append(item.value)
+            latest_set_points.append(item.set_point)
+
+    update_data = {"latest_set_point": latest_set_points, "latest_probe_temp": latest_probe_temps, "latest_timestamp": latest_timestamps}
 
     return HttpResponse(json.dumps(update_data), content_type = "application/json")
 
@@ -95,7 +112,7 @@ def commander(request):
     brew_list = Brew.objects.order_by('-name')
     lastmessage = 'None'
 
-    # A HTTP POST?
+
     if request.method == 'POST':
         form = CommanderForm(request.POST)
 

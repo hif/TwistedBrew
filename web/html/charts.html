@@ -8,6 +8,7 @@
 <script type="text/javascript">
 var setTempchartData = [], probeTempchartData = [];
 var setTemp = 0, probeTemp = 0;
+var timeStamp = 0;
 var chartData;
 var totalPoints = 100;
 var updateInterval = 2000;
@@ -83,11 +84,13 @@ function initData() {
 }
 
 function update(_data) {
+    console.log(_data);
     setTempchartData.shift();
     probeTempchartData.shift();
-    setTemp = _data.setTempServer;
-    probeTemp =_data.probeTempServer;
-
+    timeStamp = _data.latest_timestamp
+    setTemp = _data.latest_set_point;
+    probeTemp =_data.latest_probe_temp;
+    console.log(timeStamp, setTemp, probeTemp)
     now += updateInterval;
 
     chartData = [now, setTemp];
@@ -105,8 +108,10 @@ function GetData() {
     $.ajaxSetup({ cache: false });
 
     $.ajax({
-        url: "http://127.0.0.1:8000/charts_update",
+        url: "http://127.0.0.1:8000/charts_update/",
         dataType: 'json',
+        type: 'POST',
+        data: {timestamp: timeStamp, csrfmiddlewaretoken: '{{ csrf_token }}'},
         success: update,
         error: function () {
             setTimeout(GetData, updateInterval);

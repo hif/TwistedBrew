@@ -98,9 +98,13 @@ def charts_update(request):
     latest_timestamps_js = []
 
     if request.POST:
-        last_timestamp = request.POST.getlist('timestamp')
+        last_timestamp_ms = request.POST.getlist('timestamp')
+    log.debug(last_timestamp_ms)
+    last_timestamp = ms_to_datetime(int(last_timestamp_ms[0]))
+    log.debug(last_timestamp)
 
-    latest_measurement_set = Measurement.objects.filter(device__contains='Temperature')
+
+    latest_measurement_set = Measurement.objects.filter(device__contains='Temperature').filter(timestamp__gte=last_timestamp)
 
     latest_timestamps = list()
     latest_probe_temps = list()

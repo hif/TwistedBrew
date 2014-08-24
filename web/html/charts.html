@@ -84,19 +84,19 @@ function initData() {
 }
 
 function update(_data) {
-    console.log(_data);
-    setTempchartData.shift();
-    probeTempchartData.shift();
-    timeStamp = _data.latest_timestamp
-    setTemp = _data.latest_set_point;
-    probeTemp =_data.latest_probe_temp;
-    console.log(timeStamp, setTemp, probeTemp)
-    now += updateInterval;
+    var l = _data.latest_timestamp.length;
+    for (i = 0; i < l; i++) {
+        setTempchartData.shift();
+        probeTempchartData.shift();
+        timeStamp = _data.latest_timestamp[i];
+        setTemp = _data.latest_set_point[i];
+        probeTemp = _data.latest_probe_temp[i];
+        chartData = [timeStamp, setTemp];
+        setTempchartData.push(chartData);
+        chartData = [timeStamp, probeTemp];
+        probeTempchartData.push(chartData);
+    }
 
-    chartData = [now, setTemp];
-    setTempchartData.push(chartData);
-    chartData = [now, probeTemp];
-    probeTempchartData.push(chartData);
     dataset[0].label = "Set Temp:" + setTemp + "°C";
     dataset[1].label = "Probe Temp:" + probeTemp + "°C";
 
@@ -106,7 +106,7 @@ function update(_data) {
 
 function GetData() {
     $.ajaxSetup({ cache: false });
-
+    console.log(timeStamp);
     $.ajax({
         url: "http://127.0.0.1:8000/charts_update/",
         dataType: 'json',

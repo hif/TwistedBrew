@@ -129,7 +129,7 @@ class BrewConfig():
         for name, section in data.iteritems():
             if ismaster(name):
                 if masterfound:
-                    log.debug('More than one master found, discarding', log.WARNING)
+                    log.warning('More than one master found, discarding')
                 else:
                     masterfound = True
                     self.master = MasterConfig()
@@ -140,5 +140,5 @@ class BrewConfig():
                     worker.setfromyaml(workernode[CONFIG_WORKER])
                     self.workers.append(worker)
             else:
-                log.debug('Unknown module found {0}!'.format(str(name)), log.WARNING)
+                log.warning('Unknown module found {0}!'.format(str(name)))
 

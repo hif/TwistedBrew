@@ -25,7 +25,7 @@ def load_worker(config):
     try:
         module_name = config.classname.lower()
         if not module_name.endswith('worker'):
-            log.debug('Worker module {0} not found'.format(module_name), log.ERROR)
+            log.error('Worker module {0} not found'.format(module_name))
             return None
         module_name = module_name[:-6]
         package = 'workers.' + module_name

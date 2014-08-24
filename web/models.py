@@ -67,6 +67,20 @@ class Command(models.Model):
     def __unicode__(self):
         return '{0} ({1})'.format(self.name, self.type)
 
+
+class Message(models.Model):
+    timestamp = models.DateTimeField(auto_now=True)
+    type = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    text = models.CharField(max_length=COLUMN_LARGE_SIZE)
+
+    @staticmethod
+    def clear():
+        Message.objects.all().delete()
+
+    def __unicode__(self):
+        return '{0} [{1}] {2}'.format(self.timestamp, self.type, self.text)
+
+
 #class Commander(models.Model):
 #    command = models.CharField(max_length=100)
 #

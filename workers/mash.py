@@ -95,6 +95,8 @@ class MashWorker(BrewWorker):
     def stop_all_devices(self):
         if self.stopping_all_devices:
             return
+        if not self.is_device_running():
+            return
         self.stopping_all_devices = True
         while self.is_device_running():
             log.debug('Trying to stop all devices...')

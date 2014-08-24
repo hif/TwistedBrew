@@ -39,7 +39,7 @@ class Device(threading.Thread):
             with open(self.io) as file:
                 return True
         except IOError as e:
-            log.debug("Unable to find/open \"{0}\"".format(self.io), messagetype=log.WARNING)
+            log.warning("Unable to find/open \"{0}\"".format(self.io))
             return False
 
     def register(self):

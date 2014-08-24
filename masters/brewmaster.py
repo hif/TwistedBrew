@@ -102,12 +102,12 @@ class BrewMaster(threading.Thread):
     def load(self, recipe):
         try:
             if len(self.recipes) == 0:
-                log.debug('No recipes found in {}'.format(self.recipie_file), log.WARNING)
+                log.warning('No recipes found in {}'.format(self.recipie_file))
             self.recipe_name = recipe.strip().decode('utf-8')
             log.debug('Loading {0}'.format(recipe))
             self.recipe = None
             if not self.recipe_name in self.recipes:
-                log.debug('Recipe {0} not found in data file', log.WARNING)
+                log.warning('Recipe {0} not found in data file')
                 # Fake result
                 self.recipe = self.recipes.values()[0]
                 self.recipe_loaded = True
@@ -199,7 +199,7 @@ class BrewMaster(threading.Thread):
 
     def send(self, worker, data):
         if not self.verify_worker(worker):
-            log.debug('Worker {0} not available'.format(worker), log.WARNING)
+            log.warning('Worker {0} not available'.format(worker))
             return
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
@@ -245,21 +245,21 @@ class BrewMaster(threading.Thread):
 
     def mash(self, worker):
         if not self.recipe_loaded:
-            log.debug('No recipe loaded!', log.WARNING)
+            log.warning('No recipe loaded!')
             return
         self.send_schedule(worker, MashSchedule())
         log.debug('Mashing Schedule Sent')
 
     def boil(self, worker):
         if not self.recipe_loaded:
-            log.debug('No recipe loaded!', log.ERROR)
+            log.error('No recipe loaded!')
             return
         self.send_schedule(worker, BoilSchedule())
         log.debug('Boil Schedule Sent')
 
     def ferment(self, worker):
         if not self.recipe_loaded:
-            log.debug('No recipe loaded!', log.ERROR)
+            log.error('No recipe loaded!')
             return
         scde = FermentationSchedule()
         self.send_schedule(worker, scde)
@@ -267,7 +267,7 @@ class BrewMaster(threading.Thread):
 
     def send_command(self, command, worker):
         if not hasattr(self, command):
-            log.debug('No such command in BrewMaster', log.ERROR)
+            log.error('No such command in BrewMaster')
             return
         method = getattr(self, command)
         if worker is not None and worker != '' and command in self.messages.keys():

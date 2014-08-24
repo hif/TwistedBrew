@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^commands[/]$', views.commands, name='commands'),
     url(r'^measurements[/]$', views.measurements, name='measurements'),
     url(r'^commander[/]$', views.commander, name='commander'),
+    url(r'^messages[/]$', views.messages, name='messages'),
     url(r'^charts[/]$', views.charts, name='charts'),
     url(r'^charts_update[/]$', views.charts_update, name='charts_update'),
 

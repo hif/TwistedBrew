@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from models import Brew, Worker, Command, Measurement
+from models import Brew, Worker, Command, Measurement, Message
 from forms import CommanderForm
 from masters.brewcommander import BrewCommander
 import json, random
@@ -63,6 +63,17 @@ def measurements(request):
         'measurements': measurement_list,
     }
     return render_to_response('measurements.html', context_dict, context)
+
+
+def messages(request):
+    context = RequestContext(request)
+    message_list = Message.objects.order_by('-timestamp')
+
+    context_dict = {
+        'messages_active' : True,
+        'messages': message_list,
+    }
+    return render_to_response('messages.html', context_dict, context)
 
 
 def charts(request):

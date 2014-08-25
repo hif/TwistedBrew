@@ -12,7 +12,7 @@ from web.models import Brew, Worker, Command, Measurement
 class BrewMaster(threading.Thread):
     def __init__(self, config=None, configfile=None):
         threading.Thread.__init__(self)
-
+        self.measurements_lock = threading.Lock()
         if config is None:
             self.name = MasterQueue
             self.ip = MessageServerIP
@@ -183,13 +183,17 @@ class BrewMaster(threading.Thread):
 
     def handle_update(self, body):
         #log.debug('Receiving worker update...')
-        data = body.split(MessageSplit)
-        measurement = Measurement()
-        measurement.worker = data[1]
-        measurement.device = data[2]
-        measurement.value = data[3]
-        measurement.set_point = data[4]
-        measurement.save()
+        try:
+            with self.measurements_lock:
+                data = body.split(MessageSplit)
+                measurement = Measurement()
+                measurement.worker = data[1]
+                measurement.device = data[2]
+                measurement.value = data[3]
+                measurement.set_point = data[4]
+                measurement.save()
+        except Exception, e:
+            log.error('Brewmaster could not save measurement to database ({0})'.format(e.message))
 
     def verify_worker(self, worker):
         for available_worker in self.workers:

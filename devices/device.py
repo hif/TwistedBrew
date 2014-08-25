@@ -18,6 +18,7 @@ class Device(threading.Thread):
             self.name = config.name
             self.io = config.io
         self.enabled = False
+        self.read_write_lock = threading.Lock()
 
     def init(self):
         pass

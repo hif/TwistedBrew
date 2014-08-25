@@ -52,20 +52,23 @@ class SSR(Device):
     def set_ssr_state(self, on = False):
         if DEVICE_DEBUG:
             return True
-        fo = open(self.io, mode='w')
-        if on:
-            fo.write('1')
-        else:
-            fo.write('0')
-        fo.close()
-        return True
+        with self.read_write_lock:
+            fo = open(self.io, mode='w')
+            if on:
+                fo.write('1')
+            else:
+                fo.write('0')
+            fo.close()
+            ok = True
+        return ok
 
     def read(self):
         if DEVICE_DEBUG:
             return 1
-        fo = open(self.io, mode='r')
-        value = fo.read()
-        fo.close()
+        with self.read_write_lock:
+            fo = open(self.io, mode='r')
+            value = fo.read()
+            fo.close()
         return value
 
     def run(self):

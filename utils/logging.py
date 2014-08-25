@@ -1,6 +1,7 @@
 #!/usr/bin python
 from web.models import Message
 from datetime import datetime as dt
+import threading
 
 LOG_RECEIVER_DB = 1
 LOG_RECEIVER_STD = 2
@@ -17,22 +18,31 @@ ERROR = 'e'
 LOG_TYPE_TEXT = {DEBUG: 'Debug', INFO: 'Info', WARNING: 'Warning', ERROR: 'Error'}
 
 
-def log_message(msg, msg_type):
+message_lock = threading.Lock()
+
+
+def log_message(msg, msg_type, only_std=False):
     try:
         try:
             umsg = unicode(msg)
         except:
             umsg = msg.decode('utf-8')
-        if LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:
+        if only_std or LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:
             print(u'[{0}] {1}'.format(msg_type, umsg))
-        if LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_DB:
-            db_item = Message()
-            db_item.timestamp = dt.now()
-            db_item.type = LOG_TYPE_TEXT[msg_type]
-            db_item.text = umsg
-            db_item.save()
+        if not only_std and (LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_DB):
+            try:
+                with message_lock:
+                    db_item = Message()
+                    db_item.timestamp = dt.now()
+                    db_item.type = LOG_TYPE_TEXT[msg_type]
+                    db_item.text = umsg
+                    db_item.save()
+            except Exception, e:
+                log_message('Logger could not save message to database ({0})'.format(e.message), ERROR, True)
     except Exception, e:
-        log_message('Unable to log {0} message: {1}'.format(LOG_TYPE_TEXT[msg_type], ERROR))
+        if e.message == "Unable to log Debug message: global name 'Error' is not defined":
+            print 'hey you'
+        log_message('Unable to log {0} message: {1}'.format(LOG_TYPE_TEXT[msg_type], e.message), ERROR)
 
 
 def debug(message):

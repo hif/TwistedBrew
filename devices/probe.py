@@ -25,15 +25,18 @@ class Probe(Device):
     def read(self):
         if DEVICE_DEBUG:
             return self.test_temperature
-        fo = open(self.io, mode='r')
-        probe_crc = fo.readline()[-4:].rstrip()
-        #log.debug(probe_crc)
-        if probe_crc != 'YES':
-            log.debug('Temp reading wrong, do not update temp, wait for next reading')
-        else:
-            probe_heat = fo.readline().split('=')[1]
-            return float(probe_heat)/1000
-        fo.close()
+        with self.read_write_lock:
+            fo = open(self.io, mode='r')
+            probe_crc = fo.readline()[-4:].rstrip()
+            #log.debug(probe_crc)
+            if probe_crc != 'YES':
+                log.debug('Temp reading wrong, do not update temp, wait for next reading')
+            else:
+                probe_heat = fo.readline().split('=')[1]
+            temperature = float(probe_heat)/1000
+            fo.close()
+        return temperature
+
 
     def run(self):
         while self.enabled:

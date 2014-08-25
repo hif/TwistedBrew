@@ -70,10 +70,32 @@ def messages(request):
     message_list = Message.objects.order_by('-timestamp')
 
     context_dict = {
-        'messages_active' : True,
+        'messages_active': True,
         'messages': message_list,
     }
     return render_to_response('messages.html', context_dict, context)
+
+
+def warnings(request):
+    context = RequestContext(request)
+    message_list = Message.objects.filter(type='Warning').order_by('-timestamp')
+
+    context_dict = {
+        'warnings_active': True,
+        'messages': message_list,
+    }
+    return render_to_response('warnings.html', context_dict, context)
+
+
+def errors(request):
+    context = RequestContext(request)
+    message_list = Message.objects.filter(type='Error').order_by('-timestamp')
+
+    context_dict = {
+        'errors_active': True,
+        'messages': message_list,
+    }
+    return render_to_response('errors.html', context_dict, context)
 
 
 def charts(request):

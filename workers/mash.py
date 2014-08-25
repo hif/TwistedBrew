@@ -156,10 +156,7 @@ class MashWorker(BrewWorker):
     def temperature_callback(self, measured_value):
         try:
             calc = self.pid.calculate(measured_value, self.current_set_temperature)
-            try:
-                log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
-            except Exception, e:
-                print '**PROBE** ' + e.message
+            log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
             self.current_temperature = measured_value
             if DEVICE_DEBUG:
                 self.test_temperature = self.current_temperature
@@ -179,10 +176,7 @@ class MashWorker(BrewWorker):
 
     def heating_callback(self, heating_time):
         try:
-            try:
-                log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
-            except Exception, e:
-                print '**SSR** ' + e.message
+            log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
             device = self.outputs['Mash Tun']
             self.send_update(device, [heating_time, device.cycle_time])
             if DEVICE_DEBUG:

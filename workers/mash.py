@@ -5,22 +5,24 @@ from datetime import datetime as dt
 from datetime import timedelta as timedelta
 import time
 from utils.pid import PID
-from devices.device import DEVICE_DEBUG,DEVICE_DEFAULT_CYCLETIME
+from devices.device import DEVICE_DEBUG, DEVICE_DEFAULT_CYCLETIME, DEVICE_DEBUG_CYCLETIME
 
 
 MASH_DEBUG_INIT_TEMP = 60.0
-MASH_DEBUG_CYCLETIME = 2.0
+MASH_DEBUG_CYCLETIME = 10.0
 MASH_DEBUG_DELAY = 4
-MASH_DEBUG_WATTS = 55000.0# 10 x 5500.0
+MASH_DEBUG_WATTS = 5500.0  # 1 x 5500.0
 MASH_DEBUG_LITERS = 50.0
-MASH_DEBUG_COOLING = 0.001
+MASH_DEBUG_COOLING = 0.002
 MASH_DEBUG_TIME_DIVIDER = 1
+MASH_DEBUG_STEP_MINUTES = 1
+
 
 class MashWorker(BrewWorker):
     def __init__(self, name):
         BrewWorker.__init__(self, name)
-        #self.process = None
         self.pid = None
+        self.kpid = None
         self.current_temperature = 0.0
         self.current_set_temperature = 0.0
         self.current_hold_time = 0.0
@@ -75,8 +77,10 @@ class MashWorker(BrewWorker):
         if self.hold_temperature_timer is None:
             return False
         pause_total = timedelta(seconds=self.pause_time)
-        finish_time = dt.now()-self.hold_temperature_timer
+        finish_time = dt.now() - self.hold_temperature_timer
         mash_time = self.current_hold_time + pause_total
+        if DEVICE_DEBUG:
+            mash_time = timedelta(minutes=MASH_DEBUG_STEP_MINUTES)
         if finish_time >= mash_time:
             return True
         log.debug('Time untill step done: {0}'.format(mash_time - finish_time))
@@ -89,7 +93,10 @@ class MashWorker(BrewWorker):
         self.inputs['Temperature'].assign_callback(self.temperature_callback)
         self.outputs['Mash Tun'].assign_callback(self.heating_callback)
         self.inputs['Temperature'].start_device()
-        time.sleep(self.cycle_time/2.0) # Let devices alternate
+        if DEVICE_DEBUG:
+            time.sleep(DEVICE_DEBUG_CYCLETIME / 2.0)  # Let devices alternate
+        else:
+            time.sleep(self.cycle_time / 2.0)  # Let devices alternate
         self.outputs['Mash Tun'].start_device()
 
     def stop_all_devices(self):
@@ -123,7 +130,7 @@ class MashWorker(BrewWorker):
                 self.stop_all_devices()
             if self.step >= len(self.schedule.steps):
                 return False
-            log.debug('Starting step {0} of {1}'.format(self.step+1, len(self.schedule.steps)))
+            log.debug('Starting step {0} of {1}'.format(self.step + 1, len(self.schedule.steps)))
             if DEVICE_DEBUG:
                 self.cycle_time = MASH_DEBUG_CYCLETIME
             self.create_device_threads(self.cycle_time)
@@ -137,7 +144,10 @@ class MashWorker(BrewWorker):
             self.current_hold_time = timedelta(minutes=minutes)
             temperature = float(self.schedule.steps[self.step].temp)
             cycle_time = float(self.inputs['Temperature'].cycle_time)
-            self.pid = PID(temperature, cycle_time)
+            if self.pid is None:
+                self.pid = PID(None, temperature, cycle_time)
+            else:
+                self.pid = PID(self.pid.pid_params, temperature, cycle_time)
             self.start_all_devices()
             return True
         except Exception, e:
@@ -146,7 +156,10 @@ class MashWorker(BrewWorker):
     def temperature_callback(self, measured_value):
         try:
             calc = self.pid.calculate(measured_value, self.current_set_temperature)
-            log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
+            try:
+                log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
+            except Exception, e:
+                print '**PROBE** ' + e.message
             self.current_temperature = measured_value
             if DEVICE_DEBUG:
                 self.test_temperature = self.current_temperature
@@ -166,7 +179,10 @@ class MashWorker(BrewWorker):
 
     def heating_callback(self, heating_time):
         try:
-            log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
+            try:
+                log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
+            except Exception, e:
+                print '**SSR** ' + e.message
             device = self.outputs['Mash Tun']
             self.send_update(device, [heating_time, device.cycle_time])
             if DEVICE_DEBUG:

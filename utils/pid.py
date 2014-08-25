@@ -2,9 +2,12 @@
 from collections import deque
 import logging as log
 
+KC_DEFAULT = 75.0
+TI_DEFAULT = 75.0
+TD_DEFAULT = 5.0
 
 class PIDParams:
-    def __init__(self):
+    def __init__(self, last=None):
         # From http://www.vandelogt.nl/datasheets/pid_controller_calculus_v320.pdf
         self.kc = 0.0  # Controller gain
         self.ti = 0.0  # Time-constant for I action
@@ -22,8 +25,14 @@ class PIDParams:
         self.pp = 0.0  # debug
         self.pi = 0.0  # debug
         self.pd = 0.0  # debug
-        self.xk_1 = 0.0
-        self.xk_2 = 0.0
+        if last is None:
+            self.xk_1 = 0.0
+            self.xk_2 = 0.0
+            self.yk = 0.0
+        else:
+            self.xk_1 = last.xk_1
+            self.xk_2 = last.xk_2
+            self.yk = last.yk
 
     def update(self, xk):
         self.xk_2 = self.xk_1
@@ -33,11 +42,11 @@ class PIDParams:
 class PID():
     GMA_HLIM = 100.0
     GMA_LLIM = 0.0
-    def __init__(self, setpoint, cycle_time, kc=75.0, ti=75.0, td=5.0):
+    def __init__(self, last_params, setpoint, cycle_time, kc=KC_DEFAULT, ti=TI_DEFAULT, td=TD_DEFAULT):
         self.setpoint = setpoint
         self.cycle_time = cycle_time
         # Parameters
-        self.pid_params = PIDParams()
+        self.pid_params = PIDParams(last_params)
         self.pid_params.ts = self.cycle_time
         self.pid_params.kc = kc
         self.pid_params.ti = ti
@@ -65,7 +74,9 @@ class PID():
             p.k0 = 0.0
         else:
             p.k0 = p.kc * p.ts / p.ti
+            #print 'k0 = {0} = p.{1} * {2} / {3}'.format(p.k0, p.kc, p.ts, p.ti)
         p.k1 = p.kc * p.td / p.ts
+        #print 'k1 = {0} = {1} * {2} / {3}'.format(p.k1, p.kc, p.td, p.ts)
         p.lpf1 = (2.0 * p.k_lpf - p.ts) / (2.0 * p.k_lpf + p.ts)
         p.lpf2 = p.ts / (2.0 * p.k_lpf + p.ts)
 
@@ -81,8 +92,6 @@ class PID():
         # Pointer to struct containing PID parameters
         # Release signal: 1 = Start control, 0 = disable PID controller No values are returned
 
-        yk = 0.0  # y[k]
-        ek = 0.0  # e[k]
         lpf = 0.0  # LPF output
         ek = tset - xk  # calculate e[k] = SP[k] - PV[k]
         if vrg:
@@ -90,17 +99,20 @@ class PID():
             p.pp = p.kc * (p.xk_1 - xk)  # y[k] = y[k - 1] + Kc * (PV[k - 1] - PV[k])
             p.pi = p.k0 * ek           # + Kc * Ts / Ti * e[k]
             p.pd = p.k1 * (2.0 * p.xk_1 - xk - p.xk_2)
-            yk += p.pp + p.pi + p.pd
+            p.yk += p.pp + p.pi + p.pd
 
         else:
-            yk = p.pp = p.pi = p.pd = 0.0
+            p.yk = p.pp = p.pi = p.pd = 0.0
+
+        #print '{0} += {1} + {2} + {3}'.format(p.yk, p.pp, p.pi, p.pd)
         p.update(xk) # PV[k-2] = PV[k-1] and PV[k-1] = PV[k]
         # limit y[k] to GMA_HLIM and GMA_LLIM
-        if yk > PID.GMA_HLIM:
-            yk = PID.GMA_HLIM
-        elif yk < PID.GMA_LLIM:
-            yk = PID.GMA_LLIM
-        return yk
+        if p.yk > PID.GMA_HLIM:
+            p.yk = PID.GMA_HLIM
+        elif p.yk < PID.GMA_LLIM:
+            p.yk = PID.GMA_LLIM
+
+        return p.yk
 
 
     def calculate(self, measured_value, set_point):

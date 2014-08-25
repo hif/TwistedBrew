@@ -1,5 +1,5 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG
+from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLETIME
 import utils.logging as log
 import re
 import threading
@@ -72,36 +72,15 @@ class SSR(Device):
         while self.enabled:
             # grab the current value if it should be changed during the cycle
             on_percent = self.on_percent
-
-            if SSR_DEVICE_DEBUG:
-                loop_start = datetime.datetime.now()
-
             on_time = on_percent * self.cycle_time
+            if DEVICE_DEBUG:
+                time.sleep(DEVICE_DEBUG_CYCLETIME)
+                self.callback(on_time)
+                continue
             if self.on_percent > 0.0:
                 self.set_ssr_state(True)
-
-                if SSR_DEVICE_DEBUG:
-                    on_start = datetime.datetime.now()
-                    log.debug('Turning on SSR')
-
                 time.sleep(on_time)
-
-                if SSR_DEVICE_DEBUG:
-                    log.debug('SSR was on for {0}'.format(datetime.datetime.now()-on_start))
-
             if self.on_percent < 1.0:
                 self.set_ssr_state(False)
-
-                if SSR_DEVICE_DEBUG:
-                    log.debug('Turning off SSR')
-                    off_start = datetime.datetime.now()
-
                 time.sleep((1.0-on_percent)*self.cycle_time)
-
-                if SSR_DEVICE_DEBUG:
-                    log.debug('SSR was off for {0}'.format(datetime.datetime.now()-off_start))
-
             self.callback(on_time)
-
-            if SSR_DEVICE_DEBUG:
-                log.debug(' * On/Off cycle lasted for {0} *'.format(datetime.datetime.now()-loop_start))

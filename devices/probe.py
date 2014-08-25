@@ -1,5 +1,5 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG
+from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLETIME
 import utils.logging as log
 import time
 
@@ -39,5 +39,8 @@ class Probe(Device):
         while self.enabled:
             measured_value = float(self.read())
             self.callback(measured_value)
-            time.sleep(self.cycle_time)
+            if DEVICE_DEBUG:
+                time.sleep(DEVICE_DEBUG_CYCLETIME)
+            else:
+                time.sleep(self.cycle_time)
 

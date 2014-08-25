@@ -4,6 +4,7 @@ import utils.logging as log
 
 
 DEVICE_DEBUG = True
+DEVICE_DEBUG_CYCLETIME = 0.2
 DEVICE_DEFAULT_CYCLETIME = 10.0
 
 class Device(threading.Thread):

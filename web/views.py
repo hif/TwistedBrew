@@ -126,7 +126,7 @@ def charts_update(request):
     log.debug(last_timestamp)
 
 
-    latest_measurement_set = Measurement.objects.filter(device__contains='Temperature').filter(timestamp__gte=last_timestamp)
+    latest_measurement_set = Measurement.objects.filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
 
     latest_timestamps = list()
     latest_probe_temps = list()

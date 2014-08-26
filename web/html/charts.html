@@ -7,28 +7,23 @@
 
 <script type="text/javascript">
 var setTempchartData = [], probeTempchartData = [], dummyData = [];
-var setTemp = 0, probeTemp = 0;
-var timeStamp = 0;
+var setTemp = 0, probeTemp = 0, timeStamp = 0, noUpdateCount = 1;
 var chartData;
 var totalPoints = 100; // 720 - one hour mash, five sec update
-var updateInterval = 1000;
+var updateInterval = 1000; // milliseconds
+var initUpdateInterval = updateInterval;
 var now = new Date().getTime();
 
 var dataset = [
-        { label: "Set Temp:" + setTemp + "°C", data: setTempchartData, lines: {fill: true,  lineWidth: 1.5 }, color: "rgba(0, 255, 0, 0.5)" },
-        { label: "Probe Temp:" + probeTemp + "°C", data: probeTempchartData, lines: {lineWidth: 1.2}, color: "rgba(255, 0, 0, 0.8)" },
+        { label: "Set Temp:" + setTemp + "°C", data: setTempchartData, lines: {fill: true,  lineWidth: 1.0 }, color: "rgba(0, 255, 0, 0.4)" },
+        { label: "Probe Temp:" + probeTemp + "°C", data: probeTempchartData, lines: {lineWidth: 2.0}, color: "rgba(255, 0, 0, 0.8)" },
         { label: "", data: dummyData, lines: {lineWidth: 0.0}, color: "rgba(0, 0, 0, 0.0)" }
     ];
 
 var options = {
-    series: {
-        lines: {
-            lineWidth: 1.2
-        }
-    },
     xaxis: {
         mode: "time",
-        tickSize: [10, "second"], // controls the space between each tick on shown on the xaxis,
+        tickSize: [5, "second"], // controls the space between each tick (vertical grid line) shown on the xaxis,
         tickFormatter: function (v, axis) {
             var date = new Date(v);
             if (date.getSeconds() % 20 == 0) { // controls the space between printed ticks (so they don't overlap)
@@ -80,13 +75,26 @@ function initData() {
         var chartData = [now += updateInterval, 0];
 
         dummyData.push(chartData);
-        //setTempchartData.push(chartData);
-        //probeTempchartData.push(chartData);
+    }
+}
+
+function backOff(){
+    updateInterval =+ initUpdateInterval*noUpdateCount;
+    if(noUpdateCount < 5){
+        noUpdateCount++;
+    }else{
+        noUpdateCount = 1;
     }
 }
 
 function update(_data) {
     var l = _data.latest_timestamp.length;
+    if (l == 0){
+        backOff();
+    }else{
+        updateInterval = initUpdateInterval;
+        noUpdateCount = 1;
+    }
     for (i = 0; i < l; i++) {
         timeStamp = _data.latest_timestamp[i];
         setTemp = _data.latest_set_point[i];
@@ -94,31 +102,33 @@ function update(_data) {
         if (setTempchartData.length >= totalPoints) {
             setTempchartData.shift();
             probeTempchartData.shift();
-            dummyData.shift();
         }
         chartData = [timeStamp, setTemp];
         setTempchartData.push(chartData);
         chartData = [timeStamp, probeTemp];
         probeTempchartData.push(chartData);
+        dummyData.shift();
     }
 
     dataset[0].label = "Set Temp:" + setTemp + "°C";
     dataset[1].label = "Probe Temp:" + probeTemp + "°C";
 
     $.plot($("#flot-placeholder1"), dataset, options);
-    setTimeout(GetData, updateInterval);
+    setTimeout(getData, updateInterval);
 }
 
-function GetData() {
+
+function getData() {
     $.ajaxSetup({ cache: false });
     $.ajax({
         url: "http://127.0.0.1:8000/charts_update/",
         dataType: 'json',
         type: 'POST',
-        data: {timestamp: timeStamp, csrfmiddlewaretoken: '{{ csrf_token }}'},
+        data: {timestamp: timeStamp+1000, csrfmiddlewaretoken: '{{ csrf_token }}'},
         success: update,
         error: function () {
-            setTimeout(GetData, updateInterval);
+            backOff;
+            setTimeout(getData, updateInterval);
         }
     });
 }
@@ -127,7 +137,7 @@ $(document).ready(function () {
     initData();
 
     $.plot($("#flot-placeholder1"), dataset, options);
-    setTimeout(GetData, updateInterval);
+    setTimeout(getData, updateInterval);
 });
 
 

@@ -117,8 +117,6 @@ def charts(request):
 
 def charts_update(request):
 
-    latest_timestamps_js = []
-
     if request.POST:
         last_timestamp_ms = request.POST.getlist('timestamp')
     log.debug(last_timestamp_ms)

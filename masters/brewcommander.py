@@ -32,7 +32,7 @@ class BrewCommander():
         if params is not None and params != '':
             data = u'{0}{1}{2}'.format(data, msg.MessageSplit, params)
 
-        if command != msg.MessageLoad:
+        if command != msg.MessageLoad and command != msg.MessageShutdown:
             data = u'{0}{1}{2}'.format(msg.MessageExecute, msg.MessageSplit, data)
 
         log.debug(u'Commanding master - {0}'.format(data))

@@ -6,6 +6,7 @@ import pika
 from masters.defaults import *
 from masters.messages import *
 import utils.logging as log
+import time
 
 
 MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
@@ -28,6 +29,7 @@ class BrewWorker(threading.Thread):
         self.inputs = {}
         self.schedule = None
         self.step = -1
+        self.enabled = False
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
@@ -61,14 +63,21 @@ class BrewWorker(threading.Thread):
         self.listen()
 
     def listen(self):
+        self.enabled = True
         self.on_start()
         self.channel.queue_bind(exchange=BroadcastExchange, queue=self.name)
-        self.channel.basic_consume(self.receive, queue=self.name, no_ack=True)
-        self.channel.start_consuming()
+        #self.channel.basic_consume(self.receive, queue=self.name, no_ack=True)
+        #self.channel.start_consuming()
+        while self.enabled:
+            method, properties, body = self.channel.basic_get(queue=self.name, no_ack=True)
+            if body is not None:
+                self.receive(self.channel, method, properties, body)
+            time.sleep(0.5)
 
     def stop(self):
         self.on_stop()
-        self.channel.stop_consuming()
+        #self.channel.stop_consuming()
+        self.enabled = False
 
     def send_to_master(self, data):
         #log.debug('Sending to master - ' + data)

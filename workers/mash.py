@@ -73,6 +73,10 @@ class MashWorker(BrewWorker):
         self.stop_all_devices()
         return True
 
+    def on_stop(self):
+        self.stop_all_devices()
+        return True
+
     def is_step_done(self):
         if self.hold_temperature_timer is None:
             return False

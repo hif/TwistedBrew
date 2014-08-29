@@ -29,7 +29,8 @@ class Worker(models.Model):
 
 
 class Measurement(models.Model):
-    timestamp = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now=False)
+    session = models.CharField(max_length=COLUMN_SMALL_SIZE)
     worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
     device = models.CharField(max_length=COLUMN_SMALL_SIZE)
     value = models.FloatField()

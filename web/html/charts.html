@@ -35,9 +35,6 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 			this.chartTicks = [1, "minute"];
 	}
 
-	// to be able to access this.properties inside functions
-	var _this = this;
-
     LineChart.prototype.getTicks = function(v, axis){
         var date = new Date(v);
         if (date.getSeconds() % 60 == 0) { // controls the space between printed ticks (so they don't overlap)
@@ -51,16 +48,16 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
     };
 
 	this.dataset = [
-        { label: "Set Temp:" + _this.setTemp + "°C", data: _this.setTempchartData, lines: {fill: true,  lineWidth: 1.0 }, color: "rgba(0, 255, 0, 0.4)" },
-        { label: "Probe Temp:" + _this.probeTemp + "°C", data: _this.probeTempchartData, lines: {lineWidth: 2.0}, color: "rgba(255, 0, 0, 0.8)" },
-        { label: "", data: _this.dummyData, lines: {lineWidth: 0.0}, color: "rgba(0, 0, 0, 0.0)" }
+        { label: "Set Temp:" + this.setTemp + "°C", data: this.setTempchartData, lines: {fill: true,  lineWidth: 1.0 }, color: "rgba(0, 255, 0, 0.4)" },
+        { label: "Probe Temp:" + this.probeTemp + "°C", data: this.probeTempchartData, lines: {lineWidth: 2.0}, color: "rgba(255, 0, 0, 0.8)" },
+        { label: "", data: this.dummyData, lines: {lineWidth: 0.0}, color: "rgba(0, 0, 0, 0.0)" }
     ];
 
 	this.options = {
         xaxis: {
             mode: "time",
-            tickSize: _this.chartTicks, // controls the space between each tick (vertical grid line) shown on the xaxis,
-            tickFormatter: _this.getTicks,
+            tickSize: this.chartTicks, // controls the space between each tick (vertical grid line) shown on the xaxis,
+            tickFormatter: this.getTicks,
             axisLabel: "Time",
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
@@ -97,49 +94,49 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 
 	// lineChart methods
 	LineChart.prototype.initData = function(){
-	    for (var i = 0; i < _this.totalPoints; i++) {
-			_this.chartData = [_this.now += _this.updateInterval, 0];
-			_this.dummyData.push(_this.chartData);
+	    for (var i = 0; i < this.totalPoints; i++) {
+			this.chartData = [this.now += this.updateInterval, 0];
+			this.dummyData.push(this.chartData);
 		}
 	};
 
 	LineChart.prototype.backOff = function (){
-		_this.updateInterval =+ _this.initUpdateInterval*_this.noUpdateCount;
-		if(_this.noUpdateCount < 5){
-			_this.noUpdateCount++;
+		this.updateInterval =+ this.initUpdateInterval*this.noUpdateCount;
+		if(this.noUpdateCount < 5){
+			this.noUpdateCount++;
 		}else{
-			_this.noUpdateCount = 1;
+			this.noUpdateCount = 1;
 		}
 	};
 
 	LineChart.prototype.update = function (_data) {
 		var l = _data.latest_timestamp.length;
 		if (l == 0){
-			_this.backOff();
+			this.backOff();
 		}else{
-			_this.updateInterval = _this.initUpdateInterval;
-			_this.noUpdateCount = 1;
+			this.updateInterval = this.initUpdateInterval;
+			this.noUpdateCount = 1;
 		}
 		for (i = 0; i < l; i++) {
-			_this.timeStamp = _data.latest_timestamp[i];
-			_this.setTemp = _data.latest_set_point[i];
-			_this.probeTemp = _data.latest_probe_temp[i];
-			if (_this.setTempchartData.length >= _this.totalPoints) {
-				_this.setTempchartData.shift();
-				_this.probeTempchartData.shift();
+			this.timeStamp = _data.latest_timestamp[i];
+			this.setTemp = _data.latest_set_point[i];
+			this.probeTemp = _data.latest_probe_temp[i];
+			if (this.setTempchartData.length >= this.totalPoints) {
+				this.setTempchartData.shift();
+				this.probeTempchartData.shift();
 			}
-			_this.chartData = [_this.timeStamp, _this.setTemp];
-			_this.setTempchartData.push(_this.chartData);
-			_this.chartData = [_this.timeStamp, _this.probeTemp];
-			_this.probeTempchartData.push(_this.chartData);
-			_this.dummyData.shift();
+			this.chartData = [this.timeStamp, this.setTemp];
+			this.setTempchartData.push(this.chartData);
+			this.chartData = [this.timeStamp, this.probeTemp];
+			this.probeTempchartData.push(this.chartData);
+			this.dummyData.shift();
 		}
 
-		_this.dataset[0].label = "Set Temp:" + _this.setTemp + "°C";
-		_this.dataset[1].label = "Probe Temp:" + _this.probeTemp + "°C";
+		this.dataset[0].label = "Set Temp:" + this.setTemp + "°C";
+		this.dataset[1].label = "Probe Temp:" + this.probeTemp + "°C";
 
-		$.plot($(_this.placeHolderId), _this.dataset, _this.options);
-		setTimeout(_this.getData, _this.updateInterval);
+		$.plot($(this.placeHolderId), this.dataset, this.options);
+		setTimeout(this.getData.bind(this), this.updateInterval);
 	};
 
 	LineChart.prototype.getData = function () {
@@ -148,21 +145,20 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 			url: "http://127.0.0.1:8000/charts_update/",
 			dataType: 'json',
 			type: 'POST',
-			data: {timestamp: _this.timeStamp+1000, csrfmiddlewaretoken: '{{ csrf_token }}'},
-			success: _this.update,
+			data: {timestamp: this.timeStamp+1000, csrfmiddlewaretoken: '{{ csrf_token }}'},
+			success: this.update.bind(this),
 			error: function () {
-				_this.backOff;
-				setTimeout(_this.getData, _this.updateInterval);
+				this.backOff.bind(this);
+				setTimeout(this.getData.bind(this), this.updateInterval);
 			}
 		});
 	}
 
     LineChart.prototype.drawChart = function () {
-        _this.initData();
-	    $.plot($(_this.placeHolderId), _this.dataset, _this.options);
-	    setTimeout(_this.getData, _this.updateInterval);
+        this.initData();
+	    $.plot($(this.placeHolderId), this.dataset, this.options);
+	    setTimeout(this.getData.bind(this), this.updateInterval);
     }
-
 }
 
 

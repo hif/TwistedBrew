@@ -159,6 +159,12 @@ class BrewMaster(threading.Thread):
             if body is not None:
                 self.handle(self.channel, method, properties, body)
             time.sleep(0.5)
+        self.stop_all_workers()
+        log.debug('Shutting down Brew master')
+
+    def stop_all_workers(self):
+        for worker in self.workers:
+            self.send_command('stop', worker.name)
 
     def shutdown(self):
         #self.channel.stop_consuming()

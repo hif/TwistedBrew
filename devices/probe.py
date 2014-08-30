@@ -1,13 +1,13 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLETIME
+from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLE_TIME
 import utils.logging as log
 import time
 
 
 class Probe(Device):
-    def __init__(self, config=None):
-        Device.__init__(self, config)
-        self.test_temperture = 0.0
+    def __init__(self, owner, config):
+        self.test_temperature = 0.0
+        Device.__init__(self, owner, config)
 
     def init(self):
         # TODO: Implment
@@ -37,13 +37,12 @@ class Probe(Device):
             fo.close()
         return temperature
 
-
-    def run(self):
-        while self.enabled:
-            measured_value = float(self.read())
-            self.callback(measured_value)
-            if DEVICE_DEBUG:
-                time.sleep(DEVICE_DEBUG_CYCLETIME)
-            else:
-                time.sleep(self.cycle_time)
+    def run_cycle(self):
+        read_value = self.read()
+        measured_value = float(read_value)
+        self.do_callback(measured_value)
+        if DEVICE_DEBUG:
+            time.sleep(DEVICE_DEBUG_CYCLE_TIME)
+        else:
+            time.sleep(self.cycle_time)
 

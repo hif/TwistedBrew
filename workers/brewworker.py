@@ -1,12 +1,11 @@
 #!/usr/bin python
 import threading
-
+import time
 import pika
-
+from devices.device import DEVICE_DEBUG
 from masters.defaults import *
 from masters.messages import *
 import utils.logging as log
-import time
 
 
 MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
@@ -30,36 +29,101 @@ class BrewWorker(threading.Thread):
         self.schedule = None
         self.step = -1
         self.enabled = False
+        self.active = False
+        self.pausing_all_devices = False
+        self.starting_next_step = False
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
 
     @staticmethod
-    def load_device(config, cycle_time=0.0):
+    def load_device(owner, config):
         try:
             module_name = config.device.lower()
             package = 'devices.' + module_name
             module = __import__(package)
             device_class = getattr(getattr(module, module_name), config.device)
-            instance = device_class(config)
-            if cycle_time > 0:
-                instance.cycle_time = cycle_time
+            instance = device_class(owner, config)
             return instance
         except Exception, e:
             log.error('Unable to load device from config: {0}'.format(e))
             return None
 
-    def create_device_threads(self, cycle_time=0):
+    def create_device_threads(self):
         for i in self.input_config:
-            self.inputs[i.name] = self.load_device(i, cycle_time)
+            device = self.load_device(self, i)
+            if device is None:
+                return False
+            self.inputs[i.name] = device
         for o in self.output_config:
-            self.outputs[o.name] = self.load_device(o, cycle_time)
+            device = self.load_device(self, o)
+            if device is None:
+                return False
+            self.outputs[o.name] = device
+        return True
+
+    def start_all_devices(self):
+        for i in self.inputs.itervalues():
+            self.inputs[i.name] = i.start_device()
+        for o in self.outputs.itervalues():
+            self.outputs[o.name] = o.start_device()
+
+    def is_any_device_enabled(self):
+        for i in self.inputs.itervalues():
+            if i.enabled:
+                return True
+        for o in self.outputs.itervalues():
+            if o.enabled:
+                return True
+        return False
+
+    def is_device_enabled(self, name):
+        if len(self.inputs) != 0:
+            if self.inputs[name].enabled:
+                return True
+        if len(self.outputs) != 0:
+            if self.outputs[name].enabled:
+                return True
+        return False
+
+    def pause_all_devices(self):
+        if self.pausing_all_devices:
+            return
+        self.pausing_all_devices = True
+        while self.is_any_device_enabled():
+            log.debug('Trying to pause all passive devices...')
+            for i in self.inputs.itervalues():
+                i.pause_device()
+            for o in self.outputs.itervalues():
+                o.pause_device()
+            time.sleep(1)
+        log.debug('All passive devices paused')
+        self.pausing_all_devices = False
+
+    def resume_all_devices(self):
+        while self.pausing_all_devices:
+            time.sleep(1)
+        log.debug('Resuming all passive devices...')
+        for i in self.inputs.itervalues():
+            i.resume_device()
+        for o in self.outputs.itervalues():
+            o.resume_device()
+        log.debug('All passive devices resumed')
+        self.pausing_all_devices = False
+
+    def stop_all_devices(self):
+        for i in self.inputs.itervalues():
+            i.stop_device()
+        for o in self.outputs.itervalues():
+            o.stop_device()
 
     def work(self, ch, method, properties, body):
         log.debug('Waiting for schedule. To exit press CTRL+C')
 
     def run(self):
+        if not self.create_device_threads():
+            log.error('Unable to load all devices, shutting down')
         self.listen()
 
     def listen(self):
@@ -73,8 +137,10 @@ class BrewWorker(threading.Thread):
             if body is not None:
                 self.receive(self.channel, method, properties, body)
             time.sleep(0.5)
+        log.debug('Shutting down worker {0}'.format(self))
 
     def stop(self):
+        self.stop_all_devices()
         self.on_stop()
         #self.channel.stop_consuming()
         self.enabled = False

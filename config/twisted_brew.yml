@@ -14,11 +14,17 @@ workers:
                 name: "Mash Tun"
                 device: "SSR"
                 io: "/sys/class/gpio/gpio17/value"
+                active: "False"
+                callback: "mash_heating_callback"
+                cycle_time: "10.0"
         inputs:
             - input:
                 name: "Temperature"
                 device: "Probe"
                 io: "/sys/bus/w1/devices/28-00000607f0de/w1_slave"
+                active: "True"
+                callback: "mash_temperature_callback"
+                cycle_time: "10.0"
 
 #    - worker:
 #        name: "Mr Boiler"
@@ -30,11 +36,17 @@ workers:
 #                name: "Boiler"
 #                device: "SSR"
 #                io: "gpio2"
+#                active: "False"
+#                callback: "boil_heating_callback"
+#                cycle_time: "10.0"
 #        inputs:
 #            - input:
 #                name: "Temperature"
 #                device: "Probe"
 #                io: "gpio3"
+#                active: "False"
+#                callback: "boil_temperature_callback"
+#                cycle_time: "10.0"
 #
 #    - worker:
 #        name: "Fermat"
@@ -46,9 +58,15 @@ workers:
 #                name: "Fermenter"
 #                device: "SSR"
 #                io: "gpio4"
+#                active: "False"
+#                callback: "fermentation_heating_callback"
+#                cycle_time: "10.0"
 #        inputs:
 #            - input:
 #                name: "Temperature"
 #                device: "Probe"
 #                io: "gpio5"
+#                active: "False"
+#                callback: "fermentation_heating_callback"
+#                cycle_time: "10.0"
 #

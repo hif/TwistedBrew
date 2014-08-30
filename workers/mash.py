@@ -3,9 +3,8 @@ from workers.brewworker import *
 from schedules.mash import *
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
-import time
 from utils.pid import PID
-from devices.device import DEVICE_DEBUG, DEVICE_DEBUG_CYCLE_TIME
+from devices.device import DEVICE_DEBUG
 
 
 MASH_DEBUG_INIT_TEMP = 60.0
@@ -25,7 +24,6 @@ class MashWorker(BrewWorker):
         self.current_temperature = 0.0
         self.current_set_temperature = 0.0
         self.test_temperature = MASH_DEBUG_INIT_TEMP
-
 
     def on_start(self):
         log.debug('Waiting for mash schedule. To exit press CTRL+C')
@@ -49,7 +47,7 @@ class MashWorker(BrewWorker):
             self.next_step()
         except Exception, e:
             log.debug('Mash worker failed to start work: {0}'.format(e.message))
-            self.stop_all_passive_devices()
+            self.stop_all_devices()
 
     def on_pause(self):
         log.debug('Pause {0}'.format(self))
@@ -87,9 +85,11 @@ class MashWorker(BrewWorker):
 
     def mash_temperature_callback(self, measured_value):
         try:
+            calc = 0.0
             if self.pid is not None:
                 calc = self.pid.calculate(measured_value, self.current_set_temperature)
-                log.debug('{0} reports measured value {1} and pid calculated {2}'.format(self.name, measured_value, calc))
+                log.debug('{0} reports measured value {1} and pid calculated {2}'.
+                          format(self.name, measured_value, calc))
             else:
                 log.debug('{0} reports measured value {1}'.format(self.name, measured_value))
             self.current_temperature = measured_value

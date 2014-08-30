@@ -20,6 +20,7 @@ MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: '
 class BrewWorker(threading.Thread):
     def __init__(self, name):
         threading.Thread.__init__(self)
+        self.working = False
         self.name = name
         self.ip = MessageServerIP
         self.port = MessageServerPort
@@ -226,6 +227,7 @@ class BrewWorker(threading.Thread):
             self.pause_all_devices()
             self.step += 1
             if self.step >= len(self.schedule.steps):
+                self.working = False
                 return False
             log.debug('Starting step {0} of {1}'.format(self.step + 1, len(self.schedule.steps)))
             self.on_next_step()

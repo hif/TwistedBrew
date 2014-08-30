@@ -15,7 +15,6 @@ MASH_DEBUG_WATTS = 5500.0  # 1 x 5500.0
 MASH_DEBUG_LITERS = 50.0
 MASH_DEBUG_COOLING = 0.002
 MASH_DEBUG_TIME_DIVIDER = 1
-MASH_DEBUG_STEP_MINUTES = 1
 
 
 class MashWorker(BrewWorker):
@@ -25,10 +24,6 @@ class MashWorker(BrewWorker):
         self.kpid = None
         self.current_temperature = 0.0
         self.current_set_temperature = 0.0
-        self.current_hold_time = timedelta(minutes=0)
-        self.hold_temperature_timer = None
-        self.hold_temperature_pause_timer = None
-        self.pause_time = 0.0
         self.test_temperature = MASH_DEBUG_INIT_TEMP
 
 
@@ -40,8 +35,8 @@ class MashWorker(BrewWorker):
             log.debug('Receiving mash schedule...')
             self.working = True
             self.step = -1
-            self.hold_temperature_timer = None
-            self.hold_temperature_pause_timer = None
+            self.hold_timer = None
+            self.hold_pause_timer = None
             self.pause_time = 0
             self.schedule = MashSchedule()
             self.schedule.from_yaml(body)
@@ -58,12 +53,12 @@ class MashWorker(BrewWorker):
 
     def on_pause(self):
         log.debug('Pause {0}'.format(self))
-        self.hold_temperature_pause_timer = dt.now()
+        self.hold_pause_timer = dt.now()
         return True
 
     def on_resume(self):
         log.debug('Resume {0}'.format(self))
-        self.pause_time += (dt.now() - self.hold_temperature_pause_timer)
+        self.pause_time += (dt.now() - self.hold_pause_timer)
         return True
 
     def on_reset(self):
@@ -74,60 +69,21 @@ class MashWorker(BrewWorker):
         self.stop_all_devices()
         return True
 
-    def is_step_done(self):
-        if self.hold_temperature_timer is None:
-            return False
-        pause_total = timedelta(seconds=self.pause_time)
-        finish_time = dt.now() - self.hold_temperature_timer
-        mash_time = self.current_hold_time + pause_total
+    def on_next_step(self):
+        self.current_set_temperature = float(self.schedule.steps[self.step].temp)
+        # Convert time in minutes to seconds
+        self.hold_timer = None
+        self.hold_pause_timer = None
+        minutes = int(self.schedule.steps[self.step].min)
         if DEVICE_DEBUG:
-            mash_time = timedelta(minutes=MASH_DEBUG_STEP_MINUTES)
-        if finish_time >= mash_time:
-            return True
-        log.debug('Time untill step done: {0}'.format(mash_time - finish_time))
-        return False
-
-
-#   def start_all_devices(self):
-#       log.debug('Starting all devices')
-#       if DEVICE_DEBUG:
-#           self.inputs['Temperature'].test_temperature = self.test_temperature
-#       self.inputs['Temperature'].assign_callback(self.temperature_callback)
-#       self.outputs['Mash Tun'].assign_callback(self.heating_callback)
-#       self.inputs['Temperature'].start_device()
-#           if DEVICE_DEBUG:
-#               self.cycle_time = MASH_DEBUG_CYCLETIME
-#       if DEVICE_DEBUG:
-#           time.sleep(DEVICE_DEBUG_CYCLE_TIME / 2.0)  # Let devices alternate
-#       else:
-#           time.sleep(self.cycle_time / 2.0)  # Let devices alternate
-#       self.outputs['Mash Tun'].start_device()
-
-    def next_step(self):
-        try:
-            self.pause_all_devices()
-            self.step += 1
-            if self.step >= len(self.schedule.steps):
-                return False
-            log.debug('Starting step {0} of {1}'.format(self.step + 1, len(self.schedule.steps)))
-            self.current_set_temperature = float(self.schedule.steps[self.step].temp)
-            # Convert time in minutes to seconds
-            self.hold_temperature_timer = None
-            self.hold_temperature_pause_timer = None
-            minutes = int(self.schedule.steps[self.step].min)
-            if DEVICE_DEBUG:
-                minutes /= MASH_DEBUG_TIME_DIVIDER
-            self.current_hold_time = timedelta(minutes=minutes)
-            temperature = float(self.schedule.steps[self.step].temp)
-            cycle_time = float(self.inputs['Temperature'].cycle_time)
-            if self.pid is None:
-                self.pid = PID(None, temperature, cycle_time)
-            else:
-                self.pid = PID(self.pid.pid_params, temperature, cycle_time)
-            self.resume_all_devices()
-            return True
-        except Exception, e:
-            log.error('Error in next_step: {0}'.format(e.message))
+            minutes /= MASH_DEBUG_TIME_DIVIDER
+        self.current_hold_time = timedelta(minutes=minutes)
+        temperature = float(self.schedule.steps[self.step].temp)
+        cycle_time = float(self.inputs['Temperature'].cycle_time)
+        if self.pid is None:
+            self.pid = PID(None, temperature, cycle_time)
+        else:
+            self.pid = PID(self.pid.pid_params, temperature, cycle_time)
 
     def mash_temperature_callback(self, measured_value):
         try:
@@ -140,8 +96,8 @@ class MashWorker(BrewWorker):
             if DEVICE_DEBUG:
                 self.test_temperature = self.current_temperature
             self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
-            if self.step >= 0 and self.hold_temperature_timer is None and measured_value >= self.current_set_temperature:
-                self.hold_temperature_timer = dt.now()
+            if self.step >= 0 and self.hold_timer is None and measured_value >= self.current_set_temperature:
+                self.hold_timer = dt.now()
 
             if not self.starting_next_step and self.is_step_done():
                 self.starting_next_step = True

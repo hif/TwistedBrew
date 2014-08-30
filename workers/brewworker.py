@@ -2,10 +2,15 @@
 import threading
 import time
 import pika
+from datetime import datetime as dt
+from datetime import timedelta as timedelta
 from devices.device import DEVICE_DEBUG
 from masters.defaults import *
 from masters.messages import *
 import utils.logging as log
+
+
+DEBUG_STEP_MINUTES = 1
 
 
 MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
@@ -32,6 +37,10 @@ class BrewWorker(threading.Thread):
         self.active = False
         self.pausing_all_devices = False
         self.starting_next_step = False
+        self.current_hold_time = timedelta(minutes=0)
+        self.hold_timer = None
+        self.hold_pause_timer = None
+        self.pause_time = 0.0
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
@@ -199,6 +208,32 @@ class BrewWorker(threading.Thread):
     def report_error(self, err):
         log.error('{0}: {1}'.format(self.name, err))
 
+    def is_step_done(self):
+        if self.hold_timer is None:
+            return False
+        pause_total = timedelta(seconds=self.pause_time)
+        finish_time = dt.now() - self.hold_timer
+        step_time = self.current_hold_time + pause_total
+        if DEVICE_DEBUG:
+            step_time = timedelta(minutes=DEBUG_STEP_MINUTES)
+        if finish_time >= step_time:
+            return True
+        log.debug('Time untill step done: {0}'.format(step_time - finish_time))
+        return False
+
+    def next_step(self):
+        try:
+            self.pause_all_devices()
+            self.step += 1
+            if self.step >= len(self.schedule.steps):
+                return False
+            log.debug('Starting step {0} of {1}'.format(self.step + 1, len(self.schedule.steps)))
+            self.on_next_step()
+            self.resume_all_devices()
+            return True
+        except Exception, e:
+            log.error('Error in next_step: {0}'.format(e.message))
+
     def on_start(self):
         log.debug('Starting {0}'.format(self))
 
@@ -220,3 +255,6 @@ class BrewWorker(threading.Thread):
     def on_reset(self):
         log.debug('Reset {0}'.format(self))
         return True
+
+    def on_next_step(self):
+        pass

@@ -1,17 +1,16 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLETIME
+from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLE_TIME
 import utils.logging as log
 import re
 import threading
 import time
-import datetime
 
 SSR_DEVICE_DEBUG = False
 
 class SSR(Device):
-    def __init__(self, config=None):
+    def __init__(self, owner, config):
         threading.Thread.__init__(self)
-        Device.__init__(self, config)
+        Device.__init__(self, owner, config)
         self.on_percent = 0.0
         self.last_on_time = 0.0
 
@@ -71,19 +70,18 @@ class SSR(Device):
             fo.close()
         return value
 
-    def run(self):
-        while self.enabled:
-            # grab the current value if it should be changed during the cycle
-            on_percent = self.on_percent
-            on_time = on_percent * self.cycle_time
-            if DEVICE_DEBUG:
-                time.sleep(DEVICE_DEBUG_CYCLETIME)
-                self.callback(on_time)
-                continue
-            if self.on_percent > 0.0:
-                self.set_ssr_state(True)
-                time.sleep(on_time)
-            if self.on_percent < 1.0:
-                self.set_ssr_state(False)
-                time.sleep((1.0-on_percent)*self.cycle_time)
-            self.callback(on_time)
+    def run_cycle(self):
+        # grab the current value if it should be changed during the cycle
+        on_percent = self.on_percent
+        on_time = on_percent * self.cycle_time
+        if DEVICE_DEBUG:
+            time.sleep(DEVICE_DEBUG_CYCLE_TIME)
+            self.do_callback(on_time)
+            return
+        if self.on_percent > 0.0:
+            self.set_ssr_state(True)
+            time.sleep(on_time)
+        if self.on_percent < 1.0:
+            self.set_ssr_state(False)
+            time.sleep((1.0-on_percent)*self.cycle_time)
+        self.do_callback(on_time)

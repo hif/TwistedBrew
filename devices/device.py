@@ -1,42 +1,74 @@
 #!/usr/bin python
 import threading
 import utils.logging as log
+import time
 
 
 DEVICE_DEBUG = True
-DEVICE_DEBUG_CYCLETIME = 1.0
-DEVICE_DEFAULT_CYCLETIME = 10.0
+DEVICE_DEBUG_CYCLE_TIME = 1.0
+DEVICE_PAUSE_CYCLE_TIME = 2.0
 
 class Device(threading.Thread):
-    def __init__(self, config=None):
+    def __init__(self, owner, config):
         threading.Thread.__init__(self)
-        self.name = "None"
-        self.io = "None"
-        self.callback = None
-        self.cycle_time = DEVICE_DEFAULT_CYCLETIME
-        if config is not None:
-            self.name = config.name
-            self.io = config.io
+        self.shutdown = False
+        self.owner = owner
+        self.name = config.name
+        self.io = config.io
+        self.active = config.active
+        self.cycle_time = config.cycle_time
         self.enabled = False
         self.read_write_lock = threading.Lock()
+        if hasattr(owner, config.callback):
+            self.callback = getattr(owner, config.callback)
+        else:
+            log.error('Callback function {0} not found for owner {1}'.format(config.callback, owner))
+        self.start_device()
 
     def init(self):
         pass
 
-    def assign_callback(self, callback):
-        self.callback = callback
+    def activate(self):
+        self.active = True
+
+    def deactivate(self):
+        self.active = False
+
+    def is_active(self):
+        return self.active
+
+    def do_callback(self, measured_value):
+        if self.enabled or self.active:
+            self.callback(measured_value)
 
     def start_device(self):
-        self.enabled = True
+        if self.enabled:
+            return
+        self.auto_setup()
         self.start()
 
-    def stop_device(self):
+    def pause_device(self):
         self.enabled = False
 
+    def resume_device(self):
+        self.enabled = True
+
+    def stop_device(self):
+        self.shutdown = True
+
     def run(self):
+        while not self.shutdown:
+            if self.enabled or self.active:
+                self.run_cycle()
+            else:
+                time.sleep(DEVICE_PAUSE_CYCLE_TIME)
+
+    def run_cycle(self):
         pass
 
     def check(self):
+        if DEVICE_DEBUG:
+            return True
         try:
             with open(self.io) as file:
                 return True

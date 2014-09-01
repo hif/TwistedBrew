@@ -14,8 +14,14 @@ workers:
                 name: "Mash Tun"
                 device: "SSR"
                 io: "gpio0"
+                active: "False"
+                callback: "mash_heating_callback"
+                cycle_time: "10.0"
         inputs:
             - input:
                 name: "Temperature"
                 device: "Probe"
                 io: "gpio1"
+                active: "True"
+                callback: "mash_temperature_callback"
+                cycle_time: "10.0"

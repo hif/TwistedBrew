@@ -19,6 +19,9 @@ CONFIG_INPUT = 'input'
 CONFIG_OUTPUTS = 'outputs'
 CONFIG_OUTPUT = 'output'
 CONFIG_IO = 'io'
+CONFIG_ACTIVE = 'active'
+CONFIG_CALLBACK = 'callback'
+CONFIG_CYCLE_TIME = 'cycle_time'
 
 
 # Check if master or workers sections
@@ -35,10 +38,13 @@ def isworker(node):
 
 
 class IOConfig():
-    def __init__(self, name, device, io):
+    def __init__(self, name, device, io, active, callback, cycle_time):
         self.name = name
         self.device = device
         self.io = io
+        self.active = active.lower() == 'true'
+        self.callback = callback
+        self.cycle_time = float(cycle_time)
 
     def __str__(self):
         return '{0} of type {1} using io {2}'.format(self.name, self.device, self.io)
@@ -95,12 +101,16 @@ class WorkerConfig(MasterConfig):
         self.port = yamldata[CONFIG_PORT]
         self.verifydata()
         self.classname = yamldata[CONFIG_CLASS]
-        for iooutput in yamldata[CONFIG_OUTPUTS]:
-            iooutput = iooutput[CONFIG_OUTPUT]
-            self.outputs.append(IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE], iooutput[CONFIG_IO]))
-        for ioinput in yamldata[CONFIG_INPUTS]:
-            ioinput = ioinput[CONFIG_INPUT]
-            self.inputs.append(IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE], ioinput[CONFIG_IO]))
+        if CONFIG_OUTPUTS in yamldata and yamldata[CONFIG_OUTPUTS] is not None:
+            for iooutput in yamldata[CONFIG_OUTPUTS]:
+                iooutput = iooutput[CONFIG_OUTPUT]
+                self.outputs.append(IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE], iooutput[CONFIG_IO],
+                                            iooutput[CONFIG_ACTIVE], iooutput[CONFIG_CALLBACK], iooutput[CONFIG_CYCLE_TIME]))
+        if CONFIG_INPUTS in yamldata and yamldata[CONFIG_INPUTS] is not None:
+            for ioinput in yamldata[CONFIG_INPUTS]:
+                ioinput = ioinput[CONFIG_INPUT]
+                self.inputs.append(IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE], ioinput[CONFIG_IO],
+                                            ioinput[CONFIG_ACTIVE], ioinput[CONFIG_CALLBACK], ioinput[CONFIG_CYCLE_TIME]))
 
 
 class BrewConfig():

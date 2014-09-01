@@ -8,13 +8,13 @@ import utils.logging as log
 from web.models import Brew
 
 
-def load_device(config):
+def load_device(owner, config):
     try:
         module_name = config.device.lower()
         package = 'devices.' + module_name
         module = __import__(package)
         device_class = getattr(getattr(module, module_name), config.device)
-        instance = device_class(config)
+        instance = device_class(owner, config)
         return instance
     except Exception, e:
         log.error('Unable to load device from config: {0}'.format(e))
@@ -49,9 +49,8 @@ def start_from_config(configfile=defaults.DEFAULT_CONFIG):
         if config.master is not None:
             master = brewmaster.BrewMaster(config.master)
         workers = []
-        for workerconfig in config.workers:
-            workers.append(load_worker(workerconfig))
-
+        for worker_config in config.workers:
+            workers.append(load_worker(worker_config))
         for worker in workers:
             worker.start()
         if master is not None:

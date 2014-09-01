@@ -9,6 +9,7 @@ import utils.brewutils
 from web.models import Brew, Worker, Command, Measurement
 from devices.device import DEVICE_DEBUG
 import datetime as dt
+import time
 
 
 class BrewMaster(threading.Thread):
@@ -46,6 +47,7 @@ class BrewMaster(threading.Thread):
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue=MasterQueue)
+        self.enabled = False
 
     def run(self):
         self.listen()
@@ -53,24 +55,26 @@ class BrewMaster(threading.Thread):
     def register_commands(self):
         Command.objects.all().delete()
         self.instructions = {
-            MessageInfo:"Register worker info",
-            MessageLoad:"Load recipe",
-            MessageExecute:"Send message to worker",
-            MessageUpdate:"Register mesurement update",
+            MessageInfo: "Register worker info",
+            MessageLoad: "Load recipe",
+            MessageExecute: "Send message to worker",
+            MessageUpdate: "Register mesurement update",
+            MessageShutdown: "Shutdown brew master",
         }
         self.store_commands(self.instructions, "Instruction")
         self.broadcasts = {
-            "info":"Drop current workers and make all available workers register with master",
-            "reset":"Reset all workers",
+            "info": "Drop current workers and make all available workers register with master",
+            "reset": "Reset all workers",
         }
         self.store_commands(self.broadcasts, "Broadcast")
         self.messages = {
-            "reset":"Reset worker",
-            "pause":"Pause worker",
-            "resume":"Resume worker",
-            "mash":"Make worker start a mash process",
-            "boil":"Make worker start a boil process",
-            "ferment":"Make a worker start a fermentation process",
+            "reset": "Reset worker",
+            "pause": "Pause worker",
+            "resume": "Resume worker",
+            "stop": "stop worker (shutdown)",
+            "mash": "Make worker start a mash process",
+            "boil": "Make worker start a boil process",
+            "ferment": "Make a worker start a fermentation process",
         }
         self.store_commands(self.messages, "Message")
 
@@ -147,11 +151,24 @@ class BrewMaster(threading.Thread):
 
     def listen(self):
         log.debug('Waiting for worker updates. To exit press CTRL+C')
-        self.channel.basic_consume(self.handle, queue=MasterQueue, no_ack=True)
-        self.channel.start_consuming()
+        self.enabled = True
+        #self.channel.basic_consume(self.handle, queue=MasterQueue, no_ack=True)
+        #self.channel.start_consuming()
+        while self.enabled:
+            method, properties, body = self.channel.basic_get(queue=MasterQueue, no_ack=True)
+            if body is not None:
+                self.handle(self.channel, method, properties, body)
+            time.sleep(0.5)
+        self.stop_all_workers()
+        log.debug('Shutting down Brew master')
+
+    def stop_all_workers(self):
+        for worker in self.workers:
+            self.send_command('stop', worker.name)
 
     def shutdown(self):
-        self.channel.stop_consuming()
+        #self.channel.stop_consuming()
+        self.enabled = False
 
     def handle(self, ch, method, properties, body):
         #log.debug('Handling message')
@@ -167,6 +184,9 @@ class BrewMaster(threading.Thread):
             return
         if str(body).startswith(MessageLoad):
             self.handle_load(body)
+            return
+        if str(body).startswith(MessageShutdown):
+            self.handle_shutdown()
             return
         log.debug('Ignorable reply from from worker: {0}'.format(body))
 
@@ -185,6 +205,9 @@ class BrewMaster(threading.Thread):
     def handle_load(self, body):
         data = str(body).split(MessageSplit)
         self.load(data[1])
+
+    def handle_shutdown(self):
+        self.shutdown()
 
     def handle_update(self, body):
         #log.debug('Receiving worker update...')

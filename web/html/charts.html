@@ -37,14 +37,44 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 
     LineChart.prototype.getTicks = function(v, axis){
         var date = new Date(v);
-        if (date.getSeconds() % 60 == 0) { // controls the space between printed ticks (so they don't overlap)
+
+        switch (this.chartType) {
+		case 'mashChart':
+		    if (date.getSeconds() % 60 == 0) { // controls the space between printed ticks (so they don't overlap)
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+                return hours + ":" + minutes + ":" + seconds;
+            } else {
+                return "";
+            }
+			break;
+		case 'fermChart':
+
+            var weekday = new Array(7);
+            weekday[0]=  "Sun";
+            weekday[1] = "Mon";
+            weekday[2] = "Tue";
+            weekday[3] = "Wed";
+            weekday[4] = "Thu";
+            weekday[5] = "Fri";
+            weekday[6] = "Sat";
+
+			if (date.getHours() % 6 == 0) { // controls the space between printed ticks (so they don't overlap)
+                var day = date.getDay();
+                var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+                var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+                return weekday[day] + " " + hours + ":" + minutes;
+            } else {
+                return "";
+            }
+			break;
+		default:
             var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
             var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-            var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-            return hours + ":" + minutes + ":" + seconds;
-        } else {
-            return "";
-        }
+            return hours + ":" + minutes;
+	    }
+
     };
 
 	this.dataset = [
@@ -57,7 +87,7 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
         xaxis: {
             mode: "time",
             tickSize: this.chartTicks, // controls the space between each tick (vertical grid line) shown on the xaxis,
-            tickFormatter: this.getTicks,
+            tickFormatter: this.getTicks.bind(this),
             axisLabel: "Time",
             axisLabelUseCanvas: true,
             axisLabelFontSizePixels: 12,
@@ -162,12 +192,12 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 }
 
 
-var mashChart1 = new LineChart('#mashChart1','mashChart',50,1000);
-var mashChart2 = new LineChart('#mashChart2','mashChart',100,4000);
+var mashChart1 = new LineChart('#mashChart1','mashChart',100,2000);
+var fermChart1 = new LineChart('#fermChart1','fermChart',100,2000);
 
 $(document).ready(function () {
 	mashChart1.drawChart();
-    mashChart2.drawChart();
+    fermChart1.drawChart();
 });
 
 
@@ -176,8 +206,8 @@ $(document).ready(function () {
 </script>
 <!-- HTML -->
 <div>Mash Temp Graph</div>
-<div id="mashChart1" style="width:1000px;height:500px;margin:0"></div>
+<div id="mashChart1" style="width:1000px;height:400px;margin:0"></div>
 <div>Fermentation Temp Graph</div>
-<div id="mashChart2" style="width:1000px;height:500px;margin:0"></div>
+<div id="fermChart1" style="width:1000px;height:400px;margin:0"></div>
 
 {% endblock %}

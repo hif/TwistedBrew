@@ -14,7 +14,7 @@ import time
 
 class BrewMaster(threading.Thread):
     DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
-    DEBUG_MEASUREMENT_TIMEDELTA = 60    # seconds
+    DEBUG_MEASUREMENT_TIMEDELTA = 1800    # seconds
 
     def __init__(self, config=None, configfile=None):
         threading.Thread.__init__(self)

@@ -22,51 +22,50 @@ workers:
                 name: "Temperature"
                 device: "Probe"
                 io: "/sys/bus/w1/devices/28-00000607f0de/w1_slave"
-                active: "True"
+                active: "False"
                 callback: "mash_temperature_callback"
                 cycle_time: "10.0"
 
-#    - worker:
-#        name: "Mr Boiler"
-#        ip: "localhost"
-#        port: 5672
-#        class: "BoilWorker"
-#        outputs:
-#            - output:
-#                name: "Boiler"
-#                device: "SSR"
-#                io: "gpio2"
-#                active: "False"
-#                callback: "boil_heating_callback"
-#                cycle_time: "10.0"
-#        inputs:
-#            - input:
-#                name: "Temperature"
-#                device: "Probe"
-#                io: "gpio3"
-#                active: "False"
-#                callback: "boil_temperature_callback"
-#                cycle_time: "10.0"
-#
-#    - worker:
-#        name: "Fermat"
-#        ip: "localhost"
-#        port: 5672
-#        class: "FermentationWorker"
-#        outputs:
-#            - output:
-#                name: "Fermenter"
-#                device: "SSR"
-#                io: "gpio4"
-#                active: "False"
-#                callback: "fermentation_heating_callback"
-#                cycle_time: "10.0"
-#        inputs:
-#            - input:
-#                name: "Temperature"
-#                device: "Probe"
-#                io: "gpio5"
-#                active: "False"
-#                callback: "fermentation_heating_callback"
-#                cycle_time: "10.0"
-#
+    - worker:
+        name: "Mr Boiler"
+        ip: "localhost"
+        port: 5672
+        class: "BoilWorker"
+        outputs:
+            - output:
+                name: "Boiler"
+                device: "SSR"
+                io: "gpio2"
+                active: "False"
+                callback: "boil_heating_callback"
+                cycle_time: "10.0"
+        inputs:
+            - input:
+                name: "Temperature"
+                device: "Probe"
+                io: "gpio3"
+                active: "False"
+                callback: "boil_temperature_callback"
+                cycle_time: "10.0"
+
+    - worker:
+        name: "Fermat"
+        ip: "localhost"
+        port: 5672
+        class: "FermentationWorker"
+        outputs:
+            - output:
+                name: "Fermenter"
+                device: "SSR"
+                io: "gpio4"
+                active: "False"
+                callback: "fermentation_heating_callback"
+                cycle_time: "10.0"
+        inputs:
+            - input:
+                name: "Temperature"
+                device: "Probe"
+                io: "gpio5"
+                active: "False"
+                callback: "fermentation_temperature_callback"
+                cycle_time: "10.0"

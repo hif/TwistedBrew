@@ -294,7 +294,7 @@ class BrewMaster(threading.Thread):
             log.error('No recipe loaded!')
             return
         if DEVICE_DEBUG:
-            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.now()
+            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
         self.send_schedule(worker, BoilSchedule())
         log.debug('Boil Schedule Sent')
 
@@ -303,7 +303,7 @@ class BrewMaster(threading.Thread):
             log.error('No recipe loaded!')
             return
         if DEVICE_DEBUG:
-            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.now()
+            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
         scde = FermentationSchedule()
         self.send_schedule(worker, scde)
         log.debug('Fermentation Schedule Sent')

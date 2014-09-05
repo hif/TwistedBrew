@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from models import Brew, Worker, Command, Measurement, Message
-from forms import CommanderForm
+from forms import *
 from masters.brewcommander import BrewCommander
 import json, random
 import utils.logging as log
@@ -145,7 +145,7 @@ def commander(request):
     context = RequestContext(request)
     worker_list = Worker.objects.order_by('-type')
     brew_list = Brew.objects.order_by('-name')
-    lastmessage = 'None'
+    last_message = 'None'
 
 
     if request.method == 'POST':
@@ -157,9 +157,9 @@ def commander(request):
 
             # Now call the index() view.
             # The user will be shown the homepage.
-            lastmessage = form.cleaned_data['command']
+            last_message = form.cleaned_data['command']
             commander = BrewCommander()
-            command, params = commander.parse_command(lastmessage)
+            command, params = commander.parse_command(last_message)
             commander.sendmaster(command, params)
             #return HttpResponseRedirect('/')
         else:
@@ -173,11 +173,50 @@ def commander(request):
     # Render the form with error messages (if any).
 
     context_dict = {
-        'commander_active' : True,
+        'commander_active': True,
         'workers': worker_list,
         'brews': brew_list,
-        'form':form,
-        'lastmessage':lastmessage,
+        'form': form,
+        'lastmessage': last_message,
     }
 
     return render_to_response('commander.html', context_dict, context)
+
+
+def scheduler(request):
+    context = RequestContext(request)
+
+    if request.method == 'POST':
+        form = SessionForm(request.POST)
+
+        # Have we been provided with a valid form?
+        if form.is_valid():
+            # Save the new category to the database.
+
+            # Now call the index() view.
+            # The user will be shown the homepage.
+            #commander = BrewCommander()
+            #command, params = commander.parse_command(last_message)
+            #commander.sendmaster(command, params)
+            #return HttpResponseRedirect('/')
+            log.debug('A valid session form was sent')
+        else:
+            # The supplied form contained errors - just print them to the terminal.
+            print form.errors
+    else:
+        # If the request was not a POST, display the form to enter details.
+
+        session = Session.objects.get(pk=1)
+        form = SessionForm(instance=session)
+        formset = SessionFormSet()
+
+    # Bad form (or form details), no form supplied...
+    # Render the form with error messages (if any).
+
+    context_dict = {
+        'scheduler_active': True,
+        'form': form,
+        'formset': formset,
+    }
+
+    return render_to_response('scheduler.html', context_dict, context)

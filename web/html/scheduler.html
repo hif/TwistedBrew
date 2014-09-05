@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Twisted Brew{% endblock %}
+
+{% block real_content %}
+    <script>
+    </script>
+    <h2>Session Scheduler</h2>
+        {{ formset }}
+    <br />
+    <table class="table table-hover">
+    {% for session in formset %}
+        {{ session.as_table }}
+    {% endfor %}
+    </table>
+{% endblock %}

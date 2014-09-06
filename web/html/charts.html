@@ -27,9 +27,11 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 	switch (this.chartType) {
 		case 'mashChart':
 			this.chartTicks = [5, "second"];
+			this.worker = "{{ mash_worker }}";
 			break;
 		case 'fermChart':
 			this.chartTicks = [1, "hour"];
+			this.worker = "{{ fermentation_worker }}";
 			break;
 		default:
 			this.chartTicks = [1, "minute"];
@@ -175,7 +177,7 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 			url: "http://127.0.0.1:8000/charts_update/",
 			dataType: 'json',
 			type: 'POST',
-			data: {timestamp: this.timeStamp+1000, csrfmiddlewaretoken: '{{ csrf_token }}'},
+			data: {timestamp: this.timeStamp+1000, worker: this.worker, csrfmiddlewaretoken: '{{ csrf_token }}'},
 			success: this.update.bind(this),
 			error: function () {
 				this.backOff.bind(this);

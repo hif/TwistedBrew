@@ -11,18 +11,10 @@ import sys
 from utils import brewutils
 import masters.defaults as defaults
 
-from web.models import Measurement, Message, Session
+from web.models import Measurement, Message
 #Measurement.populate()
 #Measurement.clear()
 #Message.clear()
-
-#Session.objects.all().delete()
-#s = Session();
-#s.name = 'Test'
-#s.source = 'No Source'
-#s.notes = 'No notes'
-#s.locked = False
-#s.save()
 
 configfile = defaults.DEFAULT_CONFIG
 if len(sys.argv) > 1:

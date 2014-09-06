@@ -14,9 +14,11 @@ MASH_DEBUG_WATTS = 5500.0  # 1 x 5500.0
 MASH_DEBUG_LITERS = 50.0
 MASH_DEBUG_COOLING = 0.002
 MASH_DEBUG_TIME_DIVIDER = 1
+MASH_DEBUG_TIMEDELTA = 10  # seconds
 
 
 class MashWorker(BrewWorker):
+
     def __init__(self, name):
         BrewWorker.__init__(self, name)
         self.pid = None
@@ -95,7 +97,11 @@ class MashWorker(BrewWorker):
             self.current_temperature = measured_value
             if DEVICE_DEBUG:
                 self.test_temperature = self.current_temperature
-            self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+                self.send_update(self.inputs['Temperature'],
+                                 [self.current_temperature, self.current_set_temperature, self.debug_timer])
+                self.debug_timer += timedelta(seconds=MASH_DEBUG_TIMEDELTA)
+            else:
+                self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
             if self.step >= 0 and self.hold_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_timer = dt.now()
 
@@ -113,7 +119,10 @@ class MashWorker(BrewWorker):
         try:
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
             device = self.outputs['Mash Tun']
-            self.send_update(device, [heating_time, device.cycle_time])
+            if DEVICE_DEBUG:
+                self.send_update(device, [heating_time, device.cycle_time, self.debug_timer])
+            else:
+                self.send_update(device, [heating_time, device.cycle_time])
             if DEVICE_DEBUG:
                 try:
                     self.inputs['Temperature'].test_temperature = \

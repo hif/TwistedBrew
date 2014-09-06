@@ -64,6 +64,9 @@ def measurements(request):
     }
     return render_to_response('measurements.html', context_dict, context)
 
+def measurements_clear(request):
+    Measurement.objects.all().delete()
+    return HttpResponseRedirect('/measurements')
 
 def messages(request):
     context = RequestContext(request)
@@ -110,6 +113,8 @@ def charts(request):
         'chart_label': chart_time,
         'chart_data': chart_data,
         'chart_set': chart_set,
+        'mash_worker': 'Mash Dude',
+        'fermentation_worker': 'Fermat',
     }
 
     return render_to_response('charts.html', context_dict, context)
@@ -119,12 +124,15 @@ def charts_update(request):
 
     if request.POST:
         last_timestamp_ms = request.POST.getlist('timestamp')
+        worker = request.POST.get('worker')
     log.debug(last_timestamp_ms)
     last_timestamp = ms_to_datetime(int(last_timestamp_ms[0]))
     log.debug(last_timestamp)
 
 
-    latest_measurement_set = Measurement.objects.filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
+    #latest_measurement_set = Measurement.objects.filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
+    latest_measurement_set = Measurement.objects.filter(worker=worker).\
+        filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
 
     latest_timestamps = list()
     latest_probe_temps = list()
@@ -182,41 +190,3 @@ def commander(request):
 
     return render_to_response('commander.html', context_dict, context)
 
-
-def scheduler(request):
-    context = RequestContext(request)
-
-    if request.method == 'POST':
-        form = SessionForm(request.POST)
-
-        # Have we been provided with a valid form?
-        if form.is_valid():
-            # Save the new category to the database.
-
-            # Now call the index() view.
-            # The user will be shown the homepage.
-            #commander = BrewCommander()
-            #command, params = commander.parse_command(last_message)
-            #commander.sendmaster(command, params)
-            #return HttpResponseRedirect('/')
-            log.debug('A valid session form was sent')
-        else:
-            # The supplied form contained errors - just print them to the terminal.
-            print form.errors
-    else:
-        # If the request was not a POST, display the form to enter details.
-
-        session = Session.objects.get(pk=1)
-        form = SessionForm(instance=session)
-        formset = SessionFormSet()
-
-    # Bad form (or form details), no form supplied...
-    # Render the form with error messages (if any).
-
-    context_dict = {
-        'scheduler_active': True,
-        'form': form,
-        'formset': formset,
-    }
-
-    return render_to_response('scheduler.html', context_dict, context)

@@ -220,8 +220,9 @@ class BrewMaster(threading.Thread):
                 measurement.value = data[3]
                 measurement.set_point = data[4]
                 if DEVICE_DEBUG:
-                    measurement.timestamp = self.DEBUG_MEASUREMENT_TIMESTAMP
-                    self.DEBUG_MEASUREMENT_TIMESTAMP += dt.timedelta(seconds=self.DEBUG_MEASUREMENT_TIMEDELTA)
+                    measurement.timestamp = dt.datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S.%f")
+                    #measurement.timestamp = self.DEBUG_MEASUREMENT_TIMESTAMP
+                    #self.DEBUG_MEASUREMENT_TIMESTAMP += dt.timedelta(seconds=self.DEBUG_MEASUREMENT_TIMEDELTA)
                 else:
                     measurement.timestamp = dt.datetime.now()
                 measurement.save()

@@ -14,6 +14,7 @@ BOIL_DEBUG_WATTS = 5500.0  # 1 x 5500.0
 BOIL_DEBUG_LITERS = 50.0
 BOIL_DEBUG_COOLING = 0.002
 BOIL_DEBUG_TIME_DIVIDER = 1
+BOIL_DEBUG_TIMEDELTA = 10  # seconds
 
 
 class BoilWorker(BrewWorker):
@@ -72,7 +73,7 @@ class BoilWorker(BrewWorker):
         self.hold_pause_timer = None
         minutes = int(self.schedule.steps[self.step].min)
         if DEVICE_DEBUG:
-            minutes /= MASH_DEBUG_TIME_DIVIDER
+            minutes /= BOIL_DEBUG_TIME_DIVIDER
         self.current_hold_time = timedelta(minutes=minutes)
         temperature = float(self.schedule.steps[self.step].temp)
         cycle_time = float(self.inputs['Temperature'].cycle_time)
@@ -93,7 +94,11 @@ class BoilWorker(BrewWorker):
             self.current_temperature = measured_value
             if DEVICE_DEBUG:
                 self.test_temperature = self.current_temperature
-            self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+                self.send_update(self.inputs['Temperature'],
+                                 [self.current_temperature, self.current_set_temperature, self.debug_timer])
+                self.debug_timer += timedelta(seconds=BOIL_DEBUG_TIMEDELTA)
+            else:
+                self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
             if self.step >= 0 and self.hold_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_timer = dt.now()
 
@@ -111,7 +116,10 @@ class BoilWorker(BrewWorker):
         try:
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
             device = self.outputs['Mash Tun']
-            self.send_update(device, [heating_time, device.cycle_time])
+            if DEVICE_DEBUG:
+                self.send_update(device, [heating_time, device.cycle_time, self.debug_timer])
+            else:
+                self.send_update(device, [heating_time, device.cycle_time])
             if DEVICE_DEBUG:
                 try:
                     self.inputs['Temperature'].test_temperature = \

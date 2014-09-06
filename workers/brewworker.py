@@ -42,6 +42,7 @@ class BrewWorker(threading.Thread):
         self.hold_timer = None
         self.hold_pause_timer = None
         self.pause_time = 0.0
+        self.debug_timer = dt.now()
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \

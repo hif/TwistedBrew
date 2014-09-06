@@ -16,6 +16,7 @@ FERMENTATION_DEBUG_LITERS = 50.0
 FERMENTATION_DEBUG_COOLING = 0.002
 FERMENTATION_DEBUG_TIME_DIVIDER = 1
 FERMENTATION_DEBUG_STD = 1.0
+FERMENTATION_DEBUG_TIMEDELTA = 900  # seconds
 
 
 class FermentationWorker(BrewWorker):
@@ -86,7 +87,12 @@ class FermentationWorker(BrewWorker):
 
     def fermentation_temperature_callback(self, measured_value):
         self.current_temperature = random.gauss(self.current_set_temperature, FERMENTATION_DEBUG_STD)
-        self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+        if DEVICE_DEBUG:
+            self.send_update(self.inputs['Temperature'],
+                             [self.current_temperature, self.current_set_temperature, self.debug_timer])
+            self.debug_timer += timedelta(seconds=FERMENTATION_DEBUG_TIMEDELTA)
+        else:
+            self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
         log.debug('{0} reports measured value {1}'.format(self.name, self.current_temperature))
         if self.step >= 0 and self.hold_timer is None:
             self.hold_timer = dt.now()

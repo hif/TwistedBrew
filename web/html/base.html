@@ -22,7 +22,7 @@
 </head>
 <style type="text/css">
     #background {
-    position: absolute;
+    position: fixed;
     top: 50%;
     width: 100%;
     height: 100%;
@@ -68,12 +68,12 @@
     This page is missing content
     {% endblock %}
 </div>
-<div style="position:absolute;bottom:4px;left:8px">
+<div style="position:fixed;bottom:4px;left:8px">
     {% block footer %}
     <small><a class="navbar-brand" href="/admin">[admin]</a></small>
     {% endblock %}
 </div>
-<div style="position:absolute;bottom:4px;right:8px">
+<div style="position:fixed;bottom:4px;right:8px">
     {% block logo %}
     &copy;<small><i>2014 Twisted Pair&#0153;</i></small>
     {% endblock %}

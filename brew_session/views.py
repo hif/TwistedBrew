@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from models import Session, SessionDetail
@@ -8,7 +9,6 @@ from forms import *
 from masters.brewcommander import BrewCommander
 import json, random
 import utils.logging as log
-from utils.dateutils import *
 
 
 def sessions(request):
@@ -20,6 +20,19 @@ def sessions(request):
     }
 
     return render_to_response('sessions.html', context_dict, context)
+
+
+def create(request):
+    if request.POST:
+        form = SessionForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = SessionForm()
+    args = {}
+    args.update(csrf(request))
+    args['form'] = form
+    render_to_response('create_session.html', args)
 
 
 def scheduler(request):

@@ -15,7 +15,7 @@ class Session(models.Model):
             status = 'locked'
         else:
             status = 'active'
-        return '[{1}] {0} ({2})'.format(self.name, self.session_date, status)
+        return u'[{1}] {0} ({2})'.format(self.name, self.session_date, status)
 
 
 class SessionDetail(models.Model):
@@ -38,3 +38,5 @@ class SessionDetail(models.Model):
     notes = models.TextField()
     done = models.BooleanField()
 
+    def __unicode__(self):
+        return u'{0} ({1})'.format(self.name, self.worker)

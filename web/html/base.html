@@ -1,79 +1,85 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 {% load static %}
-    <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>{% block title %}Twisted Brew{% endblock %}</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>{% block title %}Twisted Brew{% endblock %}</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <!-- Bootstrap -->
-        <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
-        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
-        <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
-        <script src="{% static 'js/jquery-2.1.1.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
-        {#<script src="{% static 'js/Chart.js' %}"></script>#}
-        <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static 'js/flot/excanvas.min.js' %}"></script><![endif]-->
-        <script src="{% static 'js/flot/jquery.flot.min.js' %}"></script>
-        <script src="{% static 'js/flot/jquery.flot.time.min.js' %}"></script>
-        <script src="{% static 'js/flot/jshashtable-3.0.js' %}"></script>
-        <script src="{% static 'js/flot/jquery.numberformatter-1.2.4.min.js' %}"></script>
-        <script src="{% static 'js/flot/jquery.flot.symbol.min.js' %}"></script>
-        <script src="{% static 'js/flot/jquery.flot.axislabels.js' %}"></script>
-    </head>
-    <style type="text/css">
-        #background {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            height: 100%;
-            opacity: 0.1;
-        }
-        img.background {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: auto;
-            transform: translate(0, -50%)
-        }
-       </style>
-  <body>
-  <div id="background"><img class="background" src="{% block background %}{% static 'img/background.png' %}{% endblock %}"></div>
-  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
+    <script src="{% static 'js/jquery-2.1.1.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    {#
+    <script src="{% static 'js/Chart.js' %}"></script>
+    #}
+    <!--[if lte IE 8]>
+    <script language="javascript" type="text/javascript" src="{% static 'js/flot/excanvas.min.js' %}"></script>
+    <![endif]-->
+    <script src="{% static 'js/flot/jquery.flot.min.js' %}"></script>
+    <script src="{% static 'js/flot/jquery.flot.time.min.js' %}"></script>
+    <script src="{% static 'js/flot/jshashtable-3.0.js' %}"></script>
+    <script src="{% static 'js/flot/jquery.numberformatter-1.2.4.min.js' %}"></script>
+    <script src="{% static 'js/flot/jquery.flot.symbol.min.js' %}"></script>
+    <script src="{% static 'js/flot/jquery.flot.axislabels.js' %}"></script>
+</head>
+<style type="text/css">
+    #background {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+    }
+    img.background {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    transform: translate(0, -50%)
+    }
+</style>
+<body>
+<div id="background"><img class="background"
+                          src="{% block background %}{% static 'img/background.png' %}{% endblock %}"></div>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-    {% block heading %}{% endblock %}
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            {% block heading %}{% endblock %}
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <ul class="nav navbar-nav">
+            <li class="{% if home_active %}active{% endif %}"><a href="/">Home</a></li>
+            <li class="{% if brews_active %}active{% endif %}"><a href="/brews/">Brews</a></li>
+            <li class="{% if workers_active %}active{% endif %}"><a href="/workers/">Workers</a></li>
+            <li class="{% if commands_active %}active{% endif %}"><a href="/commands/">Commands</a></li>
+            <li class="{% if measurements_active %}active{% endif %}"><a href="/measurements/">Measurements</a></li>
+            <li class="{% if charts_active %}active{% endif %}"><a href="/charts/">Charts</a></li>
+            <li class="{% if commander_active %}active{% endif %}"><a href="/commander/">Commander</a></li>
+            <li class="{% if brew_session_active %}active{% endif %}"><a href="/brew_session/sessions">Sessions</a></li>
+            <li class="{% if messages_active %}active{% endif %}"><a href="/messages/">Messages</a></li>
+            <li class="{% if warnings_active %}active{% endif %}"><a href="/warnings/">Warnings</a></li>
+            <li class="{% if errors_active %}active{% endif %}"><a href="/errors/">Errors</a></li>
+        </ul>
     </div>
-    <!-- Collect the nav links, forms, and other content for toggling -->
-      <ul class="nav navbar-nav">
-        <li class="{% if home_active %}active{% endif %}"><a href="/">Home</a></li>
-        <li class="{% if brews_active %}active{% endif %}"><a href="/brews/">Brews</a></li>
-        <li class="{% if workers_active %}active{% endif %}"><a href="/workers/">Workers</a></li>
-        <li class="{% if commands_active %}active{% endif %}"><a href="/commands/">Commands</a></li>
-        <li class="{% if measurements_active %}active{% endif %}"><a href="/measurements/">Measurements</a></li>
-        <li class="{% if charts_active %}active{% endif %}"><a href="/charts/">Charts</a></li>
-        <li class="{% if commander_active %}active{% endif %}"><a href="/commander/">Commander</a></li>
-        <li class="{% if brew_session_active %}active{% endif %}"><a href="/brew_session/sessions">Sessions</a></li>
-        <li class="{% if messages_active %}active{% endif %}"><a href="/messages/">Messages</a></li>
-        <li class="{% if warnings_active %}active{% endif %}"><a href="/warnings/">Warnings</a></li>
-        <li class="{% if errors_active %}active{% endif %}"><a href="/errors/">Errors</a></li>
-      </ul>
-    </div><!-- /.container-fluid -->
+    <!-- /.container-fluid -->
 </nav>
 
-    <div class="container-fluid">
+<div class="container-fluid">
     {% block content %}
-        This page is missing content
+    This page is missing content
     {% endblock %}
-    </div>
-    <div style="position:absolute;bottom:4px;left:8px">
-        {% block footer %}
-        <small><a class="navbar-brand" href="/admin">[admin]</a></small>
-        {% endblock %}
-    </div>
-    <div style="position:absolute;bottom:4px;right:8px">
-        {% block logo %}
-        &copy;<small><i>2014 Twisted Pair&#0153;</i></small>
-        {% endblock %}
-    </div>
- </body> 
- </html>
+</div>
+<div style="position:absolute;bottom:4px;left:8px">
+    {% block footer %}
+    <small><a class="navbar-brand" href="/admin">[admin]</a></small>
+    {% endblock %}
+</div>
+<div style="position:absolute;bottom:4px;right:8px">
+    {% block logo %}
+    &copy;<small><i>2014 Twisted Pair&#0153;</i></small>
+    {% endblock %}
+</div>
+</body>
+</html>

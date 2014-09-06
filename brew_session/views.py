@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.generic import DetailView, ListView
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.template import RequestContext
@@ -11,17 +12,51 @@ import json, random
 import utils.logging as log
 
 
-def sessions(request):
+class SessionView(DetailView):
+    template_name = 'session.html'
+    model = Session
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionView, self).get_context_data(**kwargs)
+        context['brew_session_active'] = True
+        return context
+
+
+class SessionsView(ListView):
+    template_name = 'sessions.html'
+    model = Session
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionsView, self).get_context_data(**kwargs)
+        context['brew_session_active'] = True
+        return context
+
+#def sessions(request):
+#    context = RequestContext(request)
+#    welcome_message = 'Welcome to Brew Sessions'
+#    s = Session.objects.all().filter(locked=False)
+#    a = Session.objects.all().filter(locked=True)
+#    context_dict = {
+#        'brew_sessions_active': True,
+#        'welcome_message': welcome_message,
+#        'sessions': s,
+#        'archived': a,
+#    }
+#
+#    return render_to_response('sessions.html', context_dict, context)
+
+
+def session(request, session_id):
     context = RequestContext(request)
-    welcome_message = 'Welcome to Brew Sessions'
-    sessions = Session.objects.all()
-    context_dict = {
-        'brew_sessions_active': True,
-        'welcome_message': welcome_message,
-        'sessions': sessions,
+    if session_id:
+        s = Session.objects.get(id=session_id)
+        if s:
+            context_dict = {
+                'brew_sessions_active': True,
+                'object': s,
     }
 
-    return render_to_response('sessions.html', context_dict, context)
+    return render_to_response('session.html', context_dict, context)
 
 
 def create(request):

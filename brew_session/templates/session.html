@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<script>
+</script>
+<h2>Session</h2>
+<b>{{ object.name }}
+    <small>
+        {% if object.locked %}
+        [locked]
+        {% else %}
+        [active]
+        {% endif %}
+    </small>
+</b>
+<table>
+    <tr>
+        <td><b>Date:</b></td>
+        <td>{{ object.session_date }}</td>
+    </tr>
+    <tr>
+        <td><b>Source:</b></td>
+        <td>{{ object.source }}</td>
+    </tr>
+    <tr>
+        <td><b>Notes:</b></td>
+        <td>{{ object.notes }}</td>
+    </tr>
+</table>
+        <a href="/brew_session/sessions/"><small>[back]</small></a>
+<br/>
+{% endblock %}

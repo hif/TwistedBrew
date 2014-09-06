@@ -12,8 +12,20 @@
         <b>Available sessions:</b>
         <br />
         <ul>
-        {% for session in sessions %}
-            <li>{{ session.name }}
+        {% for session in object_list %}
+            {% if not session.locked %}
+            <li>{{ session.name }} [<a href="/brew_session/session/{{ session.id }}" >view</a>]
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <br />
+        <b>Archived sessions:</b>
+        <br />
+        <ul>
+        {% for archive in object_list %}
+            {% if archive.locked %}
+            <li>{{ archive.name }} [<a href="/brew_session/session/{{ archive.id }}" >view</a>]
+            {% endif %}
         {% endfor %}
         </ul>
     <br />

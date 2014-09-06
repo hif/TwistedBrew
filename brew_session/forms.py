@@ -8,6 +8,6 @@ class SessionForm(ModelForm):
 
     class Meta:
         model = Session
-        fields = ['name', 'session_date', 'source', 'notes', 'locked']
+        #fields = ['name', 'session_date', 'source', 'notes', 'locked']
 
 SessionFormSet = formset_factory(SessionForm)

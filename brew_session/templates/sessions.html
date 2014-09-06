@@ -6,5 +6,15 @@
     </script>
     <h2>Sessions</h2>
         {{ welcome_message }}
+        <br />
+        <a href="/brew_session/create/">Create Session</a>
+        <br /><br />
+        <b>Available sessions:</b>
+        <br />
+        <ul>
+        {% for session in sessions %}
+            <li>{{ session.name }}
+        {% endfor %}
+        </ul>
     <br />
 {% endblock %}

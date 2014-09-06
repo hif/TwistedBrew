@@ -14,9 +14,11 @@ import utils.logging as log
 def sessions(request):
     context = RequestContext(request)
     welcome_message = 'Welcome to Brew Sessions'
+    sessions = Session.objects.all()
     context_dict = {
-        'brew_sessions_active' : True,
+        'brew_sessions_active': True,
         'welcome_message': welcome_message,
+        'sessions': sessions,
     }
 
     return render_to_response('sessions.html', context_dict, context)
@@ -27,19 +29,20 @@ def create(request):
         form = SessionForm(request.POST)
         if form.is_valid():
             form.save()
+        return HttpResponseRedirect('/brew_session/sessions')
     else:
         form = SessionForm()
     args = {}
     args.update(csrf(request))
     args['form'] = form
-    render_to_response('create_session.html', args)
+    return render_to_response('create_session.html', args)
 
 
 def scheduler(request):
     context = RequestContext(request)
 
     if request.method == 'POST':
-        form = SessionForm(request.POST)
+        form = SessionFormSet(request.POST)
 
         # Have we been provided with a valid form?
         if form.is_valid():
@@ -60,7 +63,6 @@ def scheduler(request):
 
         session = Session.objects.get(pk=1)
         form = SessionForm(instance=session)
-        formset = SessionFormSet()
 
     # Bad form (or form details), no form supplied...
     # Render the form with error messages (if any).
@@ -68,7 +70,6 @@ def scheduler(request):
     context_dict = {
         'brew_sessions_active': True,
         'form': form,
-        'formset': formset,
     }
 
     return render_to_response('scheduler.html', context_dict, context)

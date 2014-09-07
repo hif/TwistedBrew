@@ -19,6 +19,7 @@ class SessionView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(SessionView, self).get_context_data(**kwargs)
         context['brew_session_active'] = True
+        context['details'] = SessionDetail.objects.all().filter(session=context['object'].pk)
         return context
 
 
@@ -30,20 +31,6 @@ class SessionsView(ListView):
         context = super(SessionsView, self).get_context_data(**kwargs)
         context['brew_session_active'] = True
         return context
-
-#def sessions(request):
-#    context = RequestContext(request)
-#    welcome_message = 'Welcome to Brew Sessions'
-#    s = Session.objects.all().filter(locked=False)
-#    a = Session.objects.all().filter(locked=True)
-#    context_dict = {
-#        'brew_sessions_active': True,
-#        'welcome_message': welcome_message,
-#        'sessions': s,
-#        'archived': a,
-#    }
-#
-#    return render_to_response('sessions.html', context_dict, context)
 
 
 def session(request, session_id):
@@ -71,6 +58,24 @@ def create(request):
     args.update(csrf(request))
     args['form'] = form
     return render_to_response('create_session.html', args)
+
+
+def create_detail(request, session_id):
+    if request.POST:
+        form = SessionDetailForm(request.POST)
+        if form.is_valid():
+            session_detail = form.save(commit=False)
+            session_detail.session_id = int(session_id)
+            session_detail.save()
+        return HttpResponseRedirect('/brew_session/session/%s' % session_id)
+    else:
+        form = SessionDetailForm()
+    args = {}
+    args.update(csrf(request))
+    args['form'] = form
+    session = Session.objects.get(id=session_id)
+    args['session'] = session
+    return render_to_response('create_detail.html', args)
 
 
 def scheduler(request):

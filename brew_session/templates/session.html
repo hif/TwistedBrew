@@ -5,6 +5,10 @@
 <script>
 </script>
 <h2>Session</h2>
+<a href="/brew_session/sessions/">
+    <small>[back]</small>
+</a>
+<br/>
 <b>{{ object.name }}
     <small>
         {% if object.locked %}
@@ -28,6 +32,19 @@
         <td>{{ object.notes }}</td>
     </tr>
 </table>
-        <a href="/brew_session/sessions/"><small>[back]</small></a>
 <br/>
+<h3>Details</h3>
+{% if not object.locked %}
+<a href="/brew_session/create_detail/{{ object.id }}">
+    <small>[create]</small>
+</a>
+{% endif %}
+<ul>
+    {% for detail in details %}
+    <li>{{ detail.name }} ({{ detail.worker }}) [target:{{ detail.target }}]
+        {% empty %}
+    <li>No details available.</li>
+    {% endfor %}
+</ul>
+
 {% endblock %}

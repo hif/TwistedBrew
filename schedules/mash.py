@@ -18,6 +18,8 @@ class MashStep:
 class MashSchedule(Schedule):
     def __init__(self):
         Schedule.__init__(self)
+        self.name = 'Mash'
+        self.type = 'Mash'
 
     def parse(self, recipe):
         html_parser = HTMLParser.HTMLParser()
@@ -30,3 +32,4 @@ class MashSchedule(Schedule):
                 mashstep.temp = convert_f2c(mashItem.data["F_MS_STEP_TEMP"])
                 mashstep.min = mashItem.data["F_MS_STEP_TIME"][:-8]
                 self.steps.append(mashstep)
+        return self

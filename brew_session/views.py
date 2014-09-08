@@ -78,6 +78,24 @@ def create_detail(request, session_id):
     return render_to_response('create_detail.html', args)
 
 
+def set_source(request, session_id):
+    if request.POST:
+        form = SessionDetailForm(request.POST)
+        if form.is_valid():
+            session_detail = form.save(commit=False)
+            session_detail.session_id = int(session_id)
+            session_detail.save()
+        return HttpResponseRedirect('/brew_session/session/%s' % session_id)
+    else:
+        form = SessionDetailForm()
+    args = {}
+    args.update(csrf(request))
+    args['form'] = form
+    session = Session.objects.get(id=session_id)
+    args['session'] = session
+    return render_to_response('set_source.html', args)
+
+
 def scheduler(request):
     context = RequestContext(request)
 

@@ -2,8 +2,8 @@
 import HTMLParser
 from schedules.schedule import *
 
-Hop = 0
-Misc = 1
+Hop = 'Hop'
+Misc = 'Misc'
 HopUnit = "Grams"
 
 
@@ -25,6 +25,8 @@ class BoilStep:
 class BoilSchedule(Schedule):
     def __init__(self):
         Schedule.__init__(self)
+        self.name = 'Boil'
+        self.type = 'Boil'
 
     def parse(self, recipe):
         html_parser = HTMLParser.HTMLParser()
@@ -50,3 +52,4 @@ class BoilSchedule(Schedule):
                 boilstep.amount = ingredient.data["F_M_AMOUNT"]
                 boilstep.min = ingredient.data["F_M_TIME"][:-8]
                 self.steps.append(boilstep)
+        return self

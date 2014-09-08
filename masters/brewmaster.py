@@ -6,15 +6,13 @@ from schedules.boil import *
 from schedules.fermentation import *
 import utils.logging as log
 import utils.brewutils
-from web.models import Brew, Worker, Command, Measurement
+from web.models import Brew, BrewSection, BrewStep, Worker, Command, Measurement
 from devices.device import DEVICE_DEBUG
 import datetime as dt
 import time
 
 
 class BrewMaster(threading.Thread):
-    DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
-    DEBUG_MEASUREMENT_TIMEDELTA = 1800    # seconds
 
     def __init__(self, config=None, configfile=None):
         threading.Thread.__init__(self)
@@ -89,6 +87,8 @@ class BrewMaster(threading.Thread):
 
     def load_recipies(self, recipefile=None):
         try:
+            BrewStep.objects.all().delete()
+            BrewSection.objects.all().delete()
             Brew.objects.all().delete()
             if recipefile is not None:
                 self.recipie_file = recipefile
@@ -102,8 +102,21 @@ class BrewMaster(threading.Thread):
                 if name is not None:
                     self.recipes[name] = item
                     # Save to database
-                    brew = utils.brewutils.create_brew_model(item)
+                    brew, sections = utils.brewutils.create_brew_model(item)
                     brew.save()
+                    for section in sections:
+                        s = utils.brewutils.create_section(section, brew)
+                        s.save()
+                        for step in section.steps:
+                            brew_step = None
+                            if s.worker_type == 'MashWorker':
+                                brew_step = utils.brewutils.create_mash_step(step, s)
+                            elif s.worker_type == 'BoilWorker':
+                                brew_step = utils.brewutils.create_boil_step(step, s)
+                            elif s.worker_type == 'FermentationWorker':
+                                brew_step = utils.brewutils.create_fermentation_step(step, s)
+                            if brew_step is not None:
+                                brew_step.save()
             log.debug('...done loading recipe file {0}'.format(self.recipie_file))
         except Exception, e:
             log.error('Failed to load recipes {0} ({1})'.format(self.recipie_file, e.message))
@@ -221,8 +234,6 @@ class BrewMaster(threading.Thread):
                 measurement.set_point = data[4]
                 if DEVICE_DEBUG:
                     measurement.timestamp = dt.datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S.%f")
-                    #measurement.timestamp = self.DEBUG_MEASUREMENT_TIMESTAMP
-                    #self.DEBUG_MEASUREMENT_TIMESTAMP += dt.timedelta(seconds=self.DEBUG_MEASUREMENT_TIMEDELTA)
                 else:
                     measurement.timestamp = dt.datetime.now()
                 measurement.save()
@@ -285,8 +296,6 @@ class BrewMaster(threading.Thread):
         if not self.recipe_loaded:
             log.warning('No recipe loaded!')
             return
-        if DEVICE_DEBUG:
-            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
         self.send_schedule(worker, MashSchedule())
         log.debug('Mashing Schedule Sent')
 
@@ -294,8 +303,6 @@ class BrewMaster(threading.Thread):
         if not self.recipe_loaded:
             log.error('No recipe loaded!')
             return
-        if DEVICE_DEBUG:
-            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
         self.send_schedule(worker, BoilSchedule())
         log.debug('Boil Schedule Sent')
 
@@ -303,8 +310,6 @@ class BrewMaster(threading.Thread):
         if not self.recipe_loaded:
             log.error('No recipe loaded!')
             return
-        if DEVICE_DEBUG:
-            self.DEBUG_MEASUREMENT_TIMESTAMP = dt.datetime.now()
         scde = FermentationSchedule()
         self.send_schedule(worker, scde)
         log.debug('Fermentation Schedule Sent')

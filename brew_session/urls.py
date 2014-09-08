@@ -8,5 +8,6 @@ urlpatterns = patterns('',
                        url(r'^session/(?P<pk>\d+)/$', SessionView.as_view()),
                        url(r'^create/$', 'brew_session.views.create'),
                        url(r'^create_detail/(?P<session_id>\d+)/$', 'brew_session.views.create_detail'),
+                       url(r'^set_source/(?P<session_id>\d+)/$', 'brew_session.views.set_source'),
                        url(r'^scheduler/$', 'brew_session.views.scheduler'),
 )

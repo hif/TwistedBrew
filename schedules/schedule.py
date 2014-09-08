@@ -1,5 +1,6 @@
 #!/usr/bin python
 import yaml
+from workers.brewworker import POSTFIX
 
 units = ["mg", "g", "oz", "lb", "kg", "ml", "tsp", "tbsp", "cup", "pt", "qt", "l", "gal", "items"]
 use = ["boil", "mash", "primary", "secondary", "bottling"]
@@ -30,6 +31,7 @@ def convert_o2g(s):
 class Schedule:
     def __init__(self):
         self.name = ''
+        self.type = ''
         self.steps = []
 
     def __str__(self):
@@ -37,6 +39,9 @@ class Schedule:
         for step in self.steps:
             result = result + step
         return result
+
+    def worker_type(self):
+        return self.type + POSTFIX
 
     def parse(self, recipe):
         pass

@@ -16,6 +16,7 @@ DEBUG_STEP_MINUTES = 1
 MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
                     MessageStop: 'stop'}
 
+POSTFIX = 'Worker'
 
 class BrewWorker(threading.Thread):
     def __init__(self, name):

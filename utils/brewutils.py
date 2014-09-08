@@ -3,9 +3,13 @@ import HTMLParser
 
 from config import brewconfig
 from masters import brewmaster
+from workers import brewworker
 import masters.defaults as defaults
 import utils.logging as log
-from web.models import Brew
+from web.models import Brew, BrewSection, BrewStep
+from schedules.mash import MashSchedule
+from schedules.boil import BoilSchedule
+from schedules.fermentation import FermentationSchedule
 
 
 def load_device(owner, config):
@@ -83,7 +87,54 @@ def create_brew_model(data):
     brew.profile = lookup_brewstyle_info(data, BREW_STYLE_PROFILE_NODE)
     brew.ingredients = lookup_brewstyle_info(data, BREW_STYLE_INGREDIENTS_NODE)
     brew.weblink = lookup_brewstyle_info(data, BREW_STYLE_WEB_NODE)
-    return brew
+    mash = generate_brew_section(data, MashSchedule())
+    boil = generate_brew_section(data, BoilSchedule())
+    ferment = generate_brew_section(data, FermentationSchedule())
+    sections = [mash, boil, ferment]
+    return brew, sections
+
+
+def generate_brew_section(data, section):
+    return section.parse(data)
+
+
+def create_section(schedule, brew):
+    section = BrewSection()
+    section.brew = brew
+    section.name = schedule.type
+    section.worker_type = schedule.worker_type()
+    return section
+
+
+def create_mash_step(step, section):
+    brew_step = BrewStep()
+    brew_step.brew_section = section
+    brew_step.name = step.name
+    brew_step.target = step.temp
+    brew_step.hold_time = step.min
+    brew_step.unit = 60
+    return brew_step
+
+
+def create_boil_step(step, section):
+    brew_step = BrewStep()
+    brew_step.brew_section = section
+    brew_step.name = step.type
+    brew_step.unit = step.unit
+    brew_step.target = step.amount
+    brew_step.hold_time = step.min
+    brew_step.unit = 60
+    return brew_step
+
+
+def create_fermentation_step(step, section):
+    brew_step = BrewStep()
+    brew_step.brew_section = section
+    brew_step.name = section.name
+    brew_step.target = step.start_temp
+    brew_step.hold_time = step.days
+    brew_step.unit = 60*60*24
+    return brew_step
 
 
 def lookup_brew_info(data, key):

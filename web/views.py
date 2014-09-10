@@ -2,12 +2,14 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from models import Brew, Worker, Command, Measurement, Message
+from models import Worker, Command, Measurement, Message
+from brew.models import Brew
 from forms import *
 from masters.brewcommander import BrewCommander
 import json, random
 import utils.logging as log
 from utils.dateutils import *
+
 
 def home(request):
     context = RequestContext(request)
@@ -18,18 +20,6 @@ def home(request):
     }
 
     return render_to_response('home.html', context_dict, context)
-
-def brews(request):
-    context = RequestContext(request)
-    brew_list = Brew.objects.order_by('name')
-
-    context_dict = {
-        'brews_active' : True,
-        'brews': brew_list,
-    }
-
-    return render_to_response('brews.html', context_dict, context)
-
 
 def workers(request):
     context = RequestContext(request)
@@ -64,9 +54,11 @@ def measurements(request):
     }
     return render_to_response('measurements.html', context_dict, context)
 
+
 def measurements_clear(request):
     Measurement.objects.all().delete()
     return HttpResponseRedirect('/measurements')
+
 
 def messages(request):
     context = RequestContext(request)
@@ -77,6 +69,11 @@ def messages(request):
         'messages': message_list,
     }
     return render_to_response('messages.html', context_dict, context)
+
+
+def messages_clear(request):
+    Message.objects.all().delete()
+    return HttpResponseRedirect('/messages')
 
 
 def warnings(request):

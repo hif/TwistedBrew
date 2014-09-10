@@ -69,7 +69,7 @@ class FermentationWorker(BrewWorker):
         return True
 
     def on_next_step(self):
-        self.current_set_temperature = float(self.schedule.steps[self.step].starttemp)
+        self.current_set_temperature = float(self.schedule.steps[self.step].start_temp)
         # Convert time in minutes to seconds
         self.hold_timer = None
         self.hold_pause_timer = None

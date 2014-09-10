@@ -1,0 +1,19 @@
+{% if data %}
+<b>{{ data }}</b>
+<ul>
+    {% for brew_section in data.brew_sections %}
+    <li><i>{{ brew_section }}</i></li>
+    <ol>
+        {% for brew_step in brew_section.brew_steps %}
+        <li>{{ brew_step }}</li>
+        {% empty %}
+        <li>No steps found</li>
+        {% endfor %}
+    </ol>
+    {% empty %}
+    <li>No sections found</li>
+    {% endfor %}
+</ul>
+{% else %}
+Brew not found
+{% endif %}

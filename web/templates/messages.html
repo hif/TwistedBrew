@@ -3,6 +3,9 @@
 
 {% block content %}
     <h2>Messages</h2>
+        <form action="/messages_clear">
+            <input type="submit" value="Clear all messages">
+        </form>
         <table class="table table-hover">
             <tr>
                 <th>Timestamp</th>

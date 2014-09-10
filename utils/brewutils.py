@@ -6,7 +6,7 @@ from masters import brewmaster
 from workers import brewworker
 import masters.defaults as defaults
 import utils.logging as log
-from web.models import Brew, BrewSection, BrewStep
+from brew.models import Brew, BrewSection, BrewStep
 from schedules.mash import MashSchedule
 from schedules.boil import BoilSchedule
 from schedules.fermentation import FermentationSchedule
@@ -98,17 +98,19 @@ def generate_brew_section(data, section):
     return section.parse(data)
 
 
-def create_section(schedule, brew):
+def create_section(schedule, brew, number):
     section = BrewSection()
+    section.number = number
     section.brew = brew
     section.name = schedule.type
     section.worker_type = schedule.worker_type()
     return section
 
 
-def create_mash_step(step, section):
+def create_mash_step(step, section, number):
     brew_step = BrewStep()
     brew_step.brew_section = section
+    brew_step.number = number
     brew_step.name = step.name
     brew_step.target = step.temp
     brew_step.hold_time = step.min
@@ -116,9 +118,10 @@ def create_mash_step(step, section):
     return brew_step
 
 
-def create_boil_step(step, section):
+def create_boil_step(step, section, number):
     brew_step = BrewStep()
     brew_step.brew_section = section
+    brew_step.number = number
     brew_step.name = step.type
     brew_step.unit = step.unit
     brew_step.target = step.amount
@@ -127,9 +130,10 @@ def create_boil_step(step, section):
     return brew_step
 
 
-def create_fermentation_step(step, section):
+def create_fermentation_step(step, section, number):
     brew_step = BrewStep()
     brew_step.brew_section = section
+    brew_step.number = number
     brew_step.name = section.name
     brew_step.target = step.start_temp
     brew_step.hold_time = step.days

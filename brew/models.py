@@ -11,12 +11,7 @@ class Brew(models.Model):
     description = models.TextField()
     profile = models.TextField()
     ingredients = models.TextField()
-    weblink = models.CharField(max_length=COLUMN_SMALL_SIZE)
-
-    brew_sections = None
-
-    def load_brew_sections(self):
-        self.brew_sections = BrewSection.objects.filter(brew=self)
+    web_link = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
     def __unicode__(self):
         return u'{0} ({1}) by {2}'.format(self.name, self.style, self.brewer)
@@ -30,11 +25,6 @@ class BrewSection(models.Model):
     number = models.IntegerField()
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     worker_type = models.CharField(max_length=COLUMN_SMALL_SIZE)
-
-    brew_steps = None
-
-    def load_brew_steps(self):
-        self.brew_steps = BrewStep.objects.filter(brew_section=self)
 
     def __unicode__(self):
         return u'{0} using {1}'.format(self.name, self.worker_type)

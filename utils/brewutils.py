@@ -86,7 +86,7 @@ def create_brew_model(data):
     brew.description = lookup_brewstyle_info(data, BREW_STYLE_DESCRIPTION_NODE)
     brew.profile = lookup_brewstyle_info(data, BREW_STYLE_PROFILE_NODE)
     brew.ingredients = lookup_brewstyle_info(data, BREW_STYLE_INGREDIENTS_NODE)
-    brew.weblink = lookup_brewstyle_info(data, BREW_STYLE_WEB_NODE)
+    brew.web_link = lookup_brewstyle_info(data, BREW_STYLE_WEB_NODE)
     mash = generate_brew_section(data, MashSchedule())
     boil = generate_brew_section(data, BoilSchedule())
     ferment = generate_brew_section(data, FermentationSchedule())

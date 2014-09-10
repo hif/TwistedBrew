@@ -3,7 +3,8 @@ from django.views.generic import TemplateView
 
 
 urlpatterns = patterns('',
-                       url(r'^brews/$', 'brew.views.brews'),
-                       url(r'^brew_selection/$', 'brew.views.brew_selection'),
-                       url(r'^brew_data/$', 'brew.views.brew_data'),
+    url(r'^brews/$', 'brew.views.brews'),
+    url(r'^brew_selection/$', 'brew.views.brew_selection'),
+    url(r'^brew_data/$', 'brew.views.brew_data'),
+    url(r'^brew_delete/(?P<pk>\d+)/$', 'brew.views.brew_delete'),
 )

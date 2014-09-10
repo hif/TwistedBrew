@@ -1,10 +1,11 @@
 {% if data %}
+<br />
 <b>{{ data }}</b>
 <ul>
-    {% for brew_section in data.brew_sections %}
+    {% for brew_section in data.brewsection_set.all %}
     <li><i>{{ brew_section }}</i></li>
     <ol>
-        {% for brew_step in brew_section.brew_steps %}
+        {% for brew_step in brew_section.brewstep_set.all %}
         <li>{{ brew_step }}</li>
         {% empty %}
         <li>No steps found</li>
@@ -14,6 +15,7 @@
     <li>No sections found</li>
     {% endfor %}
 </ul>
+<small><a href="/brew/brew_delete/{{ data.pk }}/">[delete]</a></small>
 {% else %}
 Brew not found
 {% endif %}

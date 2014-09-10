@@ -27,9 +27,12 @@ def brew_selection(request):
 def brew_data(request):
     if request.method == 'POST':
         brew = Brew.objects.get(pk=(request.POST['pk']))
-        brew.load_brew_sections()
-        for section in brew.brew_sections:
-            section.load_brew_steps()
+        #brew.fill()
     else:
         brew = None
     return render_to_response('brew_data.html', {'data': brew})
+
+
+def brew_delete(request, pk):
+    Brew.objects.get(pk=pk).delete()
+    return HttpResponseRedirect('/brew/brews/')

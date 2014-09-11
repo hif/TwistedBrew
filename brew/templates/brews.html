@@ -7,11 +7,27 @@
     height: 100%;
     width: 100%;
     }
-    .brew_selection {
+    .brew_sidebar {
     display: block;
     float: left;
+    width: 300px;
+    }
+    .brew_selection {
+    display: block;
+    float: top;
     height: 100%;
-    width: 200px;
+    width: 300px;
+    }
+    .brew_import {
+    display: block;
+    float: top;
+    width: 300px;
+    }
+    .brew_extra {
+    display: block;
+    float: top;
+    height: 100%;
+    width: 300px;
     }
     .brew_data {
     display: block;
@@ -52,11 +68,39 @@
         $('#brew_data').html(data);
     }
 
+
+
 </script>
 <h2>Brews</h2>
 <div class="brew_content">
-    <div class="brew_selection" id="brew_selection">
+    <div class="brew_sidebar">
+        <div class="brew_selection" id="brew_selection">
 
+        </div>
+        <div class="brew_import" id="brew_import">
+            <div class="form-group"></div>
+            <br/><br/>
+            <small><a href="/brew/brews_delete_all/">[delete all]</a></small>
+            <br/><br/>
+            <form action="/brew/brews_import/" method="post" enctype="multipart/form-data" role="form">
+                {% csrf_token %}
+                {% if importers %}
+                Import brews using<br/>
+                <select name="index" class="form-control">
+                    {% for importer in importers %}
+                    <option value="{{ importer.index }}">{{ importer.display_name }}</option>
+                    {% endfor %}
+                </select><br/>
+                <input style="text-align:center" type="file" name="file" class="form-control"/><br/>
+                <br/>
+                <input type="submit" value="Import" class="form-control">
+                {% endif %}
+            </form>
+        </div>
+        </div>
+        <div class="brew_extra" id="brew_extra">
+
+        </div>
     </div>
     <div class="brew_data" id="brew_data">
 

@@ -27,9 +27,9 @@ class BrewMaster(threading.Thread):
             self.ip = config.ip
             self.port = config.port
 
-        self.recipie_file = DefaultRecipeFile
+        self.recipe_file = DefaultRecipeFile
         if configfile is not None:
-            self.recipie_file = configfile
+            self.recipe_file = configfile
         self.recipe_name = "My Beer"
         self.recipe = BeerData()
         self.recipe_loaded = False
@@ -92,10 +92,10 @@ class BrewMaster(threading.Thread):
             BrewSection.objects.all().delete()
             Brew.objects.all().delete()
             if recipefile is not None:
-                self.recipie_file = recipefile
-            log.debug('Loading recipe file {0}...'.format(self.recipie_file))
+                self.recipe_file = recipefile
+            log.debug('Loading recipe file {0}...'.format(self.recipe_file))
             beer = BeerParser()
-            recipedata = beer.get_recipes(self.recipie_file)
+            recipedata = beer.get_recipes(self.recipe_file)
             self.recipes = {}
             brews = []
             for item in recipedata:
@@ -123,14 +123,14 @@ class BrewMaster(threading.Thread):
                                 brew_step = utils.brewutils.create_fermentation_step(step, s, f_count)
                             if brew_step is not None:
                                 brew_step.save()
-            log.debug('...done loading recipe file {0}'.format(self.recipie_file))
+            log.debug('...done loading recipe file {0}'.format(self.recipe_file))
         except Exception, e:
-            log.error('Failed to load recipes {0} ({1})'.format(self.recipie_file, e.message))
+            log.error('Failed to load recipes {0} ({1})'.format(self.recipe_file, e.message))
 
     def load(self, recipe):
         try:
             if len(self.recipes) == 0:
-                log.warning('No recipes found in {}'.format(self.recipie_file))
+                log.warning('No recipes found in {}'.format(self.recipe_file))
             self.recipe_name = recipe.strip().decode('utf-8')
             log.debug('Loading {0}'.format(recipe))
             self.recipe = None

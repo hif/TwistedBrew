@@ -29,5 +29,5 @@ while command.upper() != 'EXIT':
         if worker is None or worker == '':
             print('Enter recipe name: ')
             worker = sys.stdin.readline().rstrip()
-    commander.sendmaster(command, worker)
+    commander.send_master(command, worker)
     command, worker = getcommand()

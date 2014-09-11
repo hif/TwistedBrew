@@ -165,7 +165,7 @@ def commander(request):
             last_message = form.cleaned_data['command']
             commander = BrewCommander()
             command, params = commander.parse_command(last_message)
-            commander.sendmaster(command, params)
+            commander.send_master(command, params)
             #return HttpResponseRedirect('/')
         else:
             # The supplied form contained errors - just print them to the terminal.

@@ -85,12 +85,11 @@ class BrewMaster(threading.Thread):
             tmp.description = description
             tmp.save()
 
-
     def load_recipies(self, recipefile=None):
         try:
-            BrewStep.objects.all().delete()
-            BrewSection.objects.all().delete()
-            Brew.objects.all().delete()
+            #BrewStep.objects.all().delete()
+            #BrewSection.objects.all().delete()
+            #Brew.objects.all().delete()
             if recipefile is not None:
                 self.recipe_file = recipefile
             log.debug('Loading recipe file {0}...'.format(self.recipe_file))
@@ -103,26 +102,26 @@ class BrewMaster(threading.Thread):
                 if name is not None:
                     self.recipes[name] = item
                     # Save to database
-                    brew, sections = utils.brewutils.create_brew_model(item)
-                    brew.save()
-                    s_count = m_count = b_count = f_count = 0
-                    for section in sections:
-                        s_count += 1
-                        s = utils.brewutils.create_section(section, brew, s_count)
-                        s.save()
-                        for step in section.steps:
-                            brew_step = None
-                            if s.worker_type == 'MashWorker':
-                                m_count += 1
-                                brew_step = utils.brewutils.create_mash_step(step, s, m_count)
-                            elif s.worker_type == 'BoilWorker':
-                                b_count += 1
-                                brew_step = utils.brewutils.create_boil_step(step, s, b_count)
-                            elif s.worker_type == 'FermentationWorker':
-                                f_count += 1
-                                brew_step = utils.brewutils.create_fermentation_step(step, s, f_count)
-                            if brew_step is not None:
-                                brew_step.save()
+     #              brew, sections = utils.brewutils.create_brew_model(item)
+     #              brew.save()
+     #              s_count = m_count = b_count = f_count = 0
+     #              for section in sections:
+     #                  s_count += 1
+     #                  s = utils.brewutils.create_section(section, brew, s_count)
+     #                  s.save()
+     #                  for step in section.steps:
+     #                      brew_step = None
+     #                      if s.worker_type == 'MashWorker':
+     #                          m_count += 1
+     #                          brew_step = utils.brewutils.create_mash_step(step, s, m_count)
+     #                      elif s.worker_type == 'BoilWorker':
+     #                          b_count += 1
+     #                          brew_step = utils.brewutils.create_boil_step(step, s, b_count)
+     #                      elif s.worker_type == 'FermentationWorker':
+     #                          f_count += 1
+     #                          brew_step = utils.brewutils.create_fermentation_step(step, s, f_count)
+     #                      if brew_step is not None:
+     #                          brew_step.save()
             log.debug('...done loading recipe file {0}'.format(self.recipe_file))
         except Exception, e:
             log.error('Failed to load recipes {0} ({1})'.format(self.recipe_file, e.message))

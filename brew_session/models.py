@@ -1,12 +1,13 @@
 from django.db import models
 import datetime
+import brew.models
 
 COLUMN_SMALL_SIZE = 124
 
 class Session(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     session_date = models.DateField(default=datetime.datetime.now())
-    source = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    source = models.ForeignKey(brew.models.Brew)
     notes = models.TextField()
     locked = models.BooleanField()
 

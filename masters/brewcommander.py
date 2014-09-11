@@ -13,9 +13,9 @@ class BrewCommand():
 
     def __str__(self):
         w = self.worker
-        if(w is None or w == ''):
+        if w is None or w == '':
             w = '-N/A-'
-        if(w is None or w == ''):
+        if w is None or w == '':
             w = '-N/A-'
         return '{0} to {1} with {2}'.format(self.command, w, p)
 
@@ -27,7 +27,7 @@ class BrewCommander():
         self.ip = ip
         self.port = port
 
-    def sendmaster(self, command, params=None):
+    def send_master(self, command, params=None):
         data = command
         if params is not None and params != '':
             data = u'{0}{1}{2}'.format(data, msg.MessageSplit, params)

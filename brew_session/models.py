@@ -4,12 +4,30 @@ import brew.models
 
 COLUMN_SMALL_SIZE = 124
 
+
 class Session(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     session_date = models.DateField(default=datetime.datetime.now())
     source = models.ForeignKey(brew.models.Brew)
     notes = models.TextField()
     locked = models.BooleanField()
+
+    def save(self, *args, **kwargs):
+        adding = self._state.adding
+        models.Model.save(self, *args, **kwargs)
+        if self.source and adding :
+            for section in self.source.brewsection_set.all():
+                for step in section.brewstep_set.all():
+                    detail = SessionDetail()
+                    detail.session = self
+                    detail.name = step.name
+                    detail.worker = section.worker_type
+                    detail.target = step.target
+                    detail.hold_time = step.hold_time
+                    detail.time_unit_seconds = step.time_unit_seconds
+                    detail.notes = section.name
+                    detail.done = False
+                    detail.save()
 
     def __unicode__(self):
         if self.locked:
@@ -31,6 +49,7 @@ class SessionDetail(models.Model):
         (DAYS, 'Days')
     )
     session = models.ForeignKey('Session')
+    index = models.IntegerField()
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
     target = models.CharField(max_length=COLUMN_SMALL_SIZE)
@@ -40,4 +59,4 @@ class SessionDetail(models.Model):
     done = models.BooleanField()
 
     def __unicode__(self):
-        return u'{0} ({1})'.format(self.name, self.worker)
+        return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker)

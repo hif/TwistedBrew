@@ -1,11 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
-from views import SessionView, SessionsView
+from views import SessionView, SessionsView, SessionUpdateView, SessionDeleteView
 
 
 urlpatterns = patterns('',
     url(r'^sessions/$', SessionsView.as_view()),
     url(r'^session/(?P<pk>\d+)/$', SessionView.as_view()),
+    url(r'^session_update/(?P<pk>\d+)/$', SessionUpdateView.as_view()),
+    url(r'^session_delete/(?P<pk>\d+)/$', SessionDeleteView.as_view()),
     url(r'^create/$', 'brew_session.views.create'),
     url(r'^create_detail/(?P<session_id>\d+)/$', 'brew_session.views.create_detail'),
     url(r'^set_source/(?P<session_id>\d+)/$', 'brew_session.views.set_source'),

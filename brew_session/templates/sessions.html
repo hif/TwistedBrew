@@ -1,14 +1,16 @@
-{% extends "base.html" %}
+{% extends "base_sidebar.html" %}
 
-
-{% block content %}
-<script>
-</script>
+{% block tb_sidebar_page_heading %}
+{% load static %}
 <h2>Sessions</h2>
+{% csrf_token %}
+{% endblock %}
+
+{% block tb_sidebar_page_sidebar %}
 {{ welcome_message }}
 <br/>
-<a href="/brew_session/create/">Create Session</a>
-<br/><br/>
+<a href="/brew_session/create/"><small>[create]</small></a>
+<br/>
 <b>Available sessions:</b>
 <br/>
 <ul>
@@ -27,6 +29,7 @@
     <li>{{ archive.name }} [<a href="/brew_session/session/{{ archive.id }}">view</a>]
         {% endif %}
         {% endfor %}
+
 </ul>
 <br/>
 {% endblock %}

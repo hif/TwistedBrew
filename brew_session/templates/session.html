@@ -6,10 +6,13 @@
 </script>
 <h2>Session</h2>
 <a href="/brew_session/sessions/">
-    <small>[set source]</small>
-</a>
-<a href="/brew_session/sessions/">
     <small>[back]</small>
+</a>
+<a href="/brew_session/session_update/{{ object.id }}">
+    <small>[update]</small>
+</a>
+<a href="/brew_session/session_delete/{{ object.id }}">
+    <small>[delete]</small>
 </a>
 <br/>
 <b>{{ object.name }}
@@ -44,7 +47,7 @@
 {% endif %}
 <ul>
     {% for detail in details %}
-    <li>{{ detail.name }} ({{ detail.worker }}) [target:{{ detail.target }}]
+    <li>{{ detail }}
         {% empty %}
     <li>No details available.</li>
     {% endfor %}

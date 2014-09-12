@@ -1,112 +1,45 @@
-{% extends "base.html" %}
+{% extends "base_sidebar.html" %}
 
-
-{% block content %}
-<style>
-    .brew_content {
-    height: 100%;
-    width: 100%;
-    }
-    .brew_sidebar {
-    display: block;
-    float: left;
-    width: 300px;
-    }
-    .brew_selection {
-    display: block;
-    float: top;
-    height: 100%;
-    width: 300px;
-    }
-    .brew_import {
-    display: block;
-    float: top;
-    width: 300px;
-    }
-    .brew_extra {
-    display: block;
-    float: top;
-    height: 100%;
-    width: 300px;
-    }
-    .brew_data {
-    display: block;
-    float: left;
-    height: 100%;
-    width: auto;
-    }
-</style>
-{% csrf_token %}
-<script type="text/javascript">
-    $(function() {
-        get_brew_selection();
-    });
-    function get_brew_selection() {
-        $.ajax({
-			url: "/brew/brew_selection/",
-			type: 'POST',
-			data: {'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
-			success: show_brew_selection,
-			dataType: 'html'
-		});
-    }
-    function get_brew_data(pk){
-        $.ajax({
-			url: "/brew/brew_data/",
-			type: 'POST',
-			data: {'pk': pk, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
-			success: show_brew_data,
-			dataType: 'html'
-		});
-    }
-
-    function show_brew_selection(data){
-        $('#brew_selection').html(data);
-    }
-
-    function show_brew_data(data){
-        $('#brew_data').html(data);
-    }
-
-
-
-</script>
+{% block tb_sidebar_page_heading %}
+{% load static %}
+<link href="{% static 'css/brew.css' %}" rel="stylesheet">
+<script src="{% static 'js/brew.js' %}"></script>
 <h2>Brews</h2>
-<div class="brew_content">
-    <div class="brew_sidebar">
-        <div class="brew_selection" id="brew_selection">
+{% csrf_token %}
+{% endblock %}
 
-        </div>
-        <div class="brew_import" id="brew_import">
-            <div class="form-group"></div>
-            <br/><br/>
-            <small><a href="/brew/brews_delete_all/">[delete all]</a></small>
-            <br/><br/>
-            <form action="/brew/brews_import/" method="post" enctype="multipart/form-data" role="form">
-                {% csrf_token %}
-                {% if importers %}
-                Import brews using<br/>
-                <select name="index" class="form-control">
-                    {% for importer in importers %}
-                    <option value="{{ importer.index }}">{{ importer.display_name }}</option>
-                    {% endfor %}
-                </select><br/>
-                <input style="text-align:center" type="file" name="file" class="form-control"/><br/>
-                <br/>
-                <input type="submit" value="Import" class="form-control">
-                {% endif %}
-            </form>
-        </div>
-        </div>
-        <div class="brew_extra" id="brew_extra">
-
-        </div>
-    </div>
-    <div class="brew_data" id="brew_data">
-
-    </div>
+{% block tb_sidebar_page_sidebar %}
+<div class="brew_selection" id="brew_selection">
 
 </div>
+<div class="brew_import" id="brew_import">
+    <div class="form-group">
+        <br/><br/>
+        <small><a href="/brew/brews_delete_all/">[delete all]</a></small>
+        <br/><br/>
+        <form action="/brew/brews_import/" method="post" enctype="multipart/form-data" role="form">
+            {% csrf_token %}
+            {% if importers %}
+            Import brews using<br/>
+            <select name="index" class="form-control">
+                {% for importer in importers %}
+                <option value="{{ importer.index }}">{{ importer.display_name }}</option>
+                {% endfor %}
+            </select><br/>
+            <input style="text-align:center" type="file" name="file" class="form-control"/><br/>
+            <br/>
+            <input type="submit" value="Import" class="form-control">
+            {% endif %}
+        </form>
+    </div>
+    <div class="brew_extra" id="brew_extra">
 
+    </div>
+</div>
+{% endblock %}
 
+{% block tb_sidebar_page_main %}
+<div class="brew_data" id="brew_data">
+
+</div>
 {% endblock %}

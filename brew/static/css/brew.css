@@ -1,0 +1,17 @@
+.brew_selection {
+    display: block;
+    float: top;
+    height: 100%;
+    width: 300px;
+}
+.brew_import {
+    display: block;
+    float: top;
+    width: 300px;
+}
+.brew_extra {
+    display: block;
+    float: top;
+    height: 100%;
+    width: 300px;
+}

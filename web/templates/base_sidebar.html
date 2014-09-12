@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<link href="{% static 'css/sidebar.css' %}" rel="stylesheet">
+{% block tb_sidebar_page_heading %}
+No heading
+{% endblock %}
+<div class="tb_css_sidebar_page_content" id="tb_css_sidebar_page_content">
+    <div class="tb_css_sidebar_page_sidebar" id="tb_css_sidebar_page_sidebar">
+    	{% block tb_sidebar_page_sidebar %}
+        No sidebar
+        {% endblock %}
+    </div>
+    <div class="tb_css_sidebar_page_main" id="tb_css_sidebar_page_main">
+		{% block tb_sidebar_page_main %}
+		No main
+		{% endblock %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<script>
+</script>
+<h2>Session</h2>
+<a href="/brew_session/session/{{ object.pk }}">
+    <small>[back]</small>
+</a>
+<br/>
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_table }}
+    <input type="submit" value="Update" />
+</form>
+<br/>
+<h3>Details</h3>
+{% if not object.locked %}
+<a href="/brew_session/create_detail/{{ object.id }}">
+    <small>[create]</small>
+</a>
+{% endif %}
+<ul>
+    {% for detail in details %}
+    <li>{{ detail.name }} ({{ detail.worker }}) [target:{{ detail.target }}]
+        {% empty %}
+    <li>No details available.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

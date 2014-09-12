@@ -57,7 +57,7 @@ class BrewMaster(threading.Thread):
             MessageInfo: "Register worker info",
             MessageLoad: "Load recipe",
             MessageExecute: "Send message to worker",
-            MessageUpdate: "Register mesurement update",
+            MessageUpdate: "Register measurement update",
             MessageShutdown: "Shutdown brew master",
         }
         self.store_commands(self.instructions, "Instruction")

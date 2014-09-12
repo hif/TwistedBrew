@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.template import RequestContext
@@ -32,6 +32,20 @@ class SessionsView(ListView):
         context['brew_session_active'] = True
         return context
 
+
+class SessionUpdateView(UpdateView):
+    template_name = 'session_update.html'
+    model = Session
+    success_url = ('/brew_session/session/')
+
+    def get_success_url(self):
+        return self.success_url + self.kwargs['pk']
+
+
+class SessionDeleteView(DeleteView):
+    template_name = 'session_delete.html'
+    model = Session
+    success_url = ('/brew_session/sessions/')
 
 def session(request, session_id):
     context = RequestContext(request)

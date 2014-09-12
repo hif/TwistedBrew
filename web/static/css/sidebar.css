@@ -1,0 +1,15 @@
+.tb_css_sidebar_page_content {
+    height: 100%;
+    width: 100%;
+}
+.tb_css_sidebar_page_sidebar {
+    display: block;
+    float: left;
+    width: 300px;
+}
+.tb_css_sidebar_page_main {
+    display: block;
+    float: left;
+    height: 100%;
+    width: auto;
+}

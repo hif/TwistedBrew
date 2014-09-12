@@ -22,7 +22,7 @@ class Brew(models.Model):
 
 class BrewSection(models.Model):
     brew = models.ForeignKey('Brew')
-    number = models.IntegerField()
+    index = models.IntegerField()
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     worker_type = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
@@ -30,7 +30,7 @@ class BrewSection(models.Model):
         return u'{0} using {1}'.format(self.name, self.worker_type)
 
     class Meta:
-        ordering = ['number']
+        ordering = ['index']
 
 
 class BrewStep(models.Model):
@@ -45,7 +45,7 @@ class BrewStep(models.Model):
         (DAYS, 'Days')
     )
     brew_section = models.ForeignKey('BrewSection')
-    number = models.IntegerField()
+    index = models.IntegerField()
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     unit = models.CharField(max_length=COLUMN_SMALL_SIZE)
     target = models.FloatField(max_length=COLUMN_SMALL_SIZE)
@@ -56,5 +56,5 @@ class BrewStep(models.Model):
         return u'{0} with target {1}'.format(self.name, self.target)
 
     class Meta:
-        ordering = ['number']
+        ordering = ['index']
 

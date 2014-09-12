@@ -9,6 +9,12 @@ class SessionForm(ModelForm):
     class Meta:
         model = Session
 
+    def save(self, commit=True):
+        instance = super(ModelForm, self).save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+
 
 SessionFormSet = formset_factory(SessionForm)
 

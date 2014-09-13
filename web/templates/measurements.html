@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
-
-{% block content %}
+{% block content_heading %}
     <h2>Measurements</h2>
+{% endblock %}
+{% block content %}
         <form action="/measurements_clear">
             <input type="submit" value="Clear all measurements">
 

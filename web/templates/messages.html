@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
-
-{% block content %}
+{% block content_heading %}
     <h2>Messages</h2>
+{% endblock %}
+{% block content %}
         <form action="/messages_clear">
             <input type="submit" value="Clear all messages">
         </form>

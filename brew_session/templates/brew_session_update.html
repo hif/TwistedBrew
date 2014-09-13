@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% block content_heading %}
+<h2>Sessions</h2>
+{% endblock %}
 
 {% block content %}
 <script>
@@ -10,8 +13,8 @@
 </a>
 <br/>
 <form action="" method="post">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ object }}"?</p>
-    <input type="submit" value="Confirm" />
+    {{ form.as_table }}
+    <input type="submit" value="Update" />
 </form>
 <br/>
 <h3>Details</h3>

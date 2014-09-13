@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
-
-{% block content %}
+{% block content_heading %}
     <h2>Workers</h2>
+{% endblock %}
+{% block content %}
         <ul>
             {% for worker in workers %}
             <li>{{ worker.name }} - {{ worker.type }}</li>

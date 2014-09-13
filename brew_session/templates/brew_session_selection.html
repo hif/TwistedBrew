@@ -1,0 +1,7 @@
+<ul>
+    {% for detail in selection %}
+    <li><a onclick="get_brew_session_data({{ detail.pk }})">{{ detail }}</a></li>
+    {% empty %}
+    <li>No brews found</li>
+    {% endfor %}
+</ul>

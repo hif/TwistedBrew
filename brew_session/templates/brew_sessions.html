@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+
+{% block content_heading %}
+{% load static %}
+<link href="{% static 'css/brew_session.css' %}" rel="stylesheet">
+<script src="{% static 'js/brew_session.js' %}"></script>
+<h2>Sessions</h2>
+{% csrf_token %}
+{% endblock %}
+
+{% block tb_sidebar_page_sidebar %}
+<div class="brew_session_selection" id="brew_session_selection">
+
+</div>
+{% endblock %}
+
+{% block tb_sidebar_page_main %}
+<div class="brew_session_data" id="brew_session_data">
+
+</div>
+{% endblock %}

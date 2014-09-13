@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.core.context_processors import csrf
 from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
@@ -24,7 +25,7 @@ class SessionView(DetailView):
 
 
 class SessionsView(ListView):
-    template_name = 'sessions.html'
+    template_name = 'brew_sessions.html'
     model = Session
 
     def get_context_data(self, **kwargs):
@@ -34,7 +35,7 @@ class SessionsView(ListView):
 
 
 class SessionUpdateView(UpdateView):
-    template_name = 'session_update.html'
+    template_name = 'brew_session_update.html'
     model = Session
     success_url = ('/brew_session/session/')
 
@@ -43,7 +44,7 @@ class SessionUpdateView(UpdateView):
 
 
 class SessionDeleteView(DeleteView):
-    template_name = 'session_delete.html'
+    template_name = 'brew_session_delete.html'
     model = Session
     success_url = ('/brew_session/sessions/')
 
@@ -145,3 +146,27 @@ def scheduler(request):
     }
 
     return render_to_response('scheduler.html', context_dict, context)
+
+
+def brew_session_selection(request):
+    if request.method == 'POST':
+       session_list = Session.objects.order_by('name')
+    else:
+        session_list = []
+    return render_to_response('brew_session_selection.html', {'selection': session_list})
+
+
+def brew_session_data(request):
+    if request.method == 'POST':
+        brew = Session.objects.get(pk=(request.POST['pk']))
+    else:
+        brew = None
+    return render_to_response('brew_session_data.html', {'data': brew})
+
+
+def brew_session_execute(request, pk):
+    if request.method == 'POST':
+        brew = Session.objects.get(pk=pk)
+    else:
+        brew = None
+    return render_to_response('brew_session_data.html', {'data': brew})

@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from models import Worker, Command, Measurement, Message
@@ -102,8 +103,8 @@ def charts(request):
     context = RequestContext(request)
 
     chart_time = json.dumps(['00:00','00:05','00:10','00:15'])
-    chart_data = [0,10,15,20]
-    chart_set = [65,65,65,65]
+    chart_data = [0, 10, 15, 20]
+    chart_set = [65, 65, 65, 65]
 
     context_dict = {
         'charts_active': True,
@@ -113,7 +114,7 @@ def charts(request):
         'mash_worker': 'Mash Dude',
         'fermentation_worker': 'Fermat',
     }
-
+    context_dict.update(csrf(request))
     return render_to_response('charts.html', context_dict, context)
 
 
@@ -125,7 +126,6 @@ def charts_update(request):
     log.debug(last_timestamp_ms)
     last_timestamp = ms_to_datetime(int(last_timestamp_ms[0]))
     log.debug(last_timestamp)
-
 
     #latest_measurement_set = Measurement.objects.filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
     latest_measurement_set = Measurement.objects.filter(worker=worker).\
@@ -143,7 +143,7 @@ def charts_update(request):
 
     update_data = {"latest_set_point": latest_set_points, "latest_probe_temp": latest_probe_temps, "latest_timestamp": latest_timestamps}
 
-    return HttpResponse(json.dumps(update_data), content_type = "application/json")
+    return HttpResponse(json.dumps(update_data), content_type="application/json")
 
 
 def commander(request):

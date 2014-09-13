@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
-
+{% block content_heading %}
+<h2>Commands</h2>
+{% endblock %}
 {% block content %}
-    <h2>Commands</h2>
         <ul>
             {% for command in commands %}
             <li>{{ command.name }} - {{ command.type }}</li>

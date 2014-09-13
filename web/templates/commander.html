@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-
+{% block content_heading %}
+<h2>Commander</h2>
+{% endblock %}
 {% block content %}
         <script>
             function set_command(cmd)
@@ -8,7 +10,7 @@
                 document.getElementById('id_command').value = cmd
             }
         </script>
-    <h2>Commander</h2>
+
         Last message: {{ lastmessage }}
         <br />
         <form action="/commander/" method="post" class="form-group">

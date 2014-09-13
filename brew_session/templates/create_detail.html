@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
-{% block content %}
-<script>
-</script>
+{% block content_heading %}
 <h2>Session Detail for {{ session.name }}</h2>
+{% endblock %}
+
+{% block content %}
 <form action="/brew_session/create_detail/{{ session.id }}/" method="post">{% csrf_token %}
     <table>
         {{ form.as_table }}

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.core.context_processors import csrf
-import io, os
+import os
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import RequestContext

@@ -8,6 +8,7 @@
     <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
     <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
+    <link href="{% static 'css/sidebar.css' %}" rel="stylesheet">
     <script src="{% static 'js/jquery-2.1.1.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <!--[if lte IE 8]>
@@ -55,7 +56,7 @@
             <li class="{% if measurements_active %}active{% endif %}"><a href="/measurements/">Measurements</a></li>
             <li class="{% if charts_active %}active{% endif %}"><a href="/charts/">Charts</a></li>
             <li class="{% if commander_active %}active{% endif %}"><a href="/commander/">Commander</a></li>
-            <li class="{% if brew_session_active %}active{% endif %}"><a href="/brew_session/sessions">Sessions</a></li>
+            <li class="{% if brew_session_active %}active{% endif %}"><a href="/brew_session/brew_sessions">Sessions</a></li>
             <li class="{% if messages_active %}active{% endif %}"><a href="/messages/">Messages</a></li>
             <li class="{% if warnings_active %}active{% endif %}"><a href="/warnings/">Warnings</a></li>
             <li class="{% if errors_active %}active{% endif %}"><a href="/errors/">Errors</a></li>
@@ -63,10 +64,23 @@
     </div>
     <!-- /.container-fluid -->
 </nav>
-
 <div class="container">
+    {% block content_heading %}
+    No heading
+    {% endblock %}
     {% block content %}
-    This page is missing content
+        <div class="tb_css_sidebar_page_content" id="tb_css_sidebar_page_content">
+            <div class="tb_css_sidebar_page_sidebar" id="tb_css_sidebar_page_sidebar">
+                {% block tb_sidebar_page_sidebar %}
+                No sidebar
+                {% endblock %}
+            </div>
+            <div class="tb_css_sidebar_page_main" id="tb_css_sidebar_page_main">
+                {% block tb_sidebar_page_main %}
+                No main
+                {% endblock %}
+            </div>
+        </div>
     {% endblock %}
 </div>
 <div style="position:fixed;bottom:4px;left:8px">

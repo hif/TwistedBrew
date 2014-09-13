@@ -8,7 +8,8 @@
     <li>No sections found</li>
     {% endfor %}
 </ul>
-<small><a href="/brew_sesssion/brew_session_delete/{{ data.pk }}/">[delete]</a></small>
+<small><a href="/brew_session/brew_session_update/{{ data.pk }}/">[update]</a></small>
+<small><a href="/brew_session/brew_session_delete/{{ data.pk }}/">[delete]</a></small>
 <small><a href="/brew_session/brew_session_execute/{{ data.pk }}/">[execute]</a></small>
 {% else %}
 Brew not found

@@ -142,6 +142,7 @@ def charts_update(request):
             latest_set_points.append(item.set_point)
 
     update_data = {"latest_set_point": latest_set_points, "latest_probe_temp": latest_probe_temps, "latest_timestamp": latest_timestamps}
+    #update_data.update(csrf(request))
 
     return HttpResponse(json.dumps(update_data), content_type="application/json")
 

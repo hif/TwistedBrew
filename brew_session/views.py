@@ -14,7 +14,7 @@ import utils.logging as log
 
 
 class SessionView(DetailView):
-    template_name = 'session.html'
+    template_name = 'brew_session.html'
     model = Session
 
     def get_context_data(self, **kwargs):
@@ -37,7 +37,7 @@ class SessionsView(ListView):
 class SessionUpdateView(UpdateView):
     template_name = 'brew_session_update.html'
     model = Session
-    success_url = ('/brew_session/session/')
+    success_url = ('/brew_session/brew_session/')
 
     def get_success_url(self):
         return self.success_url + self.kwargs['pk']
@@ -46,7 +46,7 @@ class SessionUpdateView(UpdateView):
 class SessionDeleteView(DeleteView):
     template_name = 'brew_session_delete.html'
     model = Session
-    success_url = ('/brew_session/sessions/')
+    success_url = ('/brew_session/brew_sessions/')
 
 def session(request, session_id):
     context = RequestContext(request)
@@ -58,7 +58,7 @@ def session(request, session_id):
                 'object': s,
     }
 
-    return render_to_response('session.html', context_dict, context)
+    return render_to_response('brew_session.html', context_dict, context)
 
 
 def create(request):
@@ -66,7 +66,7 @@ def create(request):
         form = SessionForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect('/brew_session/sessions')
+        return HttpResponseRedirect('/brew_session/brew_sessions')
     else:
         form = SessionForm()
     args = {}
@@ -100,7 +100,7 @@ def set_source(request, session_id):
             session_detail = form.save(commit=False)
             session_detail.session_id = int(session_id)
             session_detail.save()
-        return HttpResponseRedirect('/brew_session/session/%s' % session_id)
+        return HttpResponseRedirect('/brew_session/brew_session/%s' % session_id)
     else:
         form = SessionDetailForm()
     args = {}

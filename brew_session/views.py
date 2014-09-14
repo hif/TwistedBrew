@@ -31,16 +31,20 @@ class SessionsView(ListView):
     def get_context_data(self, **kwargs):
         context = super(SessionsView, self).get_context_data(**kwargs)
         context['brew_session_active'] = True
+        if 'pk' in self.kwargs:
+            context['selection'] = int(self.kwargs['pk'])
+        else:
+            context['selection'] = 0
         return context
 
 
 class SessionUpdateView(UpdateView):
     template_name = 'brew_session_update.html'
     model = Session
-    success_url = ('/brew_session/brew_session/')
+    success_url = ('/brew_session/brew_sessions/')
 
     def get_success_url(self):
-        return self.success_url + self.kwargs['pk']
+        return self.success_url + self.kwargs['pk'] + "/"
 
 
 class SessionDeleteView(DeleteView):
@@ -61,7 +65,7 @@ def session(request, session_id):
     return render_to_response('brew_session.html', context_dict, context)
 
 
-def create(request):
+def create_session(request):
     if request.POST:
         form = SessionForm(request.POST)
         if form.is_valid():
@@ -153,7 +157,11 @@ def brew_session_selection(request):
        session_list = Session.objects.order_by('name')
     else:
         session_list = []
-    return render_to_response('brew_session_selection.html', {'selection': session_list})
+    if 'init_brew_selection' in request.POST:
+        init_selection = int(request.POST['init_brew_selection'])
+    else:
+        init_selection = 0
+    return render_to_response('brew_session_selection.html', {'selection': session_list, 'init_selection': init_selection})
 
 
 def brew_session_data(request):

@@ -1,3 +1,6 @@
+<a onclick="get_create_session()">
+    <small>[create]</small>
+</a>
 <ul>
     {% for detail in selection %}
     <li><a onclick="get_brew_session_data({{ detail.pk }})">{{ detail }}</a></li>
@@ -5,3 +8,8 @@
     <li>No brews found</li>
     {% endfor %}
 </ul>
+{% if init_selection > 0 %}
+<script type="text/javascript">
+    get_brew_session_data({{ init_selection }});
+</script>
+{% endif %}

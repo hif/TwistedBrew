@@ -7,8 +7,8 @@
 <script src="{% static 'js/brew_session.js' %}"></script>
 <h2>Sessions</h2>
 {% csrf_token %}
+<input type="hidden" value="{{selection}}" id="init_brew_selection" name="init_brew_selection">
 {% endblock %}
-
 {% block tb_sidebar_page_sidebar %}
 <div class="brew_session_selection" id="brew_session_selection">
 

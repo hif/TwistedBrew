@@ -8,6 +8,7 @@ class SessionForm(ModelForm):
 
     class Meta:
         model = Session
+        fields = ['name', 'session_date', 'source', 'notes']
 
     def save(self, commit=True):
         instance = super(ModelForm, self).save(commit=False)

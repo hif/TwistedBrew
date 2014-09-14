@@ -10,24 +10,28 @@ class Session(models.Model):
     session_date = models.DateField(default=datetime.datetime.now())
     source = models.ForeignKey(brew.models.Brew)
     notes = models.TextField()
-    locked = models.BooleanField()
+    locked = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         adding = self._state.adding
         models.Model.save(self, *args, **kwargs)
         if self.source and adding :
+            index = 1
             for section in self.source.brewsection_set.all():
                 for step in section.brewstep_set.all():
                     detail = SessionDetail()
                     detail.session = self
                     detail.name = step.name
+                    detail.index = index
                     detail.worker = section.worker_type
                     detail.target = step.target
                     detail.hold_time = step.hold_time
                     detail.time_unit_seconds = step.time_unit_seconds
                     detail.notes = section.name
                     detail.done = False
+                    detail.skip = False
                     detail.save()
+                    index += 1
 
     def __unicode__(self):
         if self.locked:
@@ -56,7 +60,8 @@ class SessionDetail(models.Model):
     hold_time = models.IntegerField(default=1)
     time_unit_seconds = models.IntegerField(choices=HOLD_TIME_UNITS, default=MINUTES)
     notes = models.TextField()
-    done = models.BooleanField()
+    done = models.BooleanField(default=False)
+    skip = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker)

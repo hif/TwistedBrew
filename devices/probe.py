@@ -1,20 +1,20 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLE_TIME
+from devices.device import Device, DEVICE_DEBUG_CYCLE_TIME
 import utils.logging as log
 import time
 
 
 class Probe(Device):
-    def __init__(self, owner, config):
+    def __init__(self, owner, config, simulation):
         self.test_temperature = 0.0
-        Device.__init__(self, owner, config)
+        Device.__init__(self, owner, config, simulation)
 
     def init(self):
         # TODO: Implment
         pass
 
     def register(self):
-        if DEVICE_DEBUG:
+        if self.simulation:
             return True
         log.error("Can not register probe at \"{0}\", try to run \"sudo modprobe w1-gpio && sudo modprobe w1_therm\" in commandline or check your probe connections".format(self.io))
 
@@ -23,7 +23,7 @@ class Probe(Device):
         pass
 
     def read(self):
-        if DEVICE_DEBUG:
+        if self.simulation:
             return self.test_temperature
         with self.read_write_lock:
             fo = open(self.io, mode='r')
@@ -41,7 +41,7 @@ class Probe(Device):
         read_value = self.read()
         measured_value = float(read_value)
         self.do_callback(measured_value)
-        if DEVICE_DEBUG:
+        if self.simulation:
             time.sleep(DEVICE_DEBUG_CYCLE_TIME)
         else:
             time.sleep(self.cycle_time)

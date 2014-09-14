@@ -9,6 +9,7 @@ workers:
         ip: "localhost"
         port: 5672
         class: "MashWorker"
+        simulation: "True"
         outputs:
             - output:
                 name: "Mash Tun"
@@ -31,6 +32,7 @@ workers:
         ip: "localhost"
         port: 5672
         class: "BoilWorker"
+        simulation: "True"
         outputs:
             - output:
                 name: "Boiler"
@@ -53,6 +55,7 @@ workers:
         ip: "localhost"
         port: 5672
         class: "FermentationWorker"
+        simulation: "True"
         outputs:
             - output:
                 name: "Fermenter"

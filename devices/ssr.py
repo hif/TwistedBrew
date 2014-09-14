@@ -1,16 +1,15 @@
 #!/usr/bin python
-from devices.device import Device, DEVICE_DEBUG, DEVICE_DEBUG_CYCLE_TIME
+from devices.device import Device, DEVICE_DEBUG_CYCLE_TIME
 import utils.logging as log
 import re
 import threading
 import time
 
-SSR_DEVICE_DEBUG = False
 
 class SSR(Device):
-    def __init__(self, owner, config):
+    def __init__(self, owner, config, simulation):
         threading.Thread.__init__(self)
-        Device.__init__(self, owner, config)
+        Device.__init__(self, owner, config, simulation)
         self.on_percent = 0.0
         self.last_on_time = 0.0
 
@@ -19,7 +18,7 @@ class SSR(Device):
         pass
 
     def register(self):
-        if DEVICE_DEBUG:
+        if self.simulation:
             return True
         found = re.search('\d{1,2}', self.io)
         gpio_numb = found.group()
@@ -49,7 +48,7 @@ class SSR(Device):
         return True
 
     def set_ssr_state(self, on = False):
-        if DEVICE_DEBUG:
+        if self.simulation:
             return True
         with self.read_write_lock:
             fo = open(self.io, mode='w')
@@ -62,7 +61,7 @@ class SSR(Device):
         return ok
 
     def read(self):
-        if DEVICE_DEBUG:
+        if self.simulation:
             return 1
         with self.read_write_lock:
             fo = open(self.io, mode='r')
@@ -74,7 +73,7 @@ class SSR(Device):
         # grab the current value if it should be changed during the cycle
         on_percent = self.on_percent
         on_time = on_percent * self.cycle_time
-        if DEVICE_DEBUG:
+        if self.simulation:
             time.sleep(DEVICE_DEBUG_CYCLE_TIME)
             self.do_callback(on_time)
             return

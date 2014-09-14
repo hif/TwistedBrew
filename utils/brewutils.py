@@ -12,12 +12,12 @@ from schedules.boil import BoilSchedule
 from schedules.fermentation import FermentationSchedule
 
 
-def load_device(owner, config):
+def load_device(owner, config, simulation):
     try:
         module_name = config.device.lower()
         package = 'devices.' + module_name
         module = __import__(package)
-        device_class = getattr(getattr(module, module_name), config.device)
+        device_class = getattr(getattr(module, module_name), config.device, simulation)
         instance = device_class(owner, config)
         return instance
     except Exception, e:
@@ -27,15 +27,16 @@ def load_device(owner, config):
 
 def load_worker(config):
     try:
-        module_name = config.classname.lower()
+        module_name = config.class_name.lower()
         if not module_name.endswith('worker'):
             log.error('Worker module {0} not found'.format(module_name))
             return None
         module_name = module_name[:-6]
         package = 'workers.' + module_name
         module = __import__(package)
-        worker_class = getattr(getattr(module, module_name), config.classname)
+        worker_class = getattr(getattr(module, module_name), config.class_name)
         instance = worker_class(config.name)
+        instance.simulation = config.simulation
         instance.ip = config.ip
         instance.port = config.port
         instance.input_config = config.inputs

@@ -13,6 +13,7 @@ CONFIG_NAME = 'name'
 CONFIG_IP = 'ip'
 CONFIG_PORT = 'port'
 CONFIG_CLASS = 'class'
+CONFIG_SIMULATION = 'simulation'
 CONFIG_DEVICE = 'device'
 CONFIG_INPUTS = 'inputs'
 CONFIG_INPUT = 'input'
@@ -83,12 +84,13 @@ class MasterConfig():
 class WorkerConfig(MasterConfig):
     def __init__(self):
         MasterConfig.__init__(self)
-        self.classname = ''
+        self.class_name = ''
+        self.simulation = False
         self.outputs = []
         self.inputs = []
 
     def __str__(self):
-        tmp = 'Worker ({0} as {3}) - {1}:{2}\r\n'.format(self.name, self.ip, self.port, self.classname)
+        tmp = 'Worker ({0} as {3}) - {1}:{2}\r\n'.format(self.name, self.ip, self.port, self.class_name)
         for config in self.outputs.itervalues():
             tmp = tmp + '* Output: {0}\r\n'.format(config)
         for config in self.inputs.itervalues():
@@ -100,7 +102,8 @@ class WorkerConfig(MasterConfig):
         self.ip = yamldata[CONFIG_IP]
         self.port = yamldata[CONFIG_PORT]
         self.verifydata()
-        self.classname = yamldata[CONFIG_CLASS]
+        self.class_name = yamldata[CONFIG_CLASS]
+        self.simulation = yamldata[CONFIG_SIMULATION].lower() == 'true'
         if CONFIG_OUTPUTS in yamldata and yamldata[CONFIG_OUTPUTS] is not None:
             for iooutput in yamldata[CONFIG_OUTPUTS]:
                 iooutput = iooutput[CONFIG_OUTPUT]
@@ -135,13 +138,13 @@ class BrewConfig():
             configfile = self.file
         raw = open(configfile, 'r')
         data = yaml.load(raw)
-        masterfound = False
+        master_found = False
         for name, section in data.iteritems():
             if ismaster(name):
-                if masterfound:
+                if master_found:
                     log.warning('More than one master found, discarding')
                 else:
-                    masterfound = True
+                    master_found = True
                     self.master = MasterConfig()
                     self.master.setfromyaml(section)
             elif isworkers(name):

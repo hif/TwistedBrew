@@ -5,7 +5,6 @@ from schedules.fermentation import *
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
 from utils.pid import PID
-from devices.device import DEVICE_DEBUG
 
 
 FERMENTATION_DEBUG_INIT_TEMP = 60.0
@@ -67,7 +66,7 @@ class FermentationWorker(BrewWorker):
         self.hold_timer = None
         self.hold_pause_timer = None
         seconds = data.hold_time * data.time_unit_seconds
-        if DEVICE_DEBUG:
+        if self.simulation:
             seconds /= FERMENTATION_DEBUG_TIME_DIVIDER
         self.current_hold_time = timedelta(seconds=seconds)
         cycle_time = float(self.inputs['Temperature'].cycle_time)
@@ -79,7 +78,7 @@ class FermentationWorker(BrewWorker):
 
     def fermentation_temperature_callback(self, measured_value):
         self.current_temperature = random.gauss(self.current_set_temperature, FERMENTATION_DEBUG_STD)
-        if DEVICE_DEBUG:
+        if self.simulation:
             self.send_update(self.inputs['Temperature'],
                              [self.current_temperature, self.current_set_temperature, self.debug_timer])
             self.debug_timer += timedelta(seconds=FERMENTATION_DEBUG_TIMEDELTA)

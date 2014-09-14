@@ -4,7 +4,6 @@ from schedules.boil import *
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
 from utils.pid import PID
-from devices.device import DEVICE_DEBUG
 
 
 BOIL_DEBUG_INIT_TEMP = 60.0
@@ -65,7 +64,7 @@ class BoilWorker(BrewWorker):
         self.hold_timer = None
         self.hold_pause_timer = None
         seconds = data.hold_time * data.time_unit_seconds
-        if DEVICE_DEBUG:
+        if self.simulation:
             seconds /= BOIL_DEBUG_TIME_DIVIDER
         self.current_hold_time = timedelta(seconds=seconds)
         cycle_time = float(self.inputs['Temperature'].cycle_time)
@@ -85,7 +84,7 @@ class BoilWorker(BrewWorker):
             else:
                 log.debug('{0} reports measured value {1}'.format(self.name, measured_value))
             self.current_temperature = measured_value
-            if DEVICE_DEBUG:
+            if self.simulation:
                 self.test_temperature = self.current_temperature
                 self.send_update(self.inputs['Temperature'],
                                  [self.current_temperature, self.current_set_temperature, self.debug_timer])
@@ -106,11 +105,11 @@ class BoilWorker(BrewWorker):
         try:
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
             device = self.outputs['Mash Tun']
-            if DEVICE_DEBUG:
+            if self.simulation:
                 self.send_update(device, [heating_time, device.cycle_time, self.debug_timer])
             else:
                 self.send_update(device, [heating_time, device.cycle_time])
-            if DEVICE_DEBUG:
+            if self.simulation:
                 try:
                     self.inputs['Temperature'].test_temperature = \
                         PID.calc_heating(self.current_temperature,

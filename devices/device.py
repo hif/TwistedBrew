@@ -4,12 +4,11 @@ import utils.logging as log
 import time
 
 
-DEVICE_DEBUG = True
 DEVICE_DEBUG_CYCLE_TIME = 1.0
 DEVICE_PAUSE_CYCLE_TIME = 2.0
 
 class Device(threading.Thread):
-    def __init__(self, owner, config):
+    def __init__(self, owner, config, simulation):
         threading.Thread.__init__(self)
         self.shutdown = False
         self.owner = owner
@@ -18,6 +17,7 @@ class Device(threading.Thread):
         self.active = config.active
         self.cycle_time = config.cycle_time
         self.enabled = False
+        self.simulation = simulation
         self.read_write_lock = threading.Lock()
         if hasattr(owner, config.callback):
             self.callback = getattr(owner, config.callback)
@@ -67,7 +67,7 @@ class Device(threading.Thread):
         pass
 
     def check(self):
-        if DEVICE_DEBUG:
+        if self.simulation:
             return True
         try:
             with open(self.io) as file:

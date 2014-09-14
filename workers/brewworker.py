@@ -5,7 +5,6 @@ import pika
 from django.core import serializers
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
-from devices.device import DEVICE_DEBUG
 from masters.defaults import *
 from masters.messages import *
 import utils.logging as log
@@ -24,6 +23,7 @@ class BrewWorker(threading.Thread):
         threading.Thread.__init__(self)
         self.working = False
         self.name = name
+        self.simulation = False
         self.ip = MessageServerIP
         self.port = MessageServerPort
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
@@ -50,13 +50,13 @@ class BrewWorker(threading.Thread):
             format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
 
     @staticmethod
-    def load_device(owner, config):
+    def load_device(owner, config, simulation):
         try:
             module_name = config.device.lower()
             package = 'devices.' + module_name
             module = __import__(package)
             device_class = getattr(getattr(module, module_name), config.device)
-            instance = device_class(owner, config)
+            instance = device_class(owner, config, simulation)
             return instance
         except Exception, e:
             log.error('Unable to load device from config: {0}'.format(e))
@@ -64,12 +64,12 @@ class BrewWorker(threading.Thread):
 
     def create_device_threads(self):
         for i in self.input_config:
-            device = self.load_device(self, i)
+            device = self.load_device(self, i, self.simulation)
             if device is None:
                 return False
             self.inputs[i.name] = device
         for o in self.output_config:
-            device = self.load_device(self, o)
+            device = self.load_device(self, o, self.simulation)
             if device is None:
                 return False
             self.outputs[o.name] = device
@@ -223,7 +223,7 @@ class BrewWorker(threading.Thread):
         pause_total = timedelta(seconds=self.pause_time)
         finish_time = dt.now() - self.hold_timer
         work_time = self.current_hold_time + pause_total
-        if DEVICE_DEBUG:
+        if self.simulation:
             work_time = timedelta(minutes=DEBUG_STEP_MINUTES)
         if finish_time >= work_time:
             return True

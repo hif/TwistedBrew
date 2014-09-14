@@ -4,7 +4,6 @@ from workers.brewworker import *
 import utils.logging as log
 from brew_session.models import SessionDetail
 from web.models import Worker, Command, Measurement
-from devices.device import DEVICE_DEBUG
 import datetime as dt
 import time
 
@@ -157,7 +156,7 @@ class BrewMaster(threading.Thread):
                 measurement.device = data[3]
                 measurement.value = data[4]
                 measurement.set_point = data[5]
-                if DEVICE_DEBUG:
+                if len(data) > 6:   # In simulation mode, use fake timestamps
                     measurement.timestamp = dt.datetime.strptime(data[6], "%Y-%m-%d %H:%M:%S.%f")
                 else:
                     measurement.timestamp = dt.datetime.now()

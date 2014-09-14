@@ -4,6 +4,7 @@ from views import SessionView, SessionsView, SessionUpdateView, SessionDeleteVie
 
 
 urlpatterns = patterns('',
+    url(r'^$', SessionsView.as_view()),
     url(r'^brew_sessions/$', SessionsView.as_view()),
     url(r'^brew_session_selection/$', 'brew_session.views.brew_session_selection'),
     url(r'^brew_session_data/$', 'brew_session.views.brew_session_data'),

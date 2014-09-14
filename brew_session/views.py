@@ -82,7 +82,7 @@ def create_detail(request, session_id):
             session_detail = form.save(commit=False)
             session_detail.session_id = int(session_id)
             session_detail.save()
-        return HttpResponseRedirect('/brew_session/session/%s' % session_id)
+        return HttpResponseRedirect('/brew_session/brew_session/%s' % session_id)
     else:
         form = SessionDetailForm()
     args = {}

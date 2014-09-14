@@ -4,7 +4,7 @@
 {% block content %}
     <h2>Charts</h2>
 {% load static %}
-
+{% csrf_token %}
 <script type="text/javascript">
 function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 	// lineChart properties
@@ -174,7 +174,7 @@ function LineChart(placeHolderId, chartType, totalPoints, updateInterval) {
 	LineChart.prototype.getData = function () {
 		$.ajaxSetup({ cache: false });
 		$.ajax({
-			url: "http://127.0.0.1:8000/charts_update/",
+			url: "/charts_update/",
 			dataType: 'json',
 			type: 'POST',
 			data: {timestamp: this.timeStamp+1000, worker: this.worker, csrfmiddlewaretoken: '{{ csrf_token }}'},

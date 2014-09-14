@@ -114,7 +114,7 @@ def charts(request):
         'mash_worker': 'Mash Dude',
         'fermentation_worker': 'Fermat',
     }
-    context_dict.update(csrf(request))
+    #context_dict.update(csrf(request))
     return render_to_response('charts.html', context_dict, context)
 
 
@@ -152,7 +152,6 @@ def commander(request):
     worker_list = Worker.objects.order_by('-type')
     brew_list = Brew.objects.order_by('-name')
     last_message = 'None'
-
 
     if request.method == 'POST':
         form = CommanderForm(request.POST)

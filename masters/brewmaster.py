@@ -1,13 +1,7 @@
 #!/usr/bin python
 from django.core import serializers
 from workers.brewworker import *
-from recipes.beerparser import *
-from schedules.mash import *
-from schedules.boil import *
-from schedules.fermentation import *
 import utils.logging as log
-import utils.brewutils
-from brew.models import Brew, BrewSection, BrewStep
 from brew_session.models import SessionDetail
 from web.models import Worker, Command, Measurement
 from devices.device import DEVICE_DEBUG
@@ -29,15 +23,6 @@ class BrewMaster(threading.Thread):
             self.ip = config.ip
             self.port = config.port
 
-        self.recipe_file = DefaultRecipeFile
-        if configfile is not None:
-            self.recipe_file = configfile
-        self.recipe_name = "My Beer"
-        self.recipe = BeerData()
-        self.recipe_loaded = False
-        self.recipes = {}
-        self.load_recipies()
-
         self.instructions = {}
         self.broadcasts = {}
         self.messages = {}
@@ -57,7 +42,6 @@ class BrewMaster(threading.Thread):
         Command.objects.all().delete()
         self.instructions = {
             MessageInfo: "Register worker info",
-            MessageLoad: "Load recipe",
             MessageExecute: "Send message to worker",
             MessageUpdate: "Register measurement update",
             MessageShutdown: "Shutdown brew master",
@@ -74,101 +58,29 @@ class BrewMaster(threading.Thread):
             "resume": "Resume worker",
             "stop": "stop worker (shutdown)",
             "work": "Make worker start a session detail process",
-            "mash": "Make worker start a mash process",
-            "boil": "Make worker start a boil process",
-            "ferment": "Make a worker start a fermentation process",
         }
         self.store_commands(self.messages, "Message")
 
-    def store_commands(self, commands, type):
+    def store_commands(self, commands, command_type):
         for name, description in commands.iteritems():
             tmp = Command()
-            tmp.type = type
+            tmp.type = command_type
             tmp.name = name
             tmp.description = description
             tmp.save()
 
-    def load_recipies(self, recipefile=None):
-        try:
-            #BrewStep.objects.all().delete()
-            #BrewSection.objects.all().delete()
-            #Brew.objects.all().delete()
-            if recipefile is not None:
-                self.recipe_file = recipefile
-            log.debug('Loading recipe file {0}...'.format(self.recipe_file))
-            beer = BeerParser()
-            recipedata = beer.get_recipes(self.recipe_file)
-            self.recipes = {}
-            brews = []
-            for item in recipedata:
-                name = utils.brewutils.lookup_brew_name(item).strip()
-                if name is not None:
-                    self.recipes[name] = item
-                    # Save to database
-     #              brew, sections = utils.brewutils.create_brew_model(item)
-     #              brew.save()
-     #              s_count = m_count = b_count = f_count = 0
-     #              for section in sections:
-     #                  s_count += 1
-     #                  s = utils.brewutils.create_section(section, brew, s_count)
-     #                  s.save()
-     #                  for step in section.steps:
-     #                      brew_step = None
-     #                      if s.worker_type == 'MashWorker':
-     #                          m_count += 1
-     #                          brew_step = utils.brewutils.create_mash_step(step, s, m_count)
-     #                      elif s.worker_type == 'BoilWorker':
-     #                          b_count += 1
-     #                          brew_step = utils.brewutils.create_boil_step(step, s, b_count)
-     #                      elif s.worker_type == 'FermentationWorker':
-     #                          f_count += 1
-     #                          brew_step = utils.brewutils.create_fermentation_step(step, s, f_count)
-     #                      if brew_step is not None:
-     #                          brew_step.save()
-            log.debug('...done loading recipe file {0}'.format(self.recipe_file))
-        except Exception, e:
-            log.error('Failed to load recipes {0} ({1})'.format(self.recipe_file, e.message))
-
-    def load(self, recipe):
-        try:
-            if len(self.recipes) == 0:
-                log.warning('No recipes found in {}'.format(self.recipe_file))
-            self.recipe_name = recipe.strip().decode('utf-8')
-            log.debug('Loading {0}'.format(recipe))
-            self.recipe = None
-            if not self.recipe_name in self.recipes:
-                log.warning('Recipe {0} not found in data file')
-                # Fake result
-                self.recipe = self.recipes.values()[0]
-                self.recipe_loaded = True
-                print('Loding {0} instead'.format(recipe.strip().decode('utf-8')))
-                #
-                return
-            self.recipe = self.recipes[self.recipe_name]
-            self.recipe_loaded = True
-        except Exception, e:
-            log.error('Unable to find recipe {0} ({1})'.format(self.recipe, e))
-
     def add_worker(self, worker, workertype):
-        new_worker = Worker()
-        new_worker.name = worker
-        new_worker.type = workertype
-        self.workers.append(new_worker)
-        new_worker.save()
-
-    def get_workers(self, workertype):
-        result = []
-        for worker in self.workers:
-            if worker.type == workertype:
-                result.append(worker.name)
-        return result
-
-    def get_worker_types(self):
-        result = []
-        for worker in self.workers:
-            if not result.__contains__(worker.type):
-                result.append(worker.type)
-        return result
+        brew_workers = Worker.objects.filter(name=worker, type=workertype)
+        if len(brew_workers) == 0:
+            brew_worker = Worker()
+            brew_worker.name = worker
+            brew_worker.type = workertype
+            self.workers.append(brew_worker.name)
+        else:
+            for brew_worker in brew_workers:
+                break
+        brew_worker.status = Worker.AVAILABLE
+        brew_worker.save()
 
     def listen(self):
         log.debug('Waiting for worker updates. To exit press CTRL+C')
@@ -185,7 +97,7 @@ class BrewMaster(threading.Thread):
 
     def stop_all_workers(self):
         for worker in self.workers:
-            self.send_command('stop', worker.name)
+            self.send_command('stop', worker)
 
     def shutdown(self):
         #self.channel.stop_consuming()
@@ -205,9 +117,6 @@ class BrewMaster(threading.Thread):
             return
         if str(body).startswith(MessageExecute):
             self.handle_execute(body)
-            return
-        if str(body).startswith(MessageLoad):
-            self.handle_load(body)
             return
         if str(body).startswith(MessageShutdown):
             self.handle_shutdown()
@@ -232,10 +141,6 @@ class BrewMaster(threading.Thread):
             worker = data[2]
         self.send_command(command, worker)
 
-    def handle_load(self, body):
-        data = str(body).split(MessageSplit)
-        self.load(data[1])
-
     def handle_shutdown(self):
         self.shutdown()
 
@@ -246,11 +151,14 @@ class BrewMaster(threading.Thread):
                 data = body.split(MessageSplit)
                 measurement = Measurement()
                 measurement.worker = data[1]
-                measurement.device = data[2]
-                measurement.value = data[3]
-                measurement.set_point = data[4]
+                session_detail_id = int(data[2])
+                session_detail = SessionDetail.objects.get(pk=session_detail_id)
+                measurement.session_detail = session_detail
+                measurement.device = data[3]
+                measurement.value = data[4]
+                measurement.set_point = data[5]
                 if DEVICE_DEBUG:
-                    measurement.timestamp = dt.datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S.%f")
+                    measurement.timestamp = dt.datetime.strptime(data[6], "%Y-%m-%d %H:%M:%S.%f")
                 else:
                     measurement.timestamp = dt.datetime.now()
                 measurement.save()
@@ -259,7 +167,7 @@ class BrewMaster(threading.Thread):
 
     def verify_worker(self, worker):
         for available_worker in self.workers:
-            if available_worker.name == worker:
+            if available_worker == worker:
                 return True
         return False
 
@@ -282,10 +190,6 @@ class BrewMaster(threading.Thread):
 
         channel.basic_publish(exchange=BroadcastExchange, routing_key='', body=data)
         connection.close()
-
-    def send_schedule(self, worker, schedule):
-        schedule.parse(self.recipe)
-        self.send(worker, schedule.to_yaml())
 
     def info(self):
         Worker.objects.all().delete()
@@ -310,33 +214,16 @@ class BrewMaster(threading.Thread):
         self.send(worker, MessageStop)
 
     def work(self, session_detail_id, worker_id):
-        session_detail = SessionDetail.objects.all().filter(pk=session_detail_id)
         worker = Worker.objects.get(pk=worker_id)
+        if worker is None or worker.status == Worker.BUSY:
+            return False
+        worker.status = Worker.BUSY
+        worker.save()
+        session_detail = SessionDetail.objects.all().filter(pk=session_detail_id)
         data = serializers.serialize("json", session_detail)
         self.send(worker.name, data)
         log.debug('Work detail sent to {0}'.format(worker.name))
-
-    def mash(self, worker):
-        if not self.recipe_loaded:
-            log.warning('No recipe loaded!')
-            return
-        self.send_schedule(worker, MashSchedule())
-        log.debug('Mashing Schedule Sent')
-
-    def boil(self, worker):
-        if not self.recipe_loaded:
-            log.error('No recipe loaded!')
-            return
-        self.send_schedule(worker, BoilSchedule())
-        log.debug('Boil Schedule Sent')
-
-    def ferment(self, worker):
-        if not self.recipe_loaded:
-            log.error('No recipe loaded!')
-            return
-        scde = FermentationSchedule()
-        self.send_schedule(worker, scde)
-        log.debug('Fermentation Schedule Sent')
+        return True
 
     def send_command(self, command, worker):
         if not hasattr(self, command):

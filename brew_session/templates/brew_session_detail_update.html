@@ -1,0 +1,9 @@
+<a href="/brew_session/brew_sessions/{{ object.pk }}">
+    <small>[back]</small>
+</a>
+<br/>
+<form action="/brew_session/brew_session_detail_update/{{ object.pk }}/" method="POST">{% csrf_token %}
+    {{ form.as_table }}
+    <br />
+    <input type="submit" value="Update" />
+</form>

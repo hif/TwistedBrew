@@ -2,6 +2,7 @@
 import threading
 import time
 import pika
+from django.core import serializers
 from datetime import datetime as dt
 from datetime import timedelta as timedelta
 from devices.device import DEVICE_DEBUG
@@ -34,16 +35,15 @@ class BrewWorker(threading.Thread):
         self.outputs = {}
         self.inputs = {}
         self.schedule = None
-        self.step = -1
         self.enabled = False
         self.active = False
         self.pausing_all_devices = False
-        self.starting_next_step = False
         self.current_hold_time = timedelta(minutes=0)
         self.hold_timer = None
         self.hold_pause_timer = None
         self.pause_time = 0.0
         self.debug_timer = dt.now()
+        self.session_detail_id = 0
 
     def __str__(self):
         return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
@@ -130,8 +130,9 @@ class BrewWorker(threading.Thread):
         for o in self.outputs.itervalues():
             o.stop_device()
 
-    def work(self, ch, method, properties, body):
-        log.debug('Waiting for schedule. To exit press CTRL+C')
+    #def work(self, ch, method, properties, body):
+    def work(self, data):
+        pass
 
     def run(self):
         if not self.create_device_threads():
@@ -167,7 +168,8 @@ class BrewWorker(threading.Thread):
         connection.close()
 
     def send_update(self, device, data):
-        message = MessageUpdate + MessageSplit + self.name + MessageSplit + device.name
+        message = MessageUpdate + MessageSplit + self.name + MessageSplit + \
+                  unicode(self.session_detail_id) + MessageSplit + device.name
         for item in data:
             message += "{0}{1}".format(MessageSplit, item)
         self.send_to_master(message)
@@ -177,7 +179,12 @@ class BrewWorker(threading.Thread):
             command = MessageFunctions[body]
             getattr(self, command)()
             return
-        self.work(ch, method, properties, body)
+        for work_data in serializers.deserialize("json", body):
+            session_detail = work_data.object
+            self.session_detail_id = session_detail.id
+            self.work(session_detail)
+            break   # only the first instance
+        #self.work(ch, method, properties, body)
 
     def info(self):
         log.debug('{0} is sending info to master'.format(self.name))
@@ -201,7 +208,6 @@ class BrewWorker(threading.Thread):
             self.report_error('Resume failed')
 
     def reset(self):
-        self.step = -1
         log.debug('{0} is sending ready to master'.format(self.name))
         if self.on_reset():
             self.send_to_master(MessageReady + MessageSplit + self.name)
@@ -211,32 +217,29 @@ class BrewWorker(threading.Thread):
     def report_error(self, err):
         log.error('{0}: {1}'.format(self.name, err))
 
-    def is_step_done(self):
+    def is_done(self):
         if self.hold_timer is None:
             return False
         pause_total = timedelta(seconds=self.pause_time)
         finish_time = dt.now() - self.hold_timer
-        step_time = self.current_hold_time + pause_total
+        work_time = self.current_hold_time + pause_total
         if DEVICE_DEBUG:
-            step_time = timedelta(minutes=DEBUG_STEP_MINUTES)
-        if finish_time >= step_time:
+            work_time = timedelta(minutes=DEBUG_STEP_MINUTES)
+        if finish_time >= work_time:
             return True
-        log.debug('Time untill step done: {0}'.format(step_time - finish_time))
+        log.debug('Time untill work done: {0}'.format(work_time - finish_time))
         return False
 
-    def next_step(self):
+    def done(self):
         try:
             self.pause_all_devices()
-            self.step += 1
-            if self.step >= len(self.schedule.steps):
-                self.working = False
-                return False
-            log.debug('Starting step {0} of {1}'.format(self.step + 1, len(self.schedule.steps)))
-            self.on_next_step()
-            self.resume_all_devices()
+            self.session_detail_id = 0
+            self.working = False
+            self.info()
             return True
         except Exception, e:
-            log.error('Error in next_step: {0}'.format(e.message))
+            log.error('Error in cleaning up after work: {0}'.format(e.message))
+            return False
 
     def on_start(self):
         log.debug('Starting {0}'.format(self))
@@ -259,6 +262,3 @@ class BrewWorker(threading.Thread):
     def on_reset(self):
         log.debug('Reset {0}'.format(self))
         return True
-
-    def on_next_step(self):
-        pass

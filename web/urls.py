@@ -6,10 +6,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'web_x.views.home', name='home'),
-    # url(r'^web_x/', include('web_x.foo.urls')),
-    # url(r'^$', include('twistedbrew.urls')),
     url(r'^$', views.home, name='home'),
     url(r'^index[/]$', views.home, name='home'),
     url(r'^home[/]$', views.home, name='home'),
@@ -17,7 +13,6 @@ urlpatterns = patterns('',
     url(r'^commands[/]$', views.commands, name='commands'),
     url(r'^measurements[/]$', views.measurements, name='measurements'),
     url(r'^measurements_clear[/]$', views.measurements_clear, name='measurements_clear'),
-    url(r'^commander[/]$', views.commander, name='commander'),
     (r'^brew/', include('brew.urls')),
     (r'^brew_session/', include('brew_session.urls')),
     url(r'^messages[/]$', views.messages, name='messages'),

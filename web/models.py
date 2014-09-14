@@ -2,6 +2,7 @@ from django.db import models
 import random
 import time
 import datetime
+from brew_session.models import SessionDetail
 
 COLUMN_SMALL_SIZE = 128
 
@@ -18,12 +19,12 @@ class Worker(models.Model):
     status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
 
     def __unicode__(self):
-        return '{0} ({1})'.format(self.name, self.type)
+        return '{0} - {1} ({2})'.format(self.name, self.type, Worker.WORKER_STATUS[self.status][1])
 
 
 class Measurement(models.Model):
     timestamp = models.DateTimeField(auto_now=False)
-    session = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    session_detail = models.ForeignKey(SessionDetail)
     worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
     device = models.CharField(max_length=COLUMN_SMALL_SIZE)
     value = models.FloatField()

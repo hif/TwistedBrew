@@ -6,7 +6,7 @@
 {% block content %}
         <ul>
             {% for worker in workers %}
-            <li>{{ worker.name }} - {{ worker.type }}</li>
+            <li>{{ worker }}</li>
             {% empty %}
             <li>No brew workers found.</li>
             {% endfor %}

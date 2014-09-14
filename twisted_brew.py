@@ -6,6 +6,7 @@ import web.settings
 
 django.conf.settings.configure()
 django.conf.settings.DATABASES = web.settings.DATABASES
+django.conf.settings.INSTALLED_APPS = web.settings.INSTALLED_APPS
 
 import sys
 from utils import brewutils

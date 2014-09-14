@@ -11,7 +11,7 @@
         <table class="table table-hover">
             <tr>
                 <th>Timestamp</th>
-                <th>Session</th>
+                <th>Session Detail</th>
                 <th>Worker</th>
                 <th>Device</th>
                 <th>Value</th>
@@ -22,7 +22,7 @@
             <td>
                 {{ measure.timestamp|date:"G"}}:{{ measure.timestamp|date:"i"}}:{{ measure.timestamp|date:"s"}}
             </td>
-            <td>{{ measure.session }}</td>
+            <td>{{ measure.session_detail }}</td>
             <td>{{ measure.worker }}</td>
             <td>{{ measure.device }}</td>
             <td>{{ measure.value }}</td>

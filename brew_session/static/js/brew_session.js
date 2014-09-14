@@ -52,6 +52,11 @@ function get_update_session_detail(pk){
     });
 }
 function start_session_detail(session_detail_id, worker_id){
+    if(worker_id == 0)
+    {
+        alert("No worker selected");
+        return;
+    }
     $.ajax({
         url: "/brew_session/start_session_detail/",
         type: 'POST',

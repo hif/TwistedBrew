@@ -62,6 +62,7 @@
             {% empty %}
             <option value="0">-No worker available-</option>
             {% endfor %}
+            <option value="0">-Not available-</option>
         </select>
         <a onclick="start_session_detail({{ detail.id }},$('#detail_worker{{ detail.id }}').val())"><small>[start]</small></a>
         {% empty %}

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
-from views import SessionView, SessionsView, SessionUpdateView, SessionDeleteView
+from views import SessionView, SessionsView, SessionUpdateView, SessionDeleteView, SessionDetailUpdateView
 
 
 urlpatterns = patterns('',
@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^brew_session_selection/$', 'brew_session.views.brew_session_selection'),
     url(r'^brew_session_data/$', 'brew_session.views.brew_session_data'),
     url(r'^brew_session_update/(?P<pk>\d+)/$', SessionUpdateView.as_view()),
+    url(r'^brew_session_detail_update/(?P<pk>\d+)/$', SessionDetailUpdateView.as_view()),
     url(r'^brew_session_delete/(?P<pk>\d+)/$', SessionDeleteView.as_view()),
     url(r'^brew_session_create/$', 'brew_session.views.brew_session_create'),
     url(r'^brew_session_start/(?P<pk>\d+)/$', SessionView.as_view()),

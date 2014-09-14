@@ -43,11 +43,19 @@ function get_update_session(pk){
         dataType: 'html'
     });
 }
-function start_session_detail(pk){
+function get_update_session_detail(pk){
+    $.ajax({
+        url: "/brew_session/brew_session_detail_update/" + pk + "/",
+        type: 'GET',
+        success: show_brew_session_data,
+        dataType: 'html'
+    });
+}
+function start_session_detail(session_detail_id, worker_id){
     $.ajax({
         url: "/brew_session/start_session_detail/",
         type: 'POST',
-        data: {'pk': pk, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
+        data: {'session_detail_id': session_detail_id, 'worker_id': worker_id, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
         success: session_detail_started,
         dataType: 'html'
     });

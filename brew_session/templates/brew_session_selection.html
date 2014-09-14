@@ -9,7 +9,7 @@
     <li><a onclick="get_brew_session_data({{ detail.pk }})">{{ detail }}</a></li>
     {% endif %}
     {% empty %}
-    <li>No brews found</li>
+    <li>No sessions found</li>
     {% endfor %}
 </ul>
 <b>Archived sessions</b>
@@ -19,7 +19,7 @@
     <li><a onclick="get_brew_session_data({{ detail.pk }})">{{ detail }}</a></li>
     {% endif %}
     {% empty %}
-    <li>No brews found</li>
+    <li>No sessions found</li>
     {% endfor %}
 </ul>
 {% if init_selection > 0 %}

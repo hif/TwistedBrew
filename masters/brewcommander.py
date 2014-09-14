@@ -44,6 +44,19 @@ class BrewCommander():
         channel.basic_publish(exchange='', routing_key=default.MasterQueue, body=data)
         connection.close()
 
+    def start_work(self, session_detail_id, worker_id):
+        body = msg.MessageWork + msg.MessageSplit + session_detail_id + msg.MessageSplit + worker_id
+
+        log.debug(u'Commanding master - {0}'.format(body))
+
+        connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        channel = connection.channel()
+        channel.queue_declare(queue=default.MasterQueue)
+
+        channel.basic_publish(exchange='', routing_key=default.MasterQueue, body=body)
+        connection.close()
+
+
     def parse_command(self, line):
         cmd = line
         param = ''

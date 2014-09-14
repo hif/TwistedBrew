@@ -7,6 +7,7 @@ from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from models import Session, SessionDetail
+from web.models import Worker
 from forms import *
 from masters.brewcommander import BrewCommander
 import json, random
@@ -21,6 +22,7 @@ class SessionView(DetailView):
         context = super(SessionView, self).get_context_data(**kwargs)
         context['brew_session_active'] = True
         context['details'] = SessionDetail.objects.all().filter(session=context['object'].pk)
+        context['workers'] = Worker.objects.all().filter(status=Worker.AVAILABLE)
         return context
 
 
@@ -41,10 +43,19 @@ class SessionsView(ListView):
 class SessionUpdateView(UpdateView):
     template_name = 'brew_session_update.html'
     model = Session
-    success_url = ('/brew_session/brew_sessions/')
+    success_url = '/brew_session/brew_sessions/'
 
     def get_success_url(self):
         return self.success_url + self.kwargs['pk'] + "/"
+
+
+class SessionDetailUpdateView(UpdateView):
+    template_name = 'brew_session_detail_update.html'
+    model = SessionDetail
+    success_url = '/brew_session/brew_sessions/'
+
+    def get_success_url(self):
+        return self.success_url + str(self.get_object().session.id) + "/"
 
 
 class SessionDeleteView(DeleteView):
@@ -100,8 +111,10 @@ def create_detail(request, session_id):
 
 def start_session_detail(request):
     if request.POST:
-        pk = request.POST['pk']
-        print ('starting ' + pk)
+        session_detail_id = request.POST['session_detail_id']
+        worker_id = request.POST['worker_id']
+        brew_commander = BrewCommander()
+        brew_commander.start_work(session_detail_id, worker_id)
         return HttpResponse('Session detail started')
     return HttpResponse('Missing session detail to start, use POST')
 
@@ -158,14 +171,6 @@ def brew_session_selection(request):
 def brew_session_data(request):
     if request.method == 'POST':
         brew = Session.objects.get(pk=(request.POST['pk']))
-    else:
-        brew = None
-    return render_to_response('brew_session_data.html', {'data': brew})
-
-
-def brew_session_execute(request, pk):
-    if request.method == 'POST':
-        brew = Session.objects.get(pk=pk)
     else:
         brew = None
     return render_to_response('brew_session_data.html', {'data': brew})

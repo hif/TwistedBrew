@@ -1,4 +1,5 @@
 #!/usr/bin python
+from django.core import serializers
 from workers.brewworker import *
 from recipes.beerparser import *
 from schedules.mash import *
@@ -7,6 +8,7 @@ from schedules.fermentation import *
 import utils.logging as log
 import utils.brewutils
 from brew.models import Brew, BrewSection, BrewStep
+from brew_session.models import SessionDetail
 from web.models import Worker, Command, Measurement
 from devices.device import DEVICE_DEBUG
 import datetime as dt
@@ -71,6 +73,7 @@ class BrewMaster(threading.Thread):
             "pause": "Pause worker",
             "resume": "Resume worker",
             "stop": "stop worker (shutdown)",
+            "work": "Make worker start a session detail process",
             "mash": "Make worker start a mash process",
             "boil": "Make worker start a boil process",
             "ferment": "Make a worker start a fermentation process",
@@ -197,6 +200,9 @@ class BrewMaster(threading.Thread):
         if str(body).startswith(MessageInfo):
             self.handle_info(body)
             return
+        if str(body).startswith(MessageWork):
+            self.handle_work(body)
+            return
         if str(body).startswith(MessageExecute):
             self.handle_execute(body)
             return
@@ -211,6 +217,12 @@ class BrewMaster(threading.Thread):
     def handle_info(self, body):
         data = str(body).split(MessageSplit)
         self.add_worker(data[1], data[2])
+
+    def handle_work(self, body):
+        data = str(body).split(MessageSplit)
+        session_detail_id = data[1]
+        worker_id = data[2]
+        self.work(session_detail_id, worker_id)
 
     def handle_execute(self, body):
         data = str(body).split(MessageSplit)
@@ -297,6 +309,13 @@ class BrewMaster(threading.Thread):
     def stop(self, worker):
         self.send(worker, MessageStop)
 
+    def work(self, session_detail_id, worker_id):
+        session_detail = SessionDetail.objects.all().filter(pk=session_detail_id)
+        worker = Worker.objects.get(pk=worker_id)
+        data = serializers.serialize("json", session_detail)
+        self.send(worker.name, data)
+        log.debug('Work detail sent to {0}'.format(worker.name))
+
     def mash(self, worker):
         if not self.recipe_loaded:
             log.warning('No recipe loaded!')
@@ -321,7 +340,7 @@ class BrewMaster(threading.Thread):
 
     def send_command(self, command, worker):
         if not hasattr(self, command):
-            log.error('No such command in BrewMaster')
+            log.error('No such command in BrewMaster ({0})'.format(command))
             return
         method = getattr(self, command)
         if worker is not None and worker != '' and command in self.messages.keys():

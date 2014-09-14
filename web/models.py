@@ -5,9 +5,17 @@ import datetime
 
 COLUMN_SMALL_SIZE = 128
 
+
 class Worker(models.Model):
+    AVAILABLE = 0
+    BUSY = 1
+    WORKER_STATUS = (
+        (AVAILABLE, 'Available'),
+        (BUSY, 'Busy')
+    )
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
 
     def __unicode__(self):
         return '{0} ({1})'.format(self.name, self.type)

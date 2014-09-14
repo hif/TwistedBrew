@@ -1,5 +1,6 @@
 #!/usr/bin python
 MessageExecute = "EXEC"
+MessageWork = "WORK"
 MessageLoad = "LOAD"
 MessageUpdate = "UPDATE"
 MessageInfo = "INFO"

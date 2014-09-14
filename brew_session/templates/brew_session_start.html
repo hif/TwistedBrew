@@ -44,13 +44,26 @@
 <br/>
 <h3>Details</h3>
 {% if not object.locked %}
-<a href="/brew_session/create_detail/{{ object.id }}">
+<a href="/brew_session/create_detail/{{ object.id }}/">
     <small>[create]</small>
+</a>
+<a href="/brew_session/brew_session_start/{{ object.id }}/">
+    <small>[refresh]</small>
 </a>
 {% endif %}
 <ul>
     {% for detail in details %}
-    <li>{{ detail }} <a onclick="start_session_detail({{ detail.id }})"><small>[start]</small></a>
+    <li>{{ detail }}
+        <select id="detail_worker{{ detail.id }}">
+            {% for worker in workers %}
+            {% if worker.type == detail.worker %}
+            <option value="{{ worker.id }}">{{ worker.name }}</option>
+            {% endif %}
+            {% empty %}
+            <option value="0">-No worker available-</option>
+            {% endfor %}
+        </select>
+        <a onclick="start_session_detail({{ detail.id }},$('#detail_worker{{ detail.id }}').val())"><small>[start]</small></a>
         {% empty %}
     <li>No details available.</li>
     {% endfor %}

@@ -43,6 +43,15 @@ function get_update_session(pk){
         dataType: 'html'
     });
 }
+function start_session_detail(pk){
+    $.ajax({
+        url: "/brew_session/start_session_detail/",
+        type: 'POST',
+        data: {'pk': pk, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
+        success: session_detail_started,
+        dataType: 'html'
+    });
+}
 
 function show_brew_session_selection(data){
     $('#brew_session_selection').html(data);
@@ -50,4 +59,7 @@ function show_brew_session_selection(data){
 
 function show_brew_session_data(data){
     $('#brew_session_data').html(data);
+}
+function session_detail_started(data){
+    alert(data);
 }

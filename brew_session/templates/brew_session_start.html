@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 
 {% block content_heading %}
-<h2>Session</h2>
+{% load static %}
+<script src="{% static 'js/brew_session.js' %}"></script>
+<h2>Session Execution</h2>
+{% csrf_token %}
 {% endblock %}
 
 {% block content %}
-<a href="/brew_session/sessions/">
+<a href="/brew_session/brew_sessions/{{ object.id }}/">
     <small>[back]</small>
 </a>
-<a href="get_update_session({{ object.id }})">
+<a onclick="get_update_session({{ object.id }})">
     <small>[update]</small>
 </a>
 <a onclick="get_delete_session({{ object.id }})">
@@ -47,7 +50,7 @@
 {% endif %}
 <ul>
     {% for detail in details %}
-    <li>{{ detail }}
+    <li>{{ detail }} <a onclick="start_session_detail({{ detail.id }})"><small>[start]</small></a>
         {% empty %}
     <li>No details available.</li>
     {% endfor %}

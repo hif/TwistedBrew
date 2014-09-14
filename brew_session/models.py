@@ -34,11 +34,12 @@ class Session(models.Model):
                     index += 1
 
     def __unicode__(self):
-        if self.locked:
-            status = 'locked'
-        else:
-            status = 'active'
-        return u'[{1}] {0} ({2})'.format(self.name, self.session_date, status)
+        #if self.locked:
+        #    status = 'locked'
+        #else:
+        #    status = 'active'
+        #return u'[{1}] {0} ({2})'.format(self.name, self.session_date, status)
+        return u'[{1}] {0}'.format(self.name, self.session_date)
 
 
 class SessionDetail(models.Model):

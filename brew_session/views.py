@@ -65,18 +65,19 @@ def session(request, session_id):
     return render_to_response('brew_session.html', context_dict, context)
 
 
-def create_session(request):
+def brew_session_create(request):
     if request.POST:
         form = SessionForm(request.POST)
         if form.is_valid():
-            form.save()
-        return HttpResponseRedirect('/brew_session/brew_sessions')
+            instance = form.save()
+            return HttpResponseRedirect('/brew_session/brew_sessions/' + str(instance.pk) + '/')
+        return HttpResponseRedirect('/brew_session/brew_sessions/')
     else:
         form = SessionForm()
     args = {}
     args.update(csrf(request))
     args['form'] = form
-    return render_to_response('create_session.html', args)
+    return render_to_response('brew_session_create.html', args)
 
 
 def create_detail(request, session_id):

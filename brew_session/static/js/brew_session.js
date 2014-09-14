@@ -23,7 +23,6 @@ function get_create_session(){
     $.ajax({
         url: "/brew_session/brew_session_create/",
         type: 'GET',
-        data: {'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
         success: show_brew_session_data,
         dataType: 'html'
     });

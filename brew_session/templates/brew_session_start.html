@@ -65,9 +65,9 @@
             <option value="0">-Not available-</option>
         </select>
         <a onclick="start_session_detail($('#detail_worker{{ detail.id }}').val(),{{ detail.id }})"><small>[start]</small></a>
-        <a onclick="send_brewworker($('pause', '#detail_worker{{ detail.id }}').val())"><small>[pause]</small></a>
-        <a onclick="send_brewworker($('resume', '#detail_worker{{ detail.id }}').val())"><small>[resume]</small></a>
-        <a onclick="send_brewworker($('reset', '#detail_worker{{ detail.id }}').val())"><small>[reset]</small></a>
+        <a onclick="send_brew_worker_command('pause', $('#detail_worker{{ detail.id }}').val())"><small>[pause]</small></a>
+        <a onclick="send_brew_worker_command('resume', $('#detail_worker{{ detail.id }}').val())"><small>[resume]</small></a>
+        <a onclick="send_brew_worker_command('reset', $('#detail_worker{{ detail.id }}').val())"><small>[reset]</small></a>
         {% empty %}
     <li>No details available.</li>
     {% endfor %}

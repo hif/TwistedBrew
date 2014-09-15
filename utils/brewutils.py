@@ -113,9 +113,10 @@ def create_mash_step(step, section, index):
     brew_step.brew_section = section
     brew_step.index = index
     brew_step.name = step.name
+    brew_step.unit = ''
     brew_step.target = step.temp
     brew_step.hold_time = step.min
-    brew_step.unit = 60
+    brew_step.unit = BrewStep.MINUTES
     return brew_step
 
 
@@ -127,7 +128,7 @@ def create_boil_step(step, section, index):
     brew_step.unit = step.unit
     brew_step.target = step.amount
     brew_step.hold_time = step.min
-    brew_step.unit = 60
+    brew_step.time_unit_seconds = BrewStep.MINUTES
     return brew_step
 
 
@@ -136,9 +137,10 @@ def create_fermentation_step(step, section, index):
     brew_step.brew_section = section
     brew_step.index = index
     brew_step.name = section.name
+    brew_step.unit = ''
     brew_step.target = step.start_temp
     brew_step.hold_time = step.days
-    brew_step.unit = 60*60*24
+    brew_step.time_unit_seconds = BrewStep.DAYS
     return brew_step
 
 

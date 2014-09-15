@@ -66,9 +66,9 @@ function start_session_detail(worker_id, session_detail_id){
     });
 }
 
-function send_brewmaster(command){
+function send_brew_master_command(command){
     $.ajax({
-        url: "/brew_session/send_brewmaster/",
+        url: "/brew_session/send_brew_master_command/",
         type: 'POST',
         data: {'command': command, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
         success: alert_message,
@@ -76,9 +76,9 @@ function send_brewmaster(command){
     });
 }
 
-function send_brewworker(command, worker_id){
+function send_brew_worker_command(command, worker_id){
     $.ajax({
-        url: "/brew_session/send_brewworker/",
+        url: "/brew_session/send_brew_worker_command/",
         type: 'POST',
         data: {'command': command, 'worker_id': worker_id, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
         success: alert_message,

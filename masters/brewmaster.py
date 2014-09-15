@@ -143,6 +143,7 @@ class BrewMaster(threading.Thread):
         if worker is None:
             log.warning('Worker {0} not available'.format(worker))
             return
+        log.debug('Sending:{0} to {1}'.format(data, worker))
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
         channel.queue_declare(queue=worker)
@@ -167,14 +168,23 @@ class BrewMaster(threading.Thread):
         self.send(worker_id, MessageReset)
 
     def pause(self, worker_id):
+        status = Worker.get_worker_status(worker_id)
+        if status != Worker.BUSY:
+            return
         Worker.set_worker_status(worker_id, Worker.PAUSED)
         self.send(worker_id, MessagePause)
 
     def resume(self, worker_id):
+        status = Worker.get_worker_status(worker_id)
+        if status != Worker.PAUSED:
+            return
         Worker.set_worker_status(worker_id, Worker.BUSY)
         self.send(worker_id, MessageResume)
 
     def work(self, worker_id, session_detail_id):
+        status = Worker.get_worker_status(worker_id)
+        if status != Worker.AVAILABLE:
+            return
         Worker.set_worker_status(worker_id, Worker.BUSY)
         session_detail = SessionDetail.objects.all().filter(pk=int(session_detail_id))
         data = serializers.serialize("json", session_detail)

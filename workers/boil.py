@@ -34,29 +34,11 @@ class BoilWorker(BrewWorker):
             self.working = True
             self.hold_timer = None
             self.hold_pause_timer = None
-            self.pause_time = 0
+            self.pause_time = timedelta(seconds=0)
             self.do_work(data)
         except Exception, e:
             log.debug('Boil worker failed to start work: {0}'.format(e.message))
             self.stop_all_devices()
-
-    def on_pause(self):
-        log.debug('Pause {0}'.format(self))
-        self.hold_pause_timer = dt.now()
-        return True
-
-    def on_resume(self):
-        log.debug('Resume {0}'.format(self))
-        self.pause_time += (dt.now() - self.hold_pause_timer)
-        return True
-
-    def on_reset(self):
-        self.pause_all_devices()
-        return True
-
-    def on_stop(self):
-        self.stop_all_devices()
-        return True
 
     def do_work(self, data):
         self.pause_all_devices()

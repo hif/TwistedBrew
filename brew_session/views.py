@@ -22,7 +22,7 @@ class SessionView(DetailView):
         context = super(SessionView, self).get_context_data(**kwargs)
         context['brew_session_active'] = True
         context['details'] = SessionDetail.objects.all().filter(session=context['object'].pk)
-        context['workers'] = Worker.objects.all().filter(status=Worker.AVAILABLE)
+        context['workers'] = Worker.objects.all()   #.filter(status=Worker.AVAILABLE)
         return context
 
 
@@ -119,7 +119,7 @@ def start_session_detail(request):
     return HttpResponse('Missing session detail to start, use POST')
 
 
-def send_brewmaster(request):
+def send_brew_master_command(request):
     if request.POST:
         command = request.POST['command']
         brew_commander = BrewCommander()
@@ -128,7 +128,7 @@ def send_brewmaster(request):
     return HttpResponse('Missing command to send, use POST')
 
 
-def send_brewworker(request):
+def send_brew_worker_command(request):
     if request.POST:
         command = request.POST['command']
         worker_id = request.POST['worker_id']

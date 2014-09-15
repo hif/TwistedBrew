@@ -13,7 +13,7 @@ FERMENTATION_DEBUG_DELAY = 4
 FERMENTATION_DEBUG_WATTS = 5500.0  # 1 x 5500.0
 FERMENTATION_DEBUG_LITERS = 50.0
 FERMENTATION_DEBUG_COOLING = 0.002
-FERMENTATION_DEBUG_TIME_DIVIDER = 60
+FERMENTATION_DEBUG_TIME_DIVIDER = 21600
 FERMENTATION_DEBUG_STD = 1.0
 FERMENTATION_DEBUG_TIMEDELTA = 900  # seconds
 
@@ -36,29 +36,11 @@ class FermentationWorker(BrewWorker):
             self.working = True
             self.hold_timer = None
             self.hold_pause_timer = None
-            self.pause_time = 0
+            self.pause_time = timedelta(seconds=0)
             self.do_work(data)
         except Exception, e:
             log.debug('Fermentation worker failed to start work: {0}'.format(e.message))
             self.stop_all_devices()
-
-    def on_pause(self):
-        log.debug('Pause {0}'.format(self))
-        self.hold_pause_timer = dt.now()
-        return True
-
-    def on_resume(self):
-        log.debug('Resume {0}'.format(self))
-        self.pause_time += (dt.now() - self.hold_pause_timer)
-        return True
-
-    def on_reset(self):
-        self.pause_all_devices()
-        return True
-
-    def on_stop(self):
-        self.stop_all_devices()
-        return True
 
     def do_work(self, data):
         self.pause_all_devices()

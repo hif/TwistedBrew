@@ -29,6 +29,13 @@ class Worker(models.Model):
         worker.save()
         return True
 
+    @staticmethod
+    def get_worker_status(worker_id):
+        worker = Worker.objects.get(pk=worker_id)
+        if worker is None:
+            return None
+        return worker.status
+
     def __unicode__(self):
         return '{0} - {1} ({2})'.format(self.name, self.type, Worker.WORKER_STATUS[self.status][1])
 

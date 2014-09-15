@@ -10,8 +10,6 @@ from masters.messages import *
 import utils.logging as log
 
 
-DEBUG_WORK_MINUTES = 1
-
 MessageFunctions = (MessageInfo,
                     MessagePause,
                     MessageResume,
@@ -205,9 +203,9 @@ class BrewWorker(threading.Thread):
             self.report_error('Resume failed')
 
     def reset(self):
-        log.debug('{0} is sending ready to master'.format(self.name))
+        log.debug('{0} is resetting'.format(self.name))
         if self.on_reset():
-            self.send_to_master(MessageReady + MessageSplit + self.name)
+            self.info()
         else:
             self.report_error('Reset failed')
 
@@ -217,11 +215,8 @@ class BrewWorker(threading.Thread):
     def is_done(self):
         if self.hold_timer is None:
             return False
-        pause_total = timedelta(seconds=self.pause_time)
         finish_time = dt.now() - self.hold_timer
-        work_time = self.current_hold_time + pause_total
-        if self.simulation:
-            work_time = timedelta(minutes=DEBUG_WORK_MINUTES)
+        work_time = self.current_hold_time + self.pause_time
         if finish_time >= work_time:
             return True
         log.debug('Time untill work done: {0}'.format(work_time - finish_time))
@@ -241,21 +236,26 @@ class BrewWorker(threading.Thread):
     def on_start(self):
         log.debug('Starting {0}'.format(self))
 
-    def on_stop(self):
-        log.debug('Stopping {0}'.format(self))
-
     def on_info(self):
         log.debug('Info {0}'.format(self))
         return True
 
     def on_pause(self):
         log.debug('Pause {0}'.format(self))
+        self.pause_all_devices()
+        self.hold_pause_timer = dt.now()
         return True
 
     def on_resume(self):
         log.debug('Resume {0}'.format(self))
+        self.pause_time += (dt.now() - self.hold_pause_timer)
+        self.resume_all_devices()
         return True
 
     def on_reset(self):
-        log.debug('Reset {0}'.format(self))
+        self.pause_all_devices()
+        return True
+
+    def on_stop(self):
+        self.stop_all_devices()
         return True

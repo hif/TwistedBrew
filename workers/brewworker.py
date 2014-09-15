@@ -10,11 +10,13 @@ from masters.messages import *
 import utils.logging as log
 
 
-DEBUG_STEP_MINUTES = 1
+DEBUG_WORK_MINUTES = 1
 
-
-MessageFunctions = {MessageInfo: 'info', MessagePause: 'pause', MessageResume: 'resume', MessageReset: 'reset',
-                    MessageStop: 'stop'}
+MessageFunctions = (MessageInfo,
+                    MessagePause,
+                    MessageResume,
+                    MessageReset,
+                    MessageStop)
 
 POSTFIX = 'Worker'
 
@@ -167,17 +169,16 @@ class BrewWorker(threading.Thread):
         channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
         connection.close()
 
-    def send_update(self, device, data):
-        message = MessageUpdate + MessageSplit + self.name + MessageSplit + \
+    def send_measurement(self, device, data):
+        message = MessageMeasurement + MessageSplit + self.name + MessageSplit + \
                   unicode(self.session_detail_id) + MessageSplit + device.name
         for item in data:
             message += "{0}{1}".format(MessageSplit, item)
         self.send_to_master(message)
 
     def receive(self, ch, method, properties, body):
-        if MessageFunctions.__contains__(body) and hasattr(self, MessageFunctions[body]):
-            command = MessageFunctions[body]
-            getattr(self, command)()
+        if body in MessageFunctions and hasattr(self, body):
+            getattr(self, body)()
             return
         for work_data in serializers.deserialize("json", body):
             session_detail = work_data.object
@@ -189,22 +190,18 @@ class BrewWorker(threading.Thread):
     def info(self):
         log.debug('{0} is sending info to master'.format(self.name))
         if self.on_info():
-            self.send_to_master(MessageInfo + MessageSplit + self.name + MessageSplit + self.__class__.__name__)
+            self.send_to_master(MessageReady + MessageSplit + self.name + MessageSplit + self.__class__.__name__)
         else:
             self.report_error('Info failed')
 
     def pause(self):
         log.debug('{0} is sending paused to master'.format(self.name))
-        if self.on_pause():
-            self.send_to_master(MessagePaused + MessageSplit + self.name)
-        else:
+        if not self.on_pause():
             self.report_error('Pause failed')
 
     def resume(self):
         log.debug('{0} is sending resumed to master'.format(self.name))
-        if self.on_resume():
-            self.send_to_master(MessageResumed + MessageSplit + self.name)
-        else:
+        if not self.on_resume():
             self.report_error('Resume failed')
 
     def reset(self):
@@ -224,7 +221,7 @@ class BrewWorker(threading.Thread):
         finish_time = dt.now() - self.hold_timer
         work_time = self.current_hold_time + pause_total
         if self.simulation:
-            work_time = timedelta(minutes=DEBUG_STEP_MINUTES)
+            work_time = timedelta(minutes=DEBUG_WORK_MINUTES)
         if finish_time >= work_time:
             return True
         log.debug('Time untill work done: {0}'.format(work_time - finish_time))

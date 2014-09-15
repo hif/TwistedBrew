@@ -22,12 +22,13 @@ class BrewMaster(threading.Thread):
             self.ip = config.ip
             self.port = config.port
 
-        self.instructions = {}
         self.broadcasts = {}
         self.messages = {}
+        self.instructions = {}
+        self.instructions = {}
         self.register_commands()
 
-        self.workers = []
+        self.workers = {}
 
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         self.channel = self.connection.channel()
@@ -39,47 +40,44 @@ class BrewMaster(threading.Thread):
 
     def register_commands(self):
         Command.objects.all().delete()
-        self.instructions = {
-            MessageInfo: "Register worker info",
-            MessageExecute: "Send message to worker",
-            MessageUpdate: "Register measurement update",
-            MessageShutdown: "Shutdown brew master",
-        }
-        self.store_commands(self.instructions, "Instruction")
         self.broadcasts = {
-            "info": "Drop current workers and make all available workers register with master",
-            "reset": "Reset all workers",
+            MessageInfo: "Drop current workers and make all available workers register with master",
+            MessageShutdown: "Shutdown brew master and workers",
         }
         self.store_commands(self.broadcasts, "Broadcast")
         self.messages = {
-            "reset": "Reset worker",
-            "pause": "Pause worker",
-            "resume": "Resume worker",
-            "stop": "stop worker (shutdown)",
-            "work": "Make worker start a session detail process",
+            MessageReset: "Reset worker",
+            MessagePause: "Pause worker",
+            MessageResume: "Resume worker",
         }
         self.store_commands(self.messages, "Message")
+        self.instructions = {
+            MessageWork: "Make worker start a session detail process",
+        }
+        self.store_commands(self.instructions, "Instruction")
 
     def store_commands(self, commands, command_type):
         for name, description in commands.iteritems():
             tmp = Command()
-            tmp.type = command_type
             tmp.name = name
+            tmp.type = command_type
             tmp.description = description
             tmp.save()
 
-    def add_worker(self, worker, workertype):
-        brew_workers = Worker.objects.filter(name=worker, type=workertype)
+    def add_worker(self, worker, worker_type):
+        brew_workers = Worker.objects.filter(name=worker, type=worker_type)
         if len(brew_workers) == 0:
             brew_worker = Worker()
             brew_worker.name = worker
-            brew_worker.type = workertype
-            self.workers.append(brew_worker.name)
+            brew_worker.type = worker_type
+            brew_worker.status = Worker.AVAILABLE
+            brew_worker.save()
+            self.workers[brew_worker.id] = brew_worker.name
         else:
             for brew_worker in brew_workers:
-                break
-        brew_worker.status = Worker.AVAILABLE
-        brew_worker.save()
+                    break
+            brew_worker.status = Worker.AVAILABLE
+            brew_worker.save()
 
     def listen(self):
         log.debug('Waiting for worker updates. To exit press CTRL+C')
@@ -92,58 +90,29 @@ class BrewMaster(threading.Thread):
                 self.handle(self.channel, method, properties, body)
             time.sleep(0.5)
         self.stop_all_workers()
+        Worker.objects.all().delete()
         log.debug('Shutting down Brew master')
 
     def stop_all_workers(self):
-        for worker in self.workers:
-            self.send_command('stop', worker)
-
-    def shutdown(self):
-        #self.channel.stop_consuming()
-        self.enabled = False
+        for worker in self.workers.keys():
+            self.send(worker, 'stop')
 
     def handle(self, ch, method, properties, body):
         #log.debug('Handling message')
         #log.debug(body)
-        if str(body).startswith(MessageUpdate):
-            self.handle_update(body)
+        if str(body).startswith(MessageReady):
+            self.handle_ready(body)
             return
-        if str(body).startswith(MessageInfo):
-            self.handle_info(body)
+        if str(body).startswith(MessageMeasurement):
+            self.handle_measurement(body)
             return
-        if str(body).startswith(MessageWork):
-            self.handle_work(body)
-            return
-        if str(body).startswith(MessageExecute):
-            self.handle_execute(body)
-            return
-        if str(body).startswith(MessageShutdown):
-            self.handle_shutdown()
-            return
-        log.debug('Ignorable reply from from worker: {0}'.format(body))
+        self.process_command(body)
 
-    def handle_info(self, body):
+    def handle_ready(self, body):
         data = str(body).split(MessageSplit)
         self.add_worker(data[1], data[2])
 
-    def handle_work(self, body):
-        data = str(body).split(MessageSplit)
-        session_detail_id = data[1]
-        worker_id = data[2]
-        self.work(session_detail_id, worker_id)
-
-    def handle_execute(self, body):
-        data = str(body).split(MessageSplit)
-        command = data[1]
-        worker = ''
-        if len(data) > 2:
-            worker = data[2]
-        self.send_command(command, worker)
-
-    def handle_shutdown(self):
-        self.shutdown()
-
-    def handle_update(self, body):
+    def handle_measurement(self, body):
         #log.debug('Receiving worker update...')
         try:
             with self.measurements_lock:
@@ -164,14 +133,14 @@ class BrewMaster(threading.Thread):
         except Exception, e:
             log.error('Brewmaster could not save measurement to database ({0})'.format(e.message))
 
-    def verify_worker(self, worker):
-        for available_worker in self.workers:
-            if available_worker == worker:
-                return True
-        return False
+    def lookup_worker(self, worker_id):
+        if int(worker_id) in self.workers.keys():
+            return self.workers[int(worker_id)]
+        return None
 
-    def send(self, worker, data):
-        if not self.verify_worker(worker):
+    def send(self, worker_id, data):
+        worker = self.lookup_worker(worker_id)
+        if worker is None:
             log.warning('Worker {0} not available'.format(worker))
             return
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
@@ -194,44 +163,49 @@ class BrewMaster(threading.Thread):
         Worker.objects.all().delete()
         self.send_all(MessageInfo)
 
-    def reset_all(self):
-        self.send_all(MessageReset)
+    def reset(self, worker_id):
+        self.send(worker_id, MessageReset)
 
-    def reset(self, worker=None):
-        if worker is None:
-            self.reset_all()
-        else:
-            self.send(worker, MessageReset)
+    def pause(self, worker_id):
+        Worker.set_worker_status(worker_id, Worker.PAUSED)
+        self.send(worker_id, MessagePause)
 
-    def pause(self, worker):
-        self.send(worker, MessagePause)
+    def resume(self, worker_id):
+        Worker.set_worker_status(worker_id, Worker.BUSY)
+        self.send(worker_id, MessageResume)
 
-    def resume(self, worker):
-        self.send(worker, MessageResume)
-
-    def stop(self, worker):
-        self.send(worker, MessageStop)
-
-    def work(self, session_detail_id, worker_id):
-        worker = Worker.objects.get(pk=worker_id)
-        if worker is None or worker.status == Worker.BUSY:
-            return False
-        worker.status = Worker.BUSY
-        worker.save()
-        session_detail = SessionDetail.objects.all().filter(pk=session_detail_id)
+    def work(self, worker_id, session_detail_id):
+        Worker.set_worker_status(worker_id, Worker.BUSY)
+        session_detail = SessionDetail.objects.all().filter(pk=int(session_detail_id))
         data = serializers.serialize("json", session_detail)
-        self.send(worker.name, data)
-        log.debug('Work detail sent to {0}'.format(worker.name))
+        self.send(worker_id, data)
+        log.debug('Work detail sent to {0}'.format(self.workers[int(worker_id)]))
         return True
 
-    def send_command(self, command, worker):
+    def shutdown(self):
+        #self.channel.stop_consuming()
+        self.enabled = False
+
+    def process_command(self, body):
+        data = body.split(MessageSplit)
+        command = data[0]
+        if len(data) > 1:
+            worker_id = data[1]
+        else:
+            worker_id = None
+        if len(data) > 2:
+            instruction = data[2]
+        else:
+            instruction = None
         if not hasattr(self, command):
             log.error('No such command in BrewMaster ({0})'.format(command))
             return
         method = getattr(self, command)
-        if worker is not None and worker != '' and command in self.messages.keys():
-            method(worker)
-        elif command in self.broadcasts.keys():
+        if command in self.broadcasts.keys():
             method()
+        elif command in self.messages.keys():
+            method(worker_id)
+        elif command in self.instructions.keys():
+            method(worker_id, instruction)
         else:
             log.debug('Master requested to send an unauthorized command: {0}'.format(command))

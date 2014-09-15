@@ -86,11 +86,11 @@ class BoilWorker(BrewWorker):
             self.current_temperature = measured_value
             if self.simulation:
                 self.test_temperature = self.current_temperature
-                self.send_update(self.inputs['Temperature'],
+                self.send_measurement(self.inputs['Temperature'],
                                  [self.current_temperature, self.current_set_temperature, self.debug_timer])
                 self.debug_timer += timedelta(seconds=BOIL_DEBUG_TIMEDELTA)
             else:
-                self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+                self.send_measurement(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
             if self.working and self.hold_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_timer = dt.now()
             if self.is_done():
@@ -98,7 +98,7 @@ class BoilWorker(BrewWorker):
             elif self.pid is not None:
                 self.outputs['Mash Tun'].write(calc)
         except Exception, e:
-            log.error('Mash worker unable to react to temperature update, shutting down: {0}'.format(e.message))
+            log.error('Boil worker unable to react to temperature update, shutting down: {0}'.format(e.message))
             self.stop_all_devices()
 
     def boil_heating_callback(self, heating_time):
@@ -106,9 +106,9 @@ class BoilWorker(BrewWorker):
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
             device = self.outputs['Mash Tun']
             if self.simulation:
-                self.send_update(device, [heating_time, device.cycle_time, self.debug_timer])
+                self.send_measurement(device, [heating_time, device.cycle_time, self.debug_timer])
             else:
-                self.send_update(device, [heating_time, device.cycle_time])
+                self.send_measurement(device, [heating_time, device.cycle_time])
             if self.simulation:
                 try:
                     self.inputs['Temperature'].test_temperature = \
@@ -121,7 +121,7 @@ class BoilWorker(BrewWorker):
                                          BOIL_DEBUG_DELAY,
                                          BOIL_DEBUG_INIT_TEMP)
                 except Exception, e:
-                    log.debug('Mash worker unable to update test temperature for debug: {0}'.format(e.message))
+                    log.debug('Boil worker unable to update test temperature for debug: {0}'.format(e.message))
         except Exception, e:
-            log.error('Mash worker unable to react to heating update, shutting down: {0}'.format(e.message))
+            log.error('Boil worker unable to react to heating update, shutting down: {0}'.format(e.message))
             self.stop_all_devices()

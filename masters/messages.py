@@ -1,15 +1,11 @@
 #!/usr/bin python
-MessageExecute = "EXEC"
-MessageWork = "WORK"
-MessageLoad = "LOAD"
-MessageUpdate = "UPDATE"
-MessageInfo = "INFO"
-MessageReset = "RESET"
-MessagePause = "PAUSE"
-MessageStop = "STOP"    # Worker stop
-MessageShutdown = "SHUTDOWN"    # Master shutdown
-MessageResume = "RESUME"
-MessagePaused = "PAUSED"
-MessageResumed = "RESUMED"
-MessageReady = "READY"
+MessageWork = "work"
+MessageMeasurement = "measurement"
+MessageInfo = "info"
+MessageReset = "reset"
+MessagePause = "pause"
+MessageShutdown = "shutdown"    # Master shutdown
+MessageResume = "resume"
+MessageReady = "ready"
+MessageStop = "stop"
 MessageSplit = ";"

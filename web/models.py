@@ -10,13 +10,24 @@ COLUMN_SMALL_SIZE = 128
 class Worker(models.Model):
     AVAILABLE = 0
     BUSY = 1
+    PAUSED = 2
     WORKER_STATUS = (
         (AVAILABLE, 'Available'),
-        (BUSY, 'Busy')
+        (BUSY, 'Busy'),
+        (PAUSED, 'Paused'),
     )
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
+
+    @staticmethod
+    def set_worker_status(worker_id, status):
+        worker = Worker.objects.get(pk=worker_id)
+        if worker is None:
+            return False
+        worker.status = status
+        worker.save()
+        return True
 
     def __unicode__(self):
         return '{0} - {1} ({2})'.format(self.name, self.type, Worker.WORKER_STATUS[self.status][1])
@@ -60,7 +71,7 @@ class Command(models.Model):
     description = models.TextField()
 
     def __unicode__(self):
-        return '{0} ({1})'.format(self.name, self.type)
+        return '{0} - {1}'.format(self.name, self.description)
 
 
 class Message(models.Model):

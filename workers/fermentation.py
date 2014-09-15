@@ -79,11 +79,11 @@ class FermentationWorker(BrewWorker):
     def fermentation_temperature_callback(self, measured_value):
         self.current_temperature = random.gauss(self.current_set_temperature, FERMENTATION_DEBUG_STD)
         if self.simulation:
-            self.send_update(self.inputs['Temperature'],
+            self.send_measurement(self.inputs['Temperature'],
                              [self.current_temperature, self.current_set_temperature, self.debug_timer])
             self.debug_timer += timedelta(seconds=FERMENTATION_DEBUG_TIMEDELTA)
         else:
-            self.send_update(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+            self.send_measurement(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
         log.debug('{0} reports measured value {1}'.format(self.name, self.current_temperature))
         if self.working and self.hold_timer is None:
             self.hold_timer = dt.now()

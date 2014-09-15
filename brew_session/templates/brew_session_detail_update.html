@@ -3,7 +3,7 @@
 </a>
 <br/>
 <form action="/brew_session/brew_session_detail_update/{{ object.pk }}/" method="POST">{% csrf_token %}
-    {{ form.as_table }}
+    {{ form.as_p }}
     <br />
     <input type="submit" value="Update" />
 </form>

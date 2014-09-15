@@ -6,7 +6,7 @@
 {% block content %}
         <ul>
             {% for command in commands %}
-            <li>{{ command.name }} - {{ command.type }}</li>
+            <li>{{ command }}</li>
             {% empty %}
             <li>No commands found.</li>
             {% endfor %}

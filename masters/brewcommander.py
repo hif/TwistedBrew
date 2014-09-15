@@ -29,12 +29,8 @@ class BrewCommander():
 
     def send_master(self, command, params=None):
         data = command
-        if params is not None and params != '':
-            data = u'{0}{1}{2}'.format(data, msg.MessageSplit, params)
-
-        if command != msg.MessageLoad and command != msg.MessageShutdown:
-            data = u'{0}{1}{2}'.format(msg.MessageExecute, msg.MessageSplit, data)
-
+        if not params is None:
+            data += (msg.MessageSplit + params)
         log.debug(u'Commanding master - {0}'.format(data))
 
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
@@ -44,8 +40,8 @@ class BrewCommander():
         channel.basic_publish(exchange='', routing_key=default.MasterQueue, body=data)
         connection.close()
 
-    def start_work(self, session_detail_id, worker_id):
-        body = msg.MessageWork + msg.MessageSplit + session_detail_id + msg.MessageSplit + worker_id
+    def start_work(self, worker_id, session_detail_id):
+        body = msg.MessageWork + msg.MessageSplit + worker_id + msg.MessageSplit + session_detail_id
 
         log.debug(u'Commanding master - {0}'.format(body))
 

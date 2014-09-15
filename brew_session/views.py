@@ -114,9 +114,28 @@ def start_session_detail(request):
         session_detail_id = request.POST['session_detail_id']
         worker_id = request.POST['worker_id']
         brew_commander = BrewCommander()
-        brew_commander.start_work(session_detail_id, worker_id)
+        brew_commander.start_work(worker_id, session_detail_id)
         return HttpResponse('Session detail started')
     return HttpResponse('Missing session detail to start, use POST')
+
+
+def send_brewmaster(request):
+    if request.POST:
+        command = request.POST['command']
+        brew_commander = BrewCommander()
+        brew_commander.send_master(command)
+        return HttpResponse('Command sent to master')
+    return HttpResponse('Missing command to send, use POST')
+
+
+def send_brewworker(request):
+    if request.POST:
+        command = request.POST['command']
+        worker_id = request.POST['worker_id']
+        brew_commander = BrewCommander()
+        brew_commander.send_master(command, worker_id)
+        return HttpResponse('Command sent to worker')
+    return HttpResponse('Missing command and worker to send, use POST')
 
 
 def scheduler(request):

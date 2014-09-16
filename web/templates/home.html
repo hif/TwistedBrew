@@ -4,6 +4,7 @@
 <h1>{{ welcome_message }}</h1>
 {% endblock %}
 {% block content %}
+{% load static %}
 <h3>TODO:</h3>
 <ul>
     <li><b>Hilmar</b></li>
@@ -16,10 +17,12 @@
             <li>Allow continuous work</li>
             <li>Allow skip detail</li>
         </ul>
+        <li><strike>Look into 'tail' functionality for messages</strike></li>
     </ul>
     <li><b>Hreiðar</b></li>
     <ul>
         <li>The box</li>
     </ul>
 </ul>
+{% include 'message_live_feed.html' %}
 {% endblock %}

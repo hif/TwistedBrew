@@ -39,8 +39,8 @@
     }
 </style>
 <body>
-<div id="background"><img class="background"
-                          src="{% block background %}{% static 'img/background.png' %}{% endblock %}"></div>
+<div id="background"><img width="100%" height="100%" class="background"
+                          src="{% block background %}{% static 'img/beers.jpeg' %}{% endblock %}"></div>
 <div style="position:fixed;top:4px;right:8px">
 {% block admin %}
     <small><a class="navbar-brand" href="/admin">[admin]</a></small>
@@ -56,7 +56,7 @@
         <ul class="nav navbar-nav">
             <li class="{% if home_active %}active{% endif %}"><a href="/">Home</a></li>
             <li class="{% if brews_active %}active{% endif %}"><a href="/brew/">Brews</a></li>
-            <li class="{% if workers_active %}active{% endif %}"><a href="/workers/">Workers</a></li>
+            <li class="{% if workers_active %}active{% endif %}"><a href="/brew_session/brew_workers/">Workers</a></li>
             <li class="{% if commands_active %}active{% endif %}"><a href="/commands/">Commands</a></li>
             <li class="{% if measurements_active %}active{% endif %}"><a href="/measurements/">Measurements</a></li>
             <li class="{% if charts_active %}active{% endif %}"><a href="/charts/">Charts</a></li>

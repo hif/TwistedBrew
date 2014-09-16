@@ -2,8 +2,8 @@
 from django.core import serializers
 from workers.brewworker import *
 import utils.logging as log
-from brew_session.models import SessionDetail
-from web.models import Worker, Command, Measurement
+from brew_session.models import SessionDetail, Worker
+from web.models import Command, Measurement
 import datetime as dt
 import time
 

@@ -6,8 +6,7 @@ from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from models import Session, SessionDetail
-from web.models import Worker
+from models import Session, SessionDetail, Worker
 from forms import *
 from masters.brewcommander import BrewCommander
 import json, random
@@ -138,41 +137,17 @@ def send_brew_worker_command(request):
     return HttpResponse('Missing command and worker to send, use POST')
 
 
-def scheduler(request):
+
+def brew_workers(request):
     context = RequestContext(request)
-
-    if request.method == 'POST':
-        form = SessionFormSet(request.POST)
-
-        # Have we been provided with a valid form?
-        if form.is_valid():
-            # Save the new category to the database.
-
-            # Now call the index() view.
-            # The user will be shown the homepage.
-            #commander = BrewCommander()
-            #command, params = commander.parse_command(last_message)
-            #commander.sendmaster(command, params)
-            #return HttpResponseRedirect('/')
-            log.debug('A valid session form was sent')
-        else:
-            # The supplied form contained errors - just print them to the terminal.
-            print form.errors
-    else:
-        # If the request was not a POST, display the form to enter details.
-
-        session = Session.objects.get(pk=1)
-        form = SessionForm(instance=session)
-
-    # Bad form (or form details), no form supplied...
-    # Render the form with error messages (if any).
+    worker_list = Worker.objects.order_by('type')
 
     context_dict = {
-        'brew_sessions_active': True,
-        'form': form,
+        'workers_active' : True,
+        'workers': worker_list,
     }
 
-    return render_to_response('scheduler.html', context_dict, context)
+    return render_to_response('brew_workers.html', context_dict, context)
 
 
 def brew_session_selection(request):

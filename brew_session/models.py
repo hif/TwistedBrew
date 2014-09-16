@@ -66,3 +66,47 @@ class SessionDetail(models.Model):
 
     def __unicode__(self):
         return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker)
+
+
+class SessionWork(models.Model):
+    timestamp = models.DateTimeField(auto_now=True)
+    session_detail = models.ForeignKey('SessionDetail')
+    worker = models.ForeignKey('Worker')
+    work = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    remaining = models.CharField(max_length=COLUMN_SMALL_SIZE)
+
+    def __unicode__(self):
+        return u'[{0}] {1} ({2})'.format(self.timestamp, self.work, self.remaining)
+
+
+class Worker(models.Model):
+    AVAILABLE = 0
+    BUSY = 1
+    PAUSED = 2
+    WORKER_STATUS = (
+        (AVAILABLE, 'Available'),
+        (BUSY, 'Busy'),
+        (PAUSED, 'Paused'),
+    )
+    name = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    type = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
+
+    @staticmethod
+    def set_worker_status(worker_id, status):
+        worker = Worker.objects.get(pk=worker_id)
+        if worker is None:
+            return False
+        worker.status = status
+        worker.save()
+        return True
+
+    @staticmethod
+    def get_worker_status(worker_id):
+        worker = Worker.objects.get(pk=worker_id)
+        if worker is None:
+            return None
+        return worker.status
+
+    def __unicode__(self):
+        return '{0} - {1} ({2})'.format(self.name, self.type, Worker.WORKER_STATUS[self.status][1])

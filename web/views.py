@@ -6,7 +6,7 @@ from django.views.generic import ListView
 from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from models import Worker, Command, Measurement, Message
+from models import Command, Measurement, Message
 from brew.models import Brew
 from forms import *
 from masters.brewcommander import BrewCommander
@@ -25,17 +25,6 @@ def home(request):
     }
 
     return render_to_response('home.html', context_dict, context)
-
-def workers(request):
-    context = RequestContext(request)
-    worker_list = Worker.objects.order_by('type')
-
-    context_dict = {
-        'workers_active' : True,
-        'workers': worker_list,
-    }
-
-    return render_to_response('workers.html', context_dict, context)
 
 
 def commands(request):

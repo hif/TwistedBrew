@@ -63,17 +63,6 @@ class MeasurementListView(ListView):
         return context
 
 
-def measurements(request):
-    context = RequestContext(request)
-    measurement_list = Measurement.objects.order_by('-timestamp')
-
-    context_dict = {
-        'measurements_active' : True,
-        'measurements': measurement_list,
-    }
-    return render_to_response('measurements.html', context_dict, context)
-
-
 def measurements_clear(request):
     Measurement.objects.all().delete()
     return HttpResponseRedirect('/measurements')

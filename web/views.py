@@ -46,6 +46,23 @@ def commands(request):
     return render_to_response('commands.html', context_dict, context)
 
 
+class MeasurementListView(ListView):
+    template_name = 'measurements.html'
+    model = Measurement
+    paginate_by = 15
+    heading = 'Measurements'
+    active_tab = 'measurements_active'
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def get_context_data(self, **kwargs):
+        context = super(MeasurementListView, self).get_context_data(**kwargs)
+        context[self.active_tab] = True
+        context['heading'] = self.heading
+        return context
+
+
 def measurements(request):
     context = RequestContext(request)
     measurement_list = Measurement.objects.order_by('-timestamp')

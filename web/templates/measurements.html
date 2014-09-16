@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
 {% block content_heading %}
-    <h2>Measurements</h2>
+    <h2>{{ heading }}</h2>
 {% endblock %}
 {% block content %}
+{% if object_list %}
         <form action="/measurements_clear">
             <input type="submit" value="Clear all measurements">
 
@@ -17,7 +18,7 @@
                 <th>Value</th>
                 <th>Set Point</th>
             </tr>
-            {% for measure in measurements %}
+            {% for measure in object_list %}
             <tr>
             <td>
                 {{ measure.timestamp|date:"G"}}:{{ measure.timestamp|date:"i"}}:{{ measure.timestamp|date:"s"}}
@@ -28,8 +29,19 @@
             <td>{{ measure.value }}</td>
             <td>{{ measure.set_point }}</td>
             </tr>
-            {% empty %}
-            <tr><td colspan="3">No measurements found.</td></tr>
             {% endfor %}
-            </table>
+        </table>
+    <br />
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"><small>[previous]</small></a>
+        {% endif %}
+        &nbsp;&nbsp;&nbsp;Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}&nbsp;&nbsp;&nbsp;
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"><small>[next]</small></a>
+        {% endif %}
+    {% endif %}
+{% else %}
+    <b>No measurements found.</b>
+{% endif %}
 {% endblock %}

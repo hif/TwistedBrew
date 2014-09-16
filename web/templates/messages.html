@@ -1,28 +1,40 @@
 {% extends "base.html" %}
 
 {% block content_heading %}
-    <h2>Messages</h2>
+    <h2>{{ heading }}</h2>
 {% endblock %}
 {% block content %}
-        <form action="/messages_clear">
-            <input type="submit" value="Clear all messages">
-        </form>
-        <table class="table table-hover">
-            <tr>
-                <th>Timestamp</th>
-                <th>Type</th>
-                <th>Message</th>
-            </tr>
-            {% for message in messages %}
-            <tr>
-            <td>
-                {{ message.timestamp|date:"G"}}:{{ message.timestamp|date:"i"}}:{{ message.timestamp|date:"s"}}
-            </td>
-            <td>{{ message.type }}</td>
-            <td>{{ message.text }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3">No messages found.</td></tr>
-            {% endfor %}
-            </table>
+{% if object_list %}
+    <form action="/messages_clear">
+        <input type="submit" value="Clear all messages">
+    </form>
+    <table class="table table-hover">
+        <tr>
+            <th>Timestamp</th>
+            <th>Type</th>
+            <th>Message</th>
+        </tr>
+        {% for message in object_list %}
+        <tr>
+        <td>
+            {{ message.timestamp|date:"G"}}:{{ message.timestamp|date:"i"}}:{{ message.timestamp|date:"s"}}
+        </td>
+        <td>{{ message.type }}</td>
+        <td>{{ message.text }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br />
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"><small>[previous]</small></a>
+        {% endif %}
+        &nbsp;&nbsp;&nbsp;Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}&nbsp;&nbsp;&nbsp;
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"><small>[next]</small></a>
+        {% endif %}
+    {% endif %}
+{% else %}
+    <b>No messages found.</b>
+{% endif %}
 {% endblock %}

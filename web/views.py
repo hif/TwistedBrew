@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.views.generic import ListView
 from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -61,42 +62,43 @@ def measurements_clear(request):
     return HttpResponseRedirect('/measurements')
 
 
-def messages(request):
-    context = RequestContext(request)
-    message_list = Message.objects.order_by('-timestamp')
+class MessageListView(ListView):
+    template_name = 'messages.html'
+    model = Message
+    paginate_by = 15
+    heading = 'Messages'
+    active_tab = 'messages_active'
 
-    context_dict = {
-        'messages_active': True,
-        'messages': message_list,
-    }
-    return render_to_response('messages.html', context_dict, context)
+    class Meta:
+        ordering = ['-timestamp']
+
+    def get_context_data(self, **kwargs):
+        context = super(MessageListView, self).get_context_data(**kwargs)
+        context[self.active_tab] = True
+        context['heading'] = self.heading
+        return context
+
+
+class WarningListView(MessageListView):
+    heading = 'Warnings'
+    active_tab = 'warnings_active'
+
+    def get_queryset(self):
+        return super(MessageListView, self).get_queryset().filter(type='Warning')
+
+
+class ErrorListView(MessageListView):
+    heading = 'Errors'
+    active_tab = 'errors_active'
+
+    def get_queryset(self):
+        return super(MessageListView, self).get_queryset().filter(type='Error')
 
 
 def messages_clear(request):
     Message.objects.all().delete()
     return HttpResponseRedirect('/messages')
 
-
-def warnings(request):
-    context = RequestContext(request)
-    message_list = Message.objects.filter(type='Warning').order_by('-timestamp')
-
-    context_dict = {
-        'warnings_active': True,
-        'messages': message_list,
-    }
-    return render_to_response('warnings.html', context_dict, context)
-
-
-def errors(request):
-    context = RequestContext(request)
-    message_list = Message.objects.filter(type='Error').order_by('-timestamp')
-
-    context_dict = {
-        'errors_active': True,
-        'messages': message_list,
-    }
-    return render_to_response('errors.html', context_dict, context)
 
 
 def charts(request):

@@ -18,6 +18,9 @@ class Message(models.Model):
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     text = models.TextField()
 
+    class Meta:
+        ordering = ['-timestamp']
+
     @staticmethod
     def clear():
         Message.objects.all().delete()

@@ -46,6 +46,7 @@ class BoilWorker(BaseWorker):
         seconds = data.hold_time * data.time_unit_seconds
         if self.simulation:
             seconds /= BOIL_DEBUG_TIME_DIVIDER
+            self.inputs['Temperature'].test_temperature = BOIL_DEBUG_INIT_TEMP
         self.current_hold_time = timedelta(seconds=seconds)
         cycle_time = float(self.inputs['Temperature'].cycle_time)
         if self.pid is None:
@@ -64,13 +65,18 @@ class BoilWorker(BaseWorker):
             else:
                 log.debug('{0} reports measured value {1}'.format(self.name, measured_value))
             self.current_temperature = measured_value
+            measurement = self.generate_worker_measurement(self, self.inputs['Temperature'])
+            measurement.value = self.current_temperature
+            measurement.set_point = self.current_set_temperature
+            measurement.work = 'Probing temperature'
+            measurement.remaining = self.remaining_time_info()
             if self.simulation:
                 self.test_temperature = self.current_temperature
-                self.send_measurement(self.inputs['Temperature'],
-                                 [self.current_temperature, self.current_set_temperature, self.debug_timer])
+                measurement.debug_timer = self.debug_timer
                 self.debug_timer += timedelta(seconds=BOIL_DEBUG_TIMEDELTA)
             else:
-                self.send_measurement(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+                measurement.debug_timer = None
+            self.send_measurement(measurement)
             if self.working and self.hold_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_timer = dt.now()
             if self.is_done():
@@ -85,10 +91,20 @@ class BoilWorker(BaseWorker):
         try:
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
             device = self.outputs['Mash Tun']
-            if self.simulation:
-                self.send_measurement(device, [heating_time, device.cycle_time, self.debug_timer])
+            measurement = self.generate_worker_measurement(self, device)
+            measurement.value = heating_time
+            measurement.set_point = device.cycle_time
+            if self.hold_timer is None:
+                measurement.work = 'Bringing to Boil'
+                measurement.remaining = self.current_set_temperature - self.current_temperature
             else:
-                self.send_measurement(device, [heating_time, device.cycle_time])
+                measurement.work = 'Boiling'
+                measurement.remaining = 0.0
+            if self.simulation:
+                measurement.debug_timer = self.debug_timer
+            else:
+                measurement.debug_timer = None
+            self.send_measurement(measurement)
             if self.simulation:
                 try:
                     self.inputs['Temperature'].test_temperature = \

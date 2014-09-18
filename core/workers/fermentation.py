@@ -48,6 +48,7 @@ class FermentationWorker(BaseWorker):
         seconds = data.hold_time * data.time_unit_seconds
         if self.simulation:
             seconds /= FERMENTATION_DEBUG_TIME_DIVIDER
+            self.inputs['Temperature'].test_temperature = FERMENTATION_DEBUG_INIT_TEMP
         self.current_hold_time = timedelta(seconds=seconds)
         cycle_time = float(self.inputs['Temperature'].cycle_time)
         if self.pid is None:
@@ -58,12 +59,17 @@ class FermentationWorker(BaseWorker):
 
     def fermentation_temperature_callback(self, measured_value):
         self.current_temperature = random.gauss(self.current_set_temperature, FERMENTATION_DEBUG_STD)
+        measurement = self.generate_worker_measurement(self, self.inputs['Temperature'])
+        measurement.value = self.current_temperature
+        measurement.set_point = self.current_set_temperature
+        measurement.work = 'Fermenting'
+        measurement.remaining = self.remaining_time_info()
         if self.simulation:
-            self.send_measurement(self.inputs['Temperature'],
-                             [self.current_temperature, self.current_set_temperature, self.debug_timer])
+            measurement.debug_timer = self.debug_timer
             self.debug_timer += timedelta(seconds=FERMENTATION_DEBUG_TIMEDELTA)
         else:
-            self.send_measurement(self.inputs['Temperature'], [self.current_temperature, self.current_set_temperature])
+            measurement.debug_timer = None
+        self.send_measurement(measurement)
         log.debug('{0} reports measured value {1}'.format(self.name, self.current_temperature))
         if self.working and self.hold_timer is None:
             self.hold_timer = dt.now()

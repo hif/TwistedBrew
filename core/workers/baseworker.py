@@ -8,6 +8,7 @@ import pika
 from core.defaults import *
 from core.messages import *
 from core.utils.coreutils import *
+from worker_measurement import WorkerMeasurement
 import core.utils.logging as log
 
 
@@ -158,12 +159,42 @@ class BaseWorker(threading.Thread):
         channel.basic_publish(exchange='', routing_key=self.master_queue, body=data)
         connection.close()
 
-    def send_measurement(self, device, data):
-        message = MessageMeasurement + MessageSplit + self.name + MessageSplit + \
-                  unicode(self.session_detail_id) + MessageSplit + device.name
-        for item in data:
-            message += "{0}{1}".format(MessageSplit, item)
+    def send_measurement(self, worker_measurement):
+        message = WorkerMeasurement.serialize_message(worker_measurement)
+        if message is None:
+            return
         self.send_to_master(message)
+
+    @staticmethod
+    def generate_worker_measurement(worker, device):
+        return WorkerMeasurement(worker.session_detail_id, worker.name, device.name)
+
+    def work_time(self):
+        if self.current_hold_time is None:
+            return None
+        return self.current_hold_time + self.pause_time
+
+    def finish_time(self):
+        if self.hold_timer is None:
+            return None
+        return dt.now() - self.hold_timer
+
+    def remaining_time(self):
+        finish = self.finish_time()
+        if finish is None:
+            return None
+        work = self.work_time()
+        if work is None:
+            return None
+        if finish > work:
+            return timedelta()
+        return work - finish
+
+    def remaining_time_info(self):
+        remaining = self.remaining_time()
+        if remaining is None:
+            return '-n/a-'
+        return str(remaining)
 
     def receive(self, ch, method, properties, body):
         if body in MessageFunctions and hasattr(self, body):
@@ -207,11 +238,15 @@ class BaseWorker(threading.Thread):
     def is_done(self):
         if self.hold_timer is None:
             return False
-        finish_time = dt.now() - self.hold_timer
-        work_time = self.current_hold_time + self.pause_time
-        if finish_time >= work_time:
+        finish = self.finish_time()
+        if finish is None:
+            return False
+        work = self.work_time()
+        if work is None:
+            return False
+        if finish >= work:
             return True
-        log.debug('Time until work done: {0}'.format(work_time - finish_time))
+        log.debug('Time until work done: {0}'.format(work - finish))
         return False
 
     def done(self):

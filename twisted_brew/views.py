@@ -40,6 +40,7 @@ class MessageListView(ListView):
     model = Message
     paginate_by = 15
     heading = 'Messages'
+    messages_type = 'messages'
     active_tab = 'messages_active'
 
     class Meta:
@@ -49,12 +50,14 @@ class MessageListView(ListView):
         context = super(MessageListView, self).get_context_data(**kwargs)
         context[self.active_tab] = True
         context['heading'] = self.heading
+        context['messages_type'] = self.messages_type
         return context
 
 
 class WarningListView(MessageListView):
     heading = 'Warnings'
     active_tab = 'warnings_active'
+    messages_type = 'warnings'
 
     def get_queryset(self):
         return super(MessageListView, self).get_queryset().filter(type='Warning')
@@ -63,6 +66,7 @@ class WarningListView(MessageListView):
 class ErrorListView(MessageListView):
     heading = 'Errors'
     active_tab = 'errors_active'
+    messages_type = 'errors'
 
     def get_queryset(self):
         return super(MessageListView, self).get_queryset().filter(type='Error')

@@ -117,28 +117,28 @@ class Master(threading.Thread):
         data = str(body).split(MessageSplit)
         self.add_worker(data[1], data[2])
 
-    def handle_measurement(self, body):
-        #log.debug('Receiving worker update...')
+    def handle_measurement(self, worker_measurement_data):
+        #log.debug('Receiving worker measurement...')
         try:
             with self.measurements_lock:
-                data = body.split(MessageSplit)
+                worker_measurement = WorkerMeasurement.deserialize_message(worker_measurement_data)
                 measurement = Measurement()
-                measurement.worker = data[1]
-                session_detail_id = int(data[2])
+                measurement.worker = worker_measurement.worker_name
+                session_detail_id = worker_measurement.session_detail_id
                 session_detail = SessionDetail.objects.get(pk=session_detail_id)
                 measurement.session_detail = session_detail
-                measurement.device = data[3]
-                measurement.value = data[4]
-                measurement.set_point = data[5]
-                measurement.work = ''   # TODO
-                measurement.remaining = ''  # TODO
-                if len(data) > 6:   # In simulation mode, use fake timestamps
-                    measurement.timestamp = dt.datetime.strptime(data[6], "%Y-%m-%d %H:%M:%S.%f")
+                measurement.device = worker_measurement.device_name
+                measurement.value = worker_measurement.value
+                measurement.set_point = worker_measurement.set_point
+                measurement.work = worker_measurement.work
+                measurement.remaining = worker_measurement.remaining
+                if not worker_measurement.debug_timer is None:   # In simulation mode, use fake timestamps
+                    measurement.timestamp = dt.datetime.strptime(worker_measurement.debug_timer, "%Y-%m-%d %H:%M:%S.%f")
                 else:
                     measurement.timestamp = dt.datetime.now()
                 measurement.save()
         except Exception, e:
-            log.error('Brewmaster could not save measurement to database ({0})'.format(e.message))
+            log.error('Master could not save measurement to database ({0})'.format(e.message))
 
     def lookup_worker(self, worker_id):
         if int(worker_id) in self.workers.keys():

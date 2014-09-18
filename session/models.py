@@ -113,6 +113,9 @@ class Measurement(models.Model):
     work = models.CharField(max_length=COLUMN_SMALL_SIZE)
     remaining = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
+    class Meta:
+        ordering = ['-timestamp']
+
     @staticmethod
     def clear():
         Measurement.objects.all().delete()

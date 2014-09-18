@@ -1,7 +1,7 @@
 #!/usr/bin python
 import importlib
 from brew import brew_import
-import brew.brew_import
+import core.utils.coreutils as coreutils
 
 class ImporterRegistration():
     def __init__(self, index, display_name):
@@ -30,12 +30,7 @@ class BrewImporter():
     @staticmethod
     def register():
         for importer_class in brew_import.BREW_IMPORTERS:
-            class_data = importer_class.split(".")
-            module_path = ".".join(class_data[:-1])
-            class_name = class_data[-1]
-            module = importlib.import_module(module_path)
-            class_handle = getattr(module, class_name)
-            importer = class_handle()
+            importer = coreutils.construct_class_instance(importer_class)
             BrewImporter.registered_importers.append(importer)
 
     @staticmethod

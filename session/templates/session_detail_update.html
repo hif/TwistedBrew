@@ -1,0 +1,9 @@
+<a href="/session/sessions/{{ object.session.pk }}">
+    <small>[back]</small>
+</a>
+<br/>
+<form action="/session/session_detail_update/{{ object.pk }}/" method="POST">{% csrf_token %}
+    {{ form.as_p }}
+    <br />
+    <input type="submit" value="Update" />
+</form>

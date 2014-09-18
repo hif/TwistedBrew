@@ -1,19 +1,21 @@
+communication:
+    ip: "localhost"
+    port: "5672"
+    master_queue: "MasterQueue"
+    broadcast_exchange: "TwistedBrewBroadcast"
+
 master:
     name: "BrewMaster"
-    ip: "localhost"
-    port: 5672
 
 workers:
     - worker:
         name: "Mash Dude"
-        ip: "localhost"
-        port: 5672
-        class: "MashWorker"
+        class: "core.workers.mash.MashWorker"
         simulation: "True"
         outputs:
             - output:
                 name: "Mash Tun"
-                device: "SSR"
+                device_class: "core.devices.ssr.SSR"
                 io: "/sys/class/gpio/gpio17/value"
                 active: "False"
                 callback: "mash_heating_callback"
@@ -21,7 +23,7 @@ workers:
         inputs:
             - input:
                 name: "Temperature"
-                device: "Probe"
+                device_class: "core.devices.probe.Probe"
                 io: "/sys/bus/w1/devices/28-00000607f0de/w1_slave"
                 active: "False"
                 callback: "mash_temperature_callback"
@@ -29,14 +31,12 @@ workers:
 
     - worker:
         name: "Mr Boiler"
-        ip: "localhost"
-        port: 5672
-        class: "BoilWorker"
+        class: "core.workers.boil.BoilWorker"
         simulation: "True"
         outputs:
             - output:
                 name: "Boiler"
-                device: "SSR"
+                device_class: "core.devices.ssr.SSR"
                 io: "gpio2"
                 active: "False"
                 callback: "boil_heating_callback"
@@ -44,7 +44,7 @@ workers:
         inputs:
             - input:
                 name: "Temperature"
-                device: "Probe"
+                device_class: "core.devices.probe.Probe"
                 io: "gpio3"
                 active: "False"
                 callback: "boil_temperature_callback"
@@ -52,14 +52,12 @@ workers:
 
     - worker:
         name: "Fermat"
-        ip: "localhost"
-        port: 5672
-        class: "FermentationWorker"
+        class: "core.workers.fermentation.FermentationWorker"
         simulation: "True"
         outputs:
             - output:
                 name: "Fermenter"
-                device: "SSR"
+                device_class: "core.devices.ssr.SSR"
                 io: "gpio4"
                 active: "False"
                 callback: "fermentation_heating_callback"
@@ -67,7 +65,7 @@ workers:
         inputs:
             - input:
                 name: "Temperature"
-                device: "Probe"
+                device_class: "core.devices.probe.Probe"
                 io: "gpio5"
                 active: "False"
                 callback: "fermentation_temperature_callback"

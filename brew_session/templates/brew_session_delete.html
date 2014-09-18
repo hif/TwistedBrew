@@ -1,8 +1,0 @@
-<a onclick="get_brew_session_data({{ object.pk }})">
-    <small>[back]</small>
-</a>
-<br/>
-<form action="/brew_session/brew_session_delete/{{ object.pk }}/" method="POST">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ object }}"?</p>
-    <input type="submit" value="Confirm" />
-</form>

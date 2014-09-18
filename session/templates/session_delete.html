@@ -1,0 +1,8 @@
+<a onclick="get_session_data({{ object.pk }})">
+    <small>[back]</small>
+</a>
+<br/>
+<form action="/session/session_delete/{{ object.pk }}/" method="POST">{% csrf_token %}
+    <p>Are you sure you want to delete "{{ object }}"?</p>
+    <input type="submit" value="Confirm" />
+</form>

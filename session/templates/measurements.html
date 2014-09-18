@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content_heading %}
+    <h2>{{ heading }}</h2>
+{% endblock %}
+{% block content %}
+{% if object_list %}
+        <form action="/session/measurements_clear/">
+            <input type="submit" value="Clear all measurements">
+
+        </form>
+        <table class="table table-hover">
+            <tr>
+                <th>Timestamp</th>
+                <th>Session Detail</th>
+                <th>Worker</th>
+                <th>Device</th>
+                <th>Value</th>
+                <th>Set Point</th>
+            </tr>
+            {% for measure in object_list %}
+            <tr>
+            <td>
+                {{ measure.timestamp|date:"G"}}:{{ measure.timestamp|date:"i"}}:{{ measure.timestamp|date:"s"}}
+            </td>
+            <td>{{ measure.session_detail }}</td>
+            <td>{{ measure.worker }}</td>
+            <td>{{ measure.device }}</td>
+            <td>{{ measure.value }}</td>
+            <td>{{ measure.set_point }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    <br />
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"><small>[previous]</small></a>
+        {% endif %}
+        &nbsp;&nbsp;&nbsp;Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}&nbsp;&nbsp;&nbsp;
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"><small>[next]</small></a>
+        {% endif %}
+    {% endif %}
+{% else %}
+    <b>No measurements found.</b>
+{% endif %}
+{% endblock %}

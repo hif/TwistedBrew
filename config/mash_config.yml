@@ -1,18 +1,20 @@
-master:
-    name: "BrewMaster"
+communication:
     ip: "localhost"
     port: "5672"
+    master_queue: "MasterQueue"
+    broadcast_exchange: "TwistedBrewBroadcast"
+
+master:
+    name: "Twisted Brewer"
 
 workers:
     - worker:
         name: "Mash Dude"
-        ip: "localhost"
-        port: "5672"
-        class: "MashWorker"
+        class: "core.workers.mash.MashWorker"
         outputs:
             - output:
                 name: "Mash Tun"
-                device: "SSR"
+                device: "core.devices.ssr.SSR"
                 io: "gpio0"
                 active: "False"
                 callback: "mash_heating_callback"

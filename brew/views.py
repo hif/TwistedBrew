@@ -1,13 +1,12 @@
-from django.shortcuts import render
 from django.core.context_processors import csrf
 import os
-from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from models import Brew, BrewSection, BrewStep
+
+from models import Brew
 from brew.importing import brew_importer
-import utils.logging as log
+import core.utils.logging as log
 
 
 def brews(request):
@@ -48,6 +47,7 @@ def brews_delete_all(request):
 
 
 def brews_import(request):
+    uri = None
     try:
         if request.POST:
             index = int(request.POST['index'])
@@ -62,7 +62,7 @@ def brews_import(request):
             fd.close()
             brew_importer.BrewImporter.import_brews(index, uri)
     except Exception, e:
-        if uri:
+        if not uri is None:
             log.error('Failed to upload file {0} : {1}'.format(uri, e.message))
         else:
             log.error('Failed to upload file : {0}'.format(e.message))

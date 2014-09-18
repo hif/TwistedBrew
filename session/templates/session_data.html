@@ -1,0 +1,19 @@
+{% if data %}
+<br />
+<b>{{ data }}</b>
+<ul>
+    {% for detail in data.sessiondetail_set.all %}
+    <li>
+        <i>{{ detail }}</i>
+        <small><a onclick="get_update_session_detail({{ detail.pk }})">[edit]</a></small>
+    </li>
+    {% empty %}
+    <li>No sections found</li>
+    {% endfor %}
+</ul>
+<small><a href="/session/session_start/{{ data.pk }}/">[start]</a></small>
+<small><a onclick="get_update_session({{ data.pk }})">[edit]</a></small>
+<small><a onclick="get_delete_session({{ data.pk }})">[delete]</a></small>
+{% else %}
+Brew not found
+{% endif %}

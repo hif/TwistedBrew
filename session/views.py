@@ -183,3 +183,6 @@ class MeasurementListView(ListView):
 def measurements_clear(request):
     Measurement.objects.all().delete()
     return HttpResponseRedirect('/session/measurements/')
+
+def dashboard(request):
+    return render_to_response('dashboard.html')

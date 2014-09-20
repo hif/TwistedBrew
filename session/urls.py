@@ -21,4 +21,5 @@ urlpatterns = patterns('',
     url(r'^measurements_clear[/]$', 'session.views.measurements_clear', name='measurements_clear'),
     url(r'^send_master_command/$', 'session.views.send_master_command'),
     url(r'^send_worker_command/$', 'session.views.send_worker_command'),
+    url(r'^dashboard/$', 'session.views.dashboard'),
 )

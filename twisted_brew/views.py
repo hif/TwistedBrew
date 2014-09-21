@@ -101,12 +101,26 @@ def message_rows(request, latest_timestamp, max_rows):
             unicode(row.timestamp.hour).zfill(2),
             unicode(row.timestamp.minute).zfill(2),
             unicode(row.timestamp.second).zfill(2))
-        rows_html.append('<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>'.format(str_timestamp, row.type, row.text))
+        rows_html.append('<tr  class="{3}"><td>{0}</td><td>{1}</td><td>{2}</td></tr>'.format(
+            str_timestamp, row.type, row.text, row.type.lower()))
         counter += 1
         if counter >= limit:
             break;
     return HttpResponse(json.dumps(rows_html), content_type="application/json")
 
+
+def message_delete(request, message_id):
+    msg_id = int(message_id)
+    Message.objects.delete(pk=msg_id)
+    return HttpResponse('Message deleted')
+
+
+def message_fake(request, calling_page, message_type):
+    msg = Message()
+    msg.type = message_type
+    msg.text = "This is a faked message of type {0}".format(message_type)
+    msg.save()
+    return HttpResponseRedirect('/' + calling_page + '/')
 
 def charts(request):
     context = RequestContext(request)

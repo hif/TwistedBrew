@@ -13,14 +13,19 @@ function setTableHead(head_html){
 function addTableRow(row_html){
     $(row_html).prependTo($("#message_live_feed_table tbody"));
 }
-function removeTableRow(){
+function removeLastTableRow(){
     if($("#message_live_feed_table tbody tr").length >= tableSize){
         $("#message_live_feed_table tbody tr:last").remove();
     }
 }
+function removeTableRow(index){
+    if($("#message_live_feed_table tbody tr").length >= tableSize){
+        $("#message_live_feed_table tbody tr:last").deleteRow(index);
+    }
+}
 function updateTableRows(row_list){
     for( var n = row_list.length - 1 ; n >= 0 ; n--){
-        removeTableRow()
+        removeLastTableRow()
         addTableRow(row_list[n]);
     }
     if($("#message_live_feed_table tbody tr").length == 0){
@@ -47,4 +52,11 @@ function live_feed_timer(){
     get_table_rows(latest_timestamp, tableSize);
     latest_timestamp = new Date().getTime();
     setTimeout(live_feed_timer, live_feed_timer_interval);
+}
+function message_delete(message_id, table_row){
+    $.ajax({
+        url: "/message_delete/" + message_id + "/",
+        type: 'GET',
+    });
+    removeTablerow(table_row)
 }

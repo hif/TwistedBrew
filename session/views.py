@@ -186,3 +186,6 @@ def measurements_clear(request):
 
 def dashboard(request):
     return render_to_response('dashboard.html')
+
+def dashboard_raw(request):
+    return render_to_response('dashboard_raw.html')

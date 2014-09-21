@@ -20,6 +20,10 @@
     <script src="{% static 'js/flot/jquery.numberformatter-1.2.4.min.js' %}"></script>
     <script src="{% static 'js/flot/jquery.flot.symbol.min.js' %}"></script>
     <script src="{% static 'js/flot/jquery.flot.axislabels.js' %}"></script>
+
+    {% block extra_head %}
+
+    {% endblock %}
 </head>
 <style type="text/css">
     #background {

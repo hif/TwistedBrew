@@ -2,8 +2,16 @@
 
 {% block content_heading %}
     <h2>{{ heading }}</h2>
+    {% load static %}
+    <script src="{% static 'js/message.js' %}"></script>
 {% endblock %}
 {% block content %}
+<a href="/message_fake/{{ messages_type }}/Warning/">
+    <small>[fake a warning]</small>
+</a>
+<a href="/message_fake/{{ messages_type }}/Error/">
+    <small>[fake an error]</small>
+</a><br />
 {% if object_list %}
     <a href="/{{ messages_type }}_clear/">
         <small>[clear all {{ messages_type }}]</small>
@@ -13,7 +21,7 @@
     </a>
     <br />
     <table class="table table-hover">
-        <tr>
+        <tr >
             <th>Timestamp</th>
             <th>Type</th>
             <th>Message</th>
@@ -25,6 +33,7 @@
         </td>
         <td>{{ message.type }}</td>
         <td>{{ message.text }}</td>
+        <td><button onclick="message_delete({{ message.id }}, {{forloop.counter0}});">Delete</button></td>
         </tr>
         {% endfor %}
     </table>

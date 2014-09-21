@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-
-{% block content_heading %}
+{% block extra_head %}
 {% load static %}
-<script src="{% static 'js/session.js' %}"></script>
+    <script src="{% static 'js/session.js' %}"></script>
+{% endblock %}
+{% block content_heading %}
 <h2>Session Execution</h2>
 {% csrf_token %}
 {% endblock %}

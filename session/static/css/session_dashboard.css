@@ -1,0 +1,47 @@
+#session {
+    border: #000000 solid;
+    text-align:center;
+    padding:0px;
+}
+#session_dashboard_middle {
+    float:top;
+}
+#command_widgets {
+    border: #000000 solid;
+    height:100%;
+    width:100px;
+    float:left;
+    padding:5px;
+}
+.command_widget {
+    margin:5px 0px;
+    height:100%;
+    width:100px;
+    float:top;
+    padding:5px;
+    /*box-shadow: -10px 10px 5px #888888;*/
+}
+#worker_widgets {
+    border: #000000 solid;
+    height:100%;
+    width:100px;
+    float:right;
+    padding:5px;
+}
+.worker_widget {
+    margin:5px 0px;
+    height:100%;
+    width:100px;
+    float:top;
+    padding:5px;
+    /*box-shadow: -10px 10px 5px #888888;*/
+}
+#charts {
+    border: #000000 solid;
+    width:800px;
+    float:left;
+    padding: 20px;
+    margin: 0px 10px;
+    float:left;
+    text-align:center;
+}

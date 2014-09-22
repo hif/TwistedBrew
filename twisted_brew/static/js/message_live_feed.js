@@ -1,4 +1,4 @@
-var tableSize = 10;
+var tableSize = 8;
 var latest_timestamp = new Date().getTime();
 live_feed_timer_interval = 5000
 

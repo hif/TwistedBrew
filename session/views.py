@@ -184,8 +184,7 @@ def measurements_clear(request):
     Measurement.objects.all().delete()
     return HttpResponseRedirect('/session/measurements/')
 
-def dashboard(request):
-    return render_to_response('dashboard.html')
 
-def dashboard_raw(request):
-    return render_to_response('dashboard_raw.html')
+def session_dashboard(request):
+    return render_to_response('session_dashboard.html')
+

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block extra_head %}
+    {% load static %}
+    <link href="{% static 'css/session_dashboard.css' %}" rel="stylesheet">
+    <script src="{% static 'js/session.js' %}"></script>
+    <script src="{% static 'js/session_dashboard.js' %}"></script>
+{% endblock %}
+{% block content_heading %}
+    <h2>Dashboard</h2>
+{% endblock %}
+{% block content %}
+<div id="session">
+Session
+<select>
+    <option>Session 1</option>
+    <option>Session 2</option>
+    <option>Session 3</option>
+</select>
+<a href="/session/session_dashboard/">
+    <small>[refresh]</small>
+</a>
+</div>
+<div id="session_dashboard_middle">
+    <div id="command_widgets" >
+        {% include 'session_command_widget.html' with command_title='Pause' command='' %}
+        {% include 'session_command_widget.html' with command_title='Resume' command=''  %}
+        {% include 'session_command_widget.html' with command_title='Reset' command='' %}
+        {% include 'session_command_widget.html' with command_title='Archive' command='' %}
+    </div>
+    <div id="charts">
+        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
+        standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
+        make a type specimen book.</p>
+        <p><h2>Chart widget comes here</h2></p>
+        <p>It has survived not only five centuries, but also the leap into electronic
+        typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
+        sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
+        PageMaker including versions of Lorem Ipsum.</p>
+    </div>
+    <div id="worker_widgets">
+        {% include 'session_worker_widget.html' %}
+        {% include 'session_worker_widget.html' %}
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+{% include 'message_live_feed.html' %}
+{% endblock %}

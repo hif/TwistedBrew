@@ -101,7 +101,7 @@ def message_rows(request, latest_timestamp, max_rows):
             unicode(row.timestamp.hour).zfill(2),
             unicode(row.timestamp.minute).zfill(2),
             unicode(row.timestamp.second).zfill(2))
-        rows_html.append('<tr  class="{3}"><td>{0}</td><td>{1}</td><td>{2}</td></tr>'.format(
+        rows_html.append('<tr class="{3}"><td>{0}</td><td>{1}</td><td>{2}</td></tr>'.format(
             str_timestamp, row.type, row.text, row.type.lower()))
         counter += 1
         if counter >= limit:
@@ -111,7 +111,7 @@ def message_rows(request, latest_timestamp, max_rows):
 
 def message_delete(request, message_id):
     msg_id = int(message_id)
-    Message.objects.delete(pk=msg_id)
+    Message.objects.get(pk=msg_id).delete()
     return HttpResponse('Message deleted')
 
 

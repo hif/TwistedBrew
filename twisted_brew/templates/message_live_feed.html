@@ -1,9 +1,7 @@
-{% block extra_head %}
-    {% load static %}
-    <script src="{% static 'js/message.js' %}"></script>
-{% endblock %}
+{% load static %}
+<script src="{% static 'js/message_live_feed.js' %}"></script>
 <div id="message_live_feed">
-    <table id="message_live_feed_table" class="table table-hover table-condensed">
+    <table id="tb_messages_table" class="table table-hover table-condensed">
         <caption><h4>Message live feed</h4></caption>
         <thead>
 

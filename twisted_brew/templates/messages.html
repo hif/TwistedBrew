@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
-{% block content_heading %}
-    <h2>{{ heading }}</h2>
+{% block extra_head %}
     {% load static %}
     <script src="{% static 'js/message.js' %}"></script>
+{% endblock %}
+{% block content_heading %}
+    <h2>{{ heading }}</h2>{% load static %}
 {% endblock %}
 {% block content %}
 <a href="/message_fake/{{ messages_type }}/Warning/">
@@ -20,22 +22,25 @@
         <small>[refresh {{ messages_type }}]</small>
     </a>
     <br />
-    <table class="table table-hover">
-        <tr >
+    <table id="tb_messages_table" class="table table-hover table-condensed"">
+        <thead>
             <th>Timestamp</th>
             <th>Type</th>
             <th>Message</th>
-        </tr>
-        {% for message in object_list %}
-        <tr>
-        <td>
-            {{ message.timestamp|date:"G"}}:{{ message.timestamp|date:"i"}}:{{ message.timestamp|date:"s"}}
-        </td>
-        <td>{{ message.type }}</td>
-        <td>{{ message.text }}</td>
-        <td><button onclick="message_delete({{ message.id }}, {{forloop.counter0}});">Delete</button></td>
-        </tr>
-        {% endfor %}
+            <th></th>
+        </thead>
+        <tbody>
+            {% for message in object_list %}
+            <tr class="{{ message.type.lower }}">
+            <td>
+                {{ message.timestamp|date:"G"}}:{{ message.timestamp|date:"i"}}:{{ message.timestamp|date:"s"}}
+            </td>
+            <td>{{ message.type }}</td>
+            <td>{{ message.text }}</td>
+            <td><button onclick="message_delete({{ message.id }}, {{forloop.counter0}});">Delete</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
     <br />
     {% if is_paginated %}

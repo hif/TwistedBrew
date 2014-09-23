@@ -58,6 +58,7 @@ class SessionDeleteView(DeleteView):
     model = Session
     success_url = ('/session/sessions/')
 
+
 def session(request, session_id):
     context = RequestContext(request)
     if session_id:
@@ -155,12 +156,22 @@ def session_selection(request):
     return render_to_response('session_selection.html', {'selection': session_list, 'init_selection': init_selection})
 
 
+def session_available_options(request):
+    session_set = Session.objects.all().filter(locked=False)
+    options = ''
+    for s in session_set:
+        options += '<option value="{0}">{1}</option>'.format(str(s.id), s.name)
+    return HttpResponse(options)
+
+
 def session_data(request):
+    context = RequestContext(request)
+    context.update(csrf(request))
     if request.method == 'POST':
         brew = Session.objects.get(pk=(request.POST['pk']))
     else:
         brew = None
-    return render_to_response('session_data.html', {'data': brew})
+    return render_to_response('session_data.html', {'data': brew}, context)
 
 
 class MeasurementListView(ListView):
@@ -186,5 +197,7 @@ def measurements_clear(request):
 
 
 def session_dashboard(request):
-    return render_to_response('session_dashboard.html')
+    args = {}
+    args.update(csrf(request))
+    return render_to_response('session_dashboard.html', args)
 

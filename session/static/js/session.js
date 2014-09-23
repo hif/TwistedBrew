@@ -7,6 +7,15 @@ function get_session_selection() {
         dataType: 'html'
     });
 }
+function get_available_session_options() {
+    $.ajax({
+        url: "/session/session_available_options/",
+        type: 'GET',
+        data: {'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
+        success: show_available_session_options,
+        dataType: 'html'
+    });
+}
 function get_session_data(pk){
     $.ajax({
             url: "/session/session_data/",
@@ -81,18 +90,4 @@ function send_worker_command(command, worker_id){
         success: alert_message,
         dataType: 'html'
     });
-}
-
-function show_session_selection(data){
-    $('#session_selection').html(data);
-}
-
-function show_session_data(data){
-    $('#session_data').html(data);
-}
-function session_detail_started(data){
-    alert(data);
-}
-function alert_message(data){
-    alert(data);
 }

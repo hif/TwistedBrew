@@ -11,14 +11,13 @@
 {% block content %}
 <div id="session">
 Session
-<select>
-    <option>Session 1</option>
-    <option>Session 2</option>
-    <option>Session 3</option>
+<select id="available_sessions" onchange="get_session_data($('#available_sessions').val())">
+
 </select>
 <a href="/session/session_dashboard/">
     <small>[refresh]</small>
 </a>
+{% csrf_token %}
 </div>
 <div id="session_dashboard_middle">
     <div id="command_widgets" >
@@ -28,14 +27,7 @@ Session
         {% include 'session_command_widget.html' with command_title='Archive' command='' %}
     </div>
     <div id="charts">
-        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
-        standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to
-        make a type specimen book.</p>
-        <p><h2>Chart widget comes here</h2></p>
-        <p>It has survived not only five centuries, but also the leap into electronic
-        typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset
-        sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus
-        PageMaker including versions of Lorem Ipsum.</p>
+        No session selected
     </div>
     <div id="worker_widgets">
         {% include 'session_worker_widget.html' %}

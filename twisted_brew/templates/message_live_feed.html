@@ -1,4 +1,8 @@
 {% load static %}
+<script type="text/javascript">
+    var tableSize = {{ count }};
+    var live_feed_timer_interval = {{ interval }};
+</script>
 <script src="{% static 'js/message_live_feed.js' %}"></script>
 <div id="message_live_feed">
     <table id="tb_messages_table" class="table table-hover table-condensed">

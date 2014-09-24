@@ -1,6 +1,4 @@
-var tableSize = 8;
 var latest_timestamp = new Date().getTime();
-live_feed_timer_interval = 5000
 
 $(function() {
     get_table_head();

@@ -23,4 +23,7 @@ urlpatterns = patterns('',
     url(r'^send_master_command/$', 'session.views.send_master_command'),
     url(r'^send_worker_command/$', 'session.views.send_worker_command'),
     url(r'^session_dashboard/$', 'session.views.session_dashboard'),
+    url(r'^session_dashboard_details/$', 'session.views.session_dashboard_details'),
+    url(r'^worker_available_options/$', 'session.views.worker_available_options'),
+    url(r'^worker_widget/(?P<worker_id>\d+)/(?P<session_detail_id>\d+)/$', 'session.views.worker_widget'),
 )

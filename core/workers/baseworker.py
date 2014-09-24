@@ -211,7 +211,12 @@ class BaseWorker(threading.Thread):
         log.debug('{0} is sending info to master'.format(self.name))
         if self.on_info():
             worker_type = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
-            self.send_to_master(MessageReady + MessageSplit + self.name + MessageSplit + worker_type)
+            message = MessageReady + MessageSplit + self.name + MessageSplit + worker_type
+            for input_device in self.inputs.keys():
+                message += (MessageSplit + input_device)
+            for output_device in self.outputs.keys():
+                message += (MessageSplit + output_device)
+            self.send_to_master(message)
         else:
             self.report_error('Info failed')
 

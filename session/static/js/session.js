@@ -16,6 +16,15 @@ function get_available_session_options() {
         dataType: 'html'
     });
 }
+function get_available_worker_options(worker_type) {
+    $.ajax({
+        url: "/session/worker_available_options/",
+        type: 'POST',
+        data: {'worker_type': worker_type, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
+        success: show_available_worker_options,
+        dataType: 'html'
+    });
+}
 function get_session_data(pk){
     $.ajax({
             url: "/session/session_data/",

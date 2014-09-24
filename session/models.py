@@ -74,14 +74,51 @@ class Worker(models.Model):
     AVAILABLE = 0
     BUSY = 1
     PAUSED = 2
+    OFF_LINE = 3
     WORKER_STATUS = (
         (AVAILABLE, 'Available'),
         (BUSY, 'Busy'),
         (PAUSED, 'Paused'),
+        (OFF_LINE, 'Off-line'),
     )
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
+
+    @staticmethod
+    def enlist_worker(worker_name, worker_type, devices):
+        worker_set = Worker.objects.filter(name=worker_name, type=worker_type)
+        if len(worker_set) == 0:
+            enlisted_worker = Worker()
+            enlisted_worker.name = worker_name
+            enlisted_worker.type = worker_type
+        else:
+            enlisted_worker = worker_set[0]
+        enlisted_worker.status = Worker.AVAILABLE
+        enlisted_worker.save()
+        for device in devices:
+            check_device = WorkerDevice.objects.filter(worker=enlisted_worker).filter(name=device)
+            if len(check_device) == 0:
+                add_device = WorkerDevice()
+                add_device.name = device
+                add_device.worker = enlisted_worker
+                add_device.save()
+        return enlisted_worker
+
+
+    @staticmethod
+    def take_workers_off_line():
+        workers = Worker.objects.filter(status=Worker.AVAILABLE)
+        for worker in workers:
+            worker.status = Worker.OFF_LINE
+            worker.save()
+
+    @staticmethod
+    def force_workers_off_line():
+        workers = Worker.objects.all()
+        for worker in workers:
+            worker.status = Worker.OFF_LINE
+            worker.save()
 
     @staticmethod
     def set_worker_status(worker_id, status):
@@ -103,6 +140,14 @@ class Worker(models.Model):
         return '{0} - {1} ({2})'.format(self.name, self.type, Worker.WORKER_STATUS[self.status][1])
 
 
+class WorkerDevice(models.Model):
+    name = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    worker = models.ForeignKey(Worker)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Measurement(models.Model):
     timestamp = models.DateTimeField(auto_now=False)
     session_detail = models.ForeignKey(SessionDetail)
@@ -121,6 +166,6 @@ class Measurement(models.Model):
         Measurement.objects.all().delete()
 
     def __unicode__(self):
-        return '{0} [{1}] {2}'.format(self.timestamp, self.user, self.value)
+        return '{0} [{1}-{2}] {3}'.format(self.timestamp, self.worker, self.device, self.value)
 
 

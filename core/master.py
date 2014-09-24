@@ -69,22 +69,13 @@ class Master(threading.Thread):
             tmp.description = description
             tmp.save()
 
-    def add_worker(self, worker, worker_type):
-        brew_workers = Worker.objects.filter(name=worker, type=worker_type)
-        if len(brew_workers) == 0:
-            brew_worker = Worker()
-            brew_worker.name = worker
-            brew_worker.type = worker_type
-            brew_worker.status = Worker.AVAILABLE
-            brew_worker.save()
-            self.workers[brew_worker.id] = brew_worker.name
-        else:
-            for brew_worker in brew_workers:
-                    break
-            brew_worker.status = Worker.AVAILABLE
-            brew_worker.save()
+    def add_worker(self, worker, worker_type, devices):
+        added_worker = Worker.enlist_worker(worker, worker_type, devices)
+        if not added_worker.id in self.workers.keys():
+            self.workers[added_worker.id] = added_worker.name
 
     def listen(self):
+        Worker.force_workers_off_line()
         log.debug('Waiting for worker updates. To exit press CTRL+C')
         self.enabled = True
         #self.channel.basic_consume(self.handle, queue=self.master_queue, no_ack=True)
@@ -95,7 +86,8 @@ class Master(threading.Thread):
                 self.handle(self.channel, method, properties, body)
             time.sleep(0.5)
         self.stop_all_workers()
-        Worker.objects.all().delete()
+        Worker.force_workers_off_line()
+        #Worker.objects.all().delete()
         log.debug('Shutting down Brew master')
 
     def stop_all_workers(self):
@@ -115,7 +107,10 @@ class Master(threading.Thread):
 
     def handle_ready(self, body):
         data = str(body).split(MessageSplit)
-        self.add_worker(data[1], data[2])
+        devices = list()
+        for device in range(3, len(data)):
+            devices.append(data[device])
+        self.add_worker(data[1], data[2], devices)
 
     def handle_measurement(self, worker_measurement_data):
         #log.debug('Receiving worker measurement...')
@@ -168,7 +163,8 @@ class Master(threading.Thread):
         connection.close()
 
     def info(self):
-        Worker.objects.all().delete()
+        Worker.take_workers_off_line()
+        #Worker.objects.all().delete()
         self.send_all(MessageInfo)
 
     def reset(self, worker_id):

@@ -100,8 +100,8 @@ def session_detail_create(request, session_id):
     args = {}
     args.update(csrf(request))
     args['form'] = form
-    session = Session.objects.get(id=session_id)
-    args['session'] = session
+    selected_session = Session.objects.get(id=session_id)
+    args['session'] = selected_session
     return render_to_response('session_detail_create.html', args)
 
 
@@ -129,7 +129,6 @@ def send_worker_command(request):
         Master.send_master(command, worker_id)
         return HttpResponse('Command sent to worker')
     return HttpResponse('Missing command and worker to send, use POST')
-
 
 
 def workers(request):
@@ -161,6 +160,20 @@ def session_available_options(request):
     options = ''
     for s in session_set:
         options += '<option value="{0}">{1}</option>'.format(str(s.id), s.name)
+    return HttpResponse(options)
+
+
+def worker_available_options(request):
+    if request.method == 'POST':
+        worker_set = Worker.objects.all().filter(type=request.POST['worker_type']).filter(status=Worker.AVAILABLE)
+        if len(worker_set) == 0:
+            options = '<option value="0">No worker available</option>'
+        else:
+            options = ''
+            for w in worker_set:
+                options += '<option value="{0}">{1}</option>'.format(str(w.id), w.name)
+    else:
+        options = '<option value="0">No worker available</option>'
     return HttpResponse(options)
 
 
@@ -200,4 +213,35 @@ def session_dashboard(request):
     args = {}
     args.update(csrf(request))
     return render_to_response('session_dashboard.html', args)
+
+
+def session_dashboard_details(request):
+    context = RequestContext(request)
+    context.update(csrf(request))
+    if request.method == 'POST':
+        session_selected = Session.objects.get(pk=(request.POST['pk']))
+    else:
+        session_selected = None
+    return render_to_response('session_dashboard_details.html', {'session': session_selected}, context)
+
+
+def worker_widget(request, worker_id, session_detail_id):
+    selected_worker = Worker.objects.get(pk=int(worker_id))
+    selected_session_detail = SessionDetail.objects.get(pk=int(session_detail_id))
+    last_measurements = list()
+    for device in selected_worker.workerdevice_set.all():
+        last_measurement = Measurement.objects.\
+            filter(session_detail=selected_session_detail).\
+            filter(worker=selected_worker.name).\
+            filter(device=device).\
+            latest('timestamp')
+        last_measurements.append(last_measurement)
+    args = {}
+    args.update(csrf(request))
+    args['worker'] = selected_worker
+    args['session_detail'] = selected_session_detail
+    args['last_measurements'] = last_measurements
+    return render_to_response('worker_widget_data.html', args)
+
+
 

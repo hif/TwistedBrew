@@ -10,8 +10,8 @@
 {% endblock %}
 {% block content %}
 <div id="session">
-Session
-<select id="available_sessions" onchange="get_session_data($('#available_sessions').val())">
+<!--Session-->
+<select id="available_sessions" onchange="get_session_dashboard_details($('#available_sessions').val())">
 
 </select>
 <a href="/session/session_dashboard/">
@@ -30,11 +30,10 @@ Session
         No session selected
     </div>
     <div id="worker_widgets">
-        {% include 'session_worker_widget.html' %}
-        {% include 'session_worker_widget.html' %}
+        {% include 'worker_widget.html' with widget_id=1 %}
     </div>
 </div>
 {% endblock %}
 {% block footer %}
-{% include 'message_live_feed.html' with count=6 interval=1000 %}
+{% include 'message_live_feed.html' with count=1 interval=10000 %}
 {% endblock %}

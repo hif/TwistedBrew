@@ -7,8 +7,13 @@
         <ul>
             {% for worker in workers %}
             <li>{{ worker }}</li>
+            <ul>
+                {% for device in worker.workerdevice_set.all %}
+                <li>{{ device.name }}</li>
+                {% endfor %}
+            </ul>
             {% empty %}
-            <li>No brew workers found.</li>
+            <li>No workers found.</li>
             {% endfor %}
             </ul>
 {% endblock %}

@@ -1,0 +1,57 @@
+{% if session %}
+<div id="worker_selection">
+     <div>
+         <p>Select worker.</p>
+         <p>
+             <select id="available_workers">
+
+             </select>
+         </p>
+         <p>
+             <a onclick="start_worker_from_selection()"><small>[start work]</small></a>
+             <a onclick="close_worker_selection()"><small>[cancel]</small></a>
+         </p>
+     </div>
+</div>
+
+<table class="table table-hover table-condensed">
+    <tr>
+        <th>Index</th>
+        <th>Name</th>
+        <th>Worker</th>
+        <th>Target</th>
+        <th>Hold time</th>
+        <th>Time unit</th>
+        <!--<th>Notes</th>-->
+        <th>Done</th>
+        <th>Operation</th>
+    </tr>
+    {% for detail in session.sessiondetail_set.all %}
+        <tr title="{{ detail.notes }}">
+            <td>{{ detail.index }}</td>
+            <td>{{ detail.name }}</td>
+            <td>{{ detail.worker }}</td>
+            <td>{{ detail.target }}</td>
+            <td>{{ detail.hold_time }}</td>
+            <td>{{ detail.get_time_unit_seconds_display }}</td>
+            <td>{{ detail.done }}</td>
+            <td>
+                <div id="detail_operations_{{ detail.id }}">
+                <a onclick="open_worker_selection({{ detail.id }}, '{{ detail.worker }}')">
+                    <small>[assign worker]</small>
+                </a>
+                </div>
+            </td>
+        </tr>
+    {% empty %}
+    <li>No session details found</li>
+    {% endfor %}
+</table>
+{% else %}
+Session not found
+{% endif %}
+
+        <a onclick="start_session_detail($('#detail_worker{{ detail.id }}').val(),{{ detail.id }})"><small>[start]</small></a>
+        <a onclick="send_worker_command('pause', $('#detail_worker{{ detail.id }}').val())"><small>[pause]</small></a>
+        <a onclick="send_worker_command('resume', $('#detail_worker{{ detail.id }}').val())"><small>[resume]</small></a>
+        <a onclick="send_worker_command('reset', $('#detail_worker{{ detail.id }}').val())"><small>[reset]</small></a>

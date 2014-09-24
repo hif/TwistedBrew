@@ -1,0 +1,8 @@
+.worker_widget {
+    margin:5px 0px;
+    height:100%;
+    width:100px;
+    float:top;
+    padding:5px;
+    /*box-shadow: -10px 10px 5px #888888;*/
+}

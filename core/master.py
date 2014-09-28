@@ -1,7 +1,7 @@
 #!/usr/bin python
 from core.workers.baseworker import *
 import core.utils.logging as log
-from session.models import SessionDetail, Worker, WorkerMeasurement
+from session.models import SessionDetail, Worker, Measurement
 from twisted_brew.models import Command
 import datetime as dt
 
@@ -121,7 +121,7 @@ class Master(threading.Thread):
         session_detail_id = int(data[2])
         session_detail = SessionDetail.objects.get(pk=session_detail_id)
         session_detail.end_work()
-        done_measurement = WorkerMeasurement()
+        done_measurement = Measurement()
         done_measurement.timestamp = dt.datetime.now()
         done_measurement.worker_name = worker_name
         done_measurement.session_detail_id = session_detail_id
@@ -136,7 +136,7 @@ class Master(threading.Thread):
         try:
             with self.measurements_lock:
                 worker_measurement = WorkerMeasurement.deserialize_message(worker_measurement_data)
-                measurement = WorkerMeasurement()
+                measurement = Measurement()
                 measurement.worker = worker_measurement.worker_name
                 session_detail_id = worker_measurement.session_detail_id
                 session_detail = SessionDetail.objects.get(pk=session_detail_id)

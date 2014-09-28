@@ -169,7 +169,7 @@ class WorkerDevice(models.Model):
         return self.name
 
 
-class WorkerMeasurement(models.Model):
+class Measurement(models.Model):
     timestamp = models.DateTimeField(auto_now=False)
     session_detail = models.ForeignKey(SessionDetail)
     worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
@@ -184,7 +184,7 @@ class WorkerMeasurement(models.Model):
 
     @staticmethod
     def clear():
-        WorkerMeasurement.objects.all().delete()
+        Measurement.objects.all().delete()
 
     def __unicode__(self):
         return '{0} [{1}-{2}] {3}'.format(self.timestamp, self.worker, self.device, self.value)

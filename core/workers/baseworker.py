@@ -49,7 +49,7 @@ class BaseWorker(threading.Thread):
         self.session_detail_id = 0
 
     def __str__(self):
-        return 'BrewWorker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
+        return 'Worker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
 
     def create_device_threads(self):

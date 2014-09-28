@@ -5,7 +5,7 @@ from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from core.master import Master
-from models import Worker, WorkerMeasurement
+from models import Worker, Measurement
 from forms import *
 
 
@@ -189,7 +189,7 @@ def session_data(request):
 
 class MeasurementListView(ListView):
     template_name = 'measurements.html'
-    model = WorkerMeasurement
+    model = Measurement
     paginate_by = 15
     heading = 'Measurements'
     active_tab = 'measurements_active'
@@ -205,7 +205,7 @@ class MeasurementListView(ListView):
 
 
 def measurements_clear(request):
-    WorkerMeasurement.objects.all().delete()
+    Measurement.objects.all().delete()
     return HttpResponseRedirect('/session/measurements/')
 
 
@@ -236,7 +236,7 @@ def worker_widget(request, session_id):
         last_measurements = list()
         for device in selected_worker.workerdevice_set.all():
             try:
-                last_measurement = WorkerMeasurement.objects.\
+                last_measurement = Measurement.objects.\
                     filter(session_detail=selected_session_detail).\
                     filter(worker=selected_worker.name).\
                     filter(device=device).\

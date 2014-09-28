@@ -70,8 +70,12 @@ class MashWorker(BaseWorker):
             measurement = self.generate_worker_measurement(self, self.inputs['Temperature'])
             measurement.value = self.current_temperature
             measurement.set_point = self.current_set_temperature
-            measurement.work = 'Probing temperature'
-            measurement.remaining = self.remaining_time_info()
+            if self.hold_timer is None:
+                measurement.work = 'Current temperature'
+                measurement.remaining = '{:.2f}'.format(self.current_temperature)
+            else:
+                measurement.work = 'Mashing'
+                measurement.remaining = self.remaining_time_info()
             if self.simulation:
                 self.test_temperature = self.current_temperature
                 measurement.debug_timer = self.debug_timer
@@ -97,11 +101,11 @@ class MashWorker(BaseWorker):
             measurement.value = heating_time
             measurement.set_point = device.cycle_time
             if self.hold_timer is None:
-                measurement.work = 'Heating'
-                measurement.remaining = self.current_set_temperature - self.current_temperature
+                measurement.work = 'Heating left'
+                measurement.remaining = '{:.2f}'.format(self.current_set_temperature - self.current_temperature)
             else:
                 measurement.work = 'Holding temperature'
-                measurement.remaining = 0.0
+                measurement.remaining = '{:.2f} -> {:.2f}'.format(self.current_temperature, self.current_set_temperature)
             if self.simulation:
                 measurement.debug_timer = self.debug_timer
             else:

@@ -194,6 +194,10 @@ class BaseWorker(threading.Thread):
         remaining = self.remaining_time()
         if remaining is None:
             return '-n/a-'
+        if remaining.microseconds >= 500000:
+            remaining -= timedelta(seconds=-1, microseconds=remaining.microseconds)
+        else:
+            remaining -= timedelta(microseconds=remaining.microseconds)
         return str(remaining)
 
     def receive(self, ch, method, properties, body):

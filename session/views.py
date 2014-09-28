@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response
 from core.master import Master
 from models import Worker, Measurement
 from forms import *
+import json
 
 
 class SessionView(DetailView):
@@ -224,6 +225,15 @@ def session_dashboard_details(request):
         session_selected = None
     return render_to_response('session_dashboard_details.html', {'session': session_selected}, context)
 
+
+def session_work_status(request, session_id):
+    work_status = {}
+    selected_session = Session.objects.get(pk=int(session_id))
+    if selected_session.active_detail is None:
+        work_status['active_detail'] = '0'
+    else:
+        work_status['active_detail'] = str(selected_session.active_detail.id)
+    return HttpResponse(json.dumps(work_status), content_type="application/json")
 
 def worker_widget(request, session_id):
     selected_session = Session.objects.get(pk=int(session_id))

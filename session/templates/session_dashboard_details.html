@@ -1,3 +1,4 @@
+{% load static %}
 {% if session %}
 <div id="worker_selection">
      <div>
@@ -34,7 +35,11 @@
             <td>{{ detail.target }}</td>
             <td>{{ detail.hold_time }}</td>
             <td>{{ detail.get_time_unit_seconds_display }}</td>
-            <td>{{ detail.done }}</td>
+            <td>
+                {% if detail.done %}
+                <img style="height: 24px" src="{% static 'img/check.png' %}">
+                {% endif %}
+            </td>
             <td>
                 <div id="detail_operations_{{ detail.id }}">
                 <a onclick="open_worker_selection({{ detail.id }}, '{{ detail.worker_type }}')">

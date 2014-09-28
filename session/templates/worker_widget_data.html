@@ -1,10 +1,17 @@
-<b>Worker widget</b>
+<h3>Work</h3>
 <p>
-    {{ worker }}
+    <b>{{ worker.name }}</b>
 </p>
 <p>
-    {{ session_detail }}
+    <i>{{ session_detail.name }}<i>
 </p>
-<p>
-    {{ last_measurements }}
-</p>
+<table>
+    {% for last_measurement in last_measurements %}
+    <tr>
+        <td>{{ last_measurement.work }}</td>
+        <td>{{ last_measurement.remaining }}</td>
+    </tr>
+    {% empty %}
+    <tr><td>Idle</td></tr>
+    {% endfor %}
+</table>

@@ -80,7 +80,7 @@ class BoilWorker(BaseWorker):
             if self.working and self.hold_timer is None and measured_value >= self.current_set_temperature:
                 self.hold_timer = dt.now()
             if self.is_done():
-                self.done()
+                self.finish()
             elif self.pid is not None:
                 self.outputs['Mash Tun'].write(calc)
         except Exception, e:

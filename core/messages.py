@@ -7,5 +7,6 @@ MessagePause = "pause"
 MessageShutdown = "shutdown"    # Master shutdown
 MessageResume = "resume"
 MessageReady = "ready"
+MessageDone = "done"
 MessageStop = "stop"
 MessageSplit = ";"

@@ -1,7 +1,17 @@
 $(function() {
+    session_selected_event = new CustomEvent(
+        "session_selected",{
+            detail: {
+                session_id_elem: $('#available_sessions')[0],
+            },
+            bubbles: true,
+            cancelable: true
+        }
+    );
     get_available_session_options();
 });
 var selected_session_detail_id = 0;
+var session_selected_event=null
 function set_selected_session_detail_id(id){
     selected_session_detail_id = id;
 }
@@ -15,6 +25,7 @@ function show_available_session_options(data){
     if($('#available_sessions').val() > 0){
         get_session_dashboard_details($('#available_sessions').val());
     }
+
 }
 function get_session_dashboard_details(pk){
     $.ajax({
@@ -24,6 +35,7 @@ function get_session_dashboard_details(pk){
         success: show_session_details,
         dataType: 'html'
     });
+    document.dispatchEvent(session_selected_event);
 }
 function show_session_details(data){
     $('#charts').html(data);

@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 import json
 from datetime import timedelta as timedelta
 from models import Command,  Message
-from session.models import Measurement
+from session.models import WorkerMeasurement
 import core.utils.logging as log
 from core.utils.dateutils import *
 
@@ -153,7 +153,7 @@ def charts_update(request):
     log.debug('charts log: {0}'.format(last_timestamp))
 
     #latest_measurement_set = Measurement.objects.filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
-    latest_measurement_set = Measurement.objects.filter(worker=worker).\
+    latest_measurement_set = WorkerMeasurement.objects.filter(worker=worker).\
         filter(device__iexact='Temperature').filter(timestamp__gt=last_timestamp)
 
     latest_timestamps = list()

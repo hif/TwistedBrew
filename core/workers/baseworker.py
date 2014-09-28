@@ -220,6 +220,14 @@ class BaseWorker(threading.Thread):
         else:
             self.report_error('Info failed')
 
+    def done(self):
+        log.debug('{0} is sending done to master'.format(self.name))
+        if self.on_done():
+            message = MessageDone + MessageSplit + self.name + MessageSplit + unicode(self.session_detail_id)
+            self.send_to_master(message)
+        else:
+            self.report_error('Done failed')
+
     def pause(self):
         log.debug('{0} is sending paused to master'.format(self.name))
         if not self.on_pause():
@@ -254,12 +262,12 @@ class BaseWorker(threading.Thread):
         log.debug('Time until work done: {0}'.format(work - finish))
         return False
 
-    def done(self):
+    def finish(self):
         try:
             self.pause_all_devices()
-            self.session_detail_id = 0
             self.working = False
-            self.info()
+            self.done()
+            self.session_detail_id = 0
             return True
         except Exception, e:
             log.error('Error in cleaning up after work: {0}'.format(e.message))
@@ -270,6 +278,10 @@ class BaseWorker(threading.Thread):
 
     def on_info(self):
         log.debug('Info {0}'.format(self))
+        return True
+
+    def on_done(self):
+        log.debug('Done {0}'.format(self))
         return True
 
     def on_pause(self):

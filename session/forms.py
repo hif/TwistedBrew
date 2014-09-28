@@ -24,4 +24,4 @@ class SessionDetailForm(ModelForm):
 
     class Meta:
         model = SessionDetail
-        fields = ['name', 'worker', 'target', 'hold_time', 'time_unit_seconds', 'notes', 'done']
+        fields = ['name', 'worker_type', 'target', 'hold_time', 'time_unit_seconds', 'notes', 'done']

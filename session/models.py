@@ -11,8 +11,9 @@ class Session(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     session_date = models.DateField(default=datetime.datetime.now())
     source = models.ForeignKey(brew.models.Brew)
-    notes = models.TextField()
+    notes = models.TextField(blank=True)
     locked = models.BooleanField(default=False)
+    active_detail = models.ForeignKey('SessionDetail', related_name='session_active_detail', null=True)
 
     def save(self, *args, **kwargs):
         adding = self._state.adding
@@ -25,7 +26,7 @@ class Session(models.Model):
                     detail.session = self
                     detail.name = step.name
                     detail.index = index
-                    detail.worker = section.worker_type
+                    detail.worker_type = section.worker_type
                     detail.target = step.target
                     detail.hold_time = step.hold_time
                     detail.time_unit_seconds = step.time_unit_seconds
@@ -58,16 +59,35 @@ class SessionDetail(models.Model):
     session = models.ForeignKey('Session')
     index = models.IntegerField()
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
-    worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    worker_type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     target = models.CharField(max_length=COLUMN_SMALL_SIZE)
     hold_time = models.IntegerField(default=1)
     time_unit_seconds = models.IntegerField(choices=HOLD_TIME_UNITS, default=MINUTES)
     notes = models.TextField()
     done = models.BooleanField(default=False)
-    skip = models.BooleanField(default=False)
+    assigned_worker = models.ForeignKey('Worker', null=True, default=None)
+
+    def begin_work(self, worker_id):
+        assigned_worker = Worker.objects.get(pk=worker_id)
+        assigned_worker.status = Worker.BUSY
+        assigned_worker.save()
+        self.assigned_worker = assigned_worker
+        self.session.active_detail = self
+        self.session.save()
+        self.save()
+        return True
+
+    def end_work(self):
+        self.assigned_worker.status = Worker.AVAILABLE
+        self.assigned_worker.save()
+        self.assigned_worker = None
+        self.session.active_detail = None
+        self.session.save()
+        self.done = True
+        self.save()
 
     def __unicode__(self):
-        return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker)
+        return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker_type)
 
 
 class Worker(models.Model):
@@ -84,6 +104,7 @@ class Worker(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
+    working_on = models.ForeignKey('SessionDetail', null=True)
 
     @staticmethod
     def enlist_worker(worker_name, worker_type, devices):
@@ -148,7 +169,7 @@ class WorkerDevice(models.Model):
         return self.name
 
 
-class Measurement(models.Model):
+class WorkerMeasurement(models.Model):
     timestamp = models.DateTimeField(auto_now=False)
     session_detail = models.ForeignKey(SessionDetail)
     worker = models.CharField(max_length=COLUMN_SMALL_SIZE)
@@ -163,7 +184,7 @@ class Measurement(models.Model):
 
     @staticmethod
     def clear():
-        Measurement.objects.all().delete()
+        WorkerMeasurement.objects.all().delete()
 
     def __unicode__(self):
         return '{0} [{1}-{2}] {3}'.format(self.timestamp, self.worker, self.device, self.value)

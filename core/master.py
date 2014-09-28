@@ -1,7 +1,7 @@
 #!/usr/bin python
 from core.workers.baseworker import *
 import core.utils.logging as log
-from session.models import SessionDetail, Worker, Measurement
+from session.models import SessionDetail, Worker, WorkerMeasurement
 from twisted_brew.models import Command
 import datetime as dt
 
@@ -100,6 +100,9 @@ class Master(threading.Thread):
         if str(body).startswith(MessageReady):
             self.handle_ready(body)
             return
+        if str(body).startswith(MessageDone):
+            self.handle_done(body)
+            return
         if str(body).startswith(MessageMeasurement):
             self.handle_measurement(body)
             return
@@ -112,12 +115,28 @@ class Master(threading.Thread):
             devices.append(data[device])
         self.add_worker(data[1], data[2], devices)
 
+    def handle_done(self, body):
+        data = str(body).split(MessageSplit)
+        worker_name = data[1]
+        session_detail_id = int(data[2])
+        session_detail = SessionDetail.objects.get(pk=session_detail_id)
+        session_detail.end_work()
+        done_measurement = WorkerMeasurement()
+        done_measurement.timestamp = dt.datetime.now()
+        done_measurement.worker_name = worker_name
+        done_measurement.session_detail_id = session_detail_id
+        done_measurement.value = 0
+        done_measurement.set_point = 0
+        done_measurement.work = "Done"
+        done_measurement.remaining = "0";
+        done_measurement.save()
+
     def handle_measurement(self, worker_measurement_data):
         #log.debug('Receiving worker measurement...')
         try:
             with self.measurements_lock:
                 worker_measurement = WorkerMeasurement.deserialize_message(worker_measurement_data)
-                measurement = Measurement()
+                measurement = WorkerMeasurement()
                 measurement.worker = worker_measurement.worker_name
                 session_detail_id = worker_measurement.session_detail_id
                 session_detail = SessionDetail.objects.get(pk=session_detail_id)
@@ -185,14 +204,17 @@ class Master(threading.Thread):
         self.send(worker_id, MessageResume)
 
     def work(self, worker_id, session_detail_id):
-        status = Worker.get_worker_status(worker_id)
-        if status != Worker.AVAILABLE:
+        session_detail_set = SessionDetail.objects.filter(pk=int(session_detail_id))
+        if len(session_detail_set) == 0:
             return
-        Worker.set_worker_status(worker_id, Worker.BUSY)
-        session_detail = SessionDetail.objects.all().filter(pk=int(session_detail_id))
-        data = serializers.serialize("json", session_detail)
+        session_detail = session_detail_set[0]
+        session_detail.begin_work(worker_id)
+        data = serializers.serialize("json", session_detail_set)
         self.send(worker_id, data)
-        log.debug('Work detail sent to {0}'.format(self.workers[int(worker_id)]))
+        try:
+            log.debug('Work detail sent to {0}'.format(self.workers[int(worker_id)]))
+        except Exception, e:
+            log.debug('Work detail not sent')
         return True
 
     def shutdown(self):

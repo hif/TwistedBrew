@@ -74,7 +74,7 @@ class FermentationWorker(BaseWorker):
         if self.working and self.hold_timer is None:
             self.hold_timer = dt.now()
         if self.is_done():
-            self.done()
+            self.finish()
 
     def fermentation_heating_callback(self, heating_time):
         return

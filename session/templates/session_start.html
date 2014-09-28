@@ -58,7 +58,7 @@
     <li>{{ detail }}
         <select id="detail_worker{{ detail.id }}">
             {% for worker in workers %}
-            {% if worker.type == detail.worker %}
+            {% if worker.type == detail.worker_type %}
             <option value="{{ worker.id }}">{{ worker.name }}</option>
             {% endif %}
             {% empty %}

@@ -5,7 +5,7 @@ from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from core.master import Master
-from models import Worker, Measurement
+from models import Worker, WorkerMeasurement
 from forms import *
 
 
@@ -189,7 +189,7 @@ def session_data(request):
 
 class MeasurementListView(ListView):
     template_name = 'measurements.html'
-    model = Measurement
+    model = WorkerMeasurement
     paginate_by = 15
     heading = 'Measurements'
     active_tab = 'measurements_active'
@@ -205,7 +205,7 @@ class MeasurementListView(ListView):
 
 
 def measurements_clear(request):
-    Measurement.objects.all().delete()
+    WorkerMeasurement.objects.all().delete()
     return HttpResponseRedirect('/session/measurements/')
 
 
@@ -225,21 +225,30 @@ def session_dashboard_details(request):
     return render_to_response('session_dashboard_details.html', {'session': session_selected}, context)
 
 
-def worker_widget(request, worker_id, session_detail_id):
-    selected_worker = Worker.objects.get(pk=int(worker_id))
-    selected_session_detail = SessionDetail.objects.get(pk=int(session_detail_id))
-    last_measurements = list()
-    for device in selected_worker.workerdevice_set.all():
-        last_measurement = Measurement.objects.\
-            filter(session_detail=selected_session_detail).\
-            filter(worker=selected_worker.name).\
-            filter(device=device).\
-            latest('timestamp')
-        last_measurements.append(last_measurement)
+def worker_widget(request, session_id):
+    selected_session = Session.objects.get(pk=int(session_id))
+    selected_session_detail = selected_session.active_detail
+    selected_worker = None
+    if not selected_session_detail is None:
+        selected_worker = selected_session_detail.assigned_worker
+    last_measurements = None
+    if not selected_worker is None:
+        last_measurements = list()
+        for device in selected_worker.workerdevice_set.all():
+            try:
+                last_measurement = WorkerMeasurement.objects.\
+                    filter(session_detail=selected_session_detail).\
+                    filter(worker=selected_worker.name).\
+                    filter(device=device).\
+                    latest('timestamp')
+            except Exception, e:
+                last_measurement = "-n/a-"
+            last_measurements.append(last_measurement)
     args = {}
     args.update(csrf(request))
-    args['worker'] = selected_worker
+    args['session'] = selected_session
     args['session_detail'] = selected_session_detail
+    args['worker'] = selected_worker
     args['last_measurements'] = last_measurements
     return render_to_response('worker_widget_data.html', args)
 

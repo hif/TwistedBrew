@@ -58,6 +58,22 @@ function get_update_session(pk){
         dataType: 'html'
     });
 }
+function get_reset_session(pk){
+    $.ajax({
+        url: "/session/session_reset/" + pk,
+        type: 'GET',
+        success: show_session_reset_message,
+        dataType: 'html'
+    });
+}
+function get_archive_session(pk){
+    $.ajax({
+        url: "/session/session_archive/" + pk,
+        type: 'GET',
+        success: show_session_archive_message,
+        dataType: 'html'
+    });
+}
 function get_update_session_detail(pk){
     $.ajax({
         url: "/session/session_detail_update/" + pk + "/",

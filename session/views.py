@@ -88,6 +88,25 @@ def session_create(request):
     return render_to_response('session_create.html', args)
 
 
+def session_reset(request, pk):
+    selected_session = Session.objects.get(pk=pk)
+    if not selected_session is None:
+        selected_session.reset()
+        return HttpResponse('Session reset')
+    else:
+        return HttpResponse('Session not found for resetting')
+
+
+def session_archive(request, pk):
+    selected_session = Session.objects.get(pk=pk)
+    if not selected_session is None:
+        selected_session.locked = True
+        selected_session.reset()
+        return HttpResponse('Session archived')
+    else:
+        return HttpResponse('Session not found for archiving')
+
+
 def session_detail_create(request, session_id):
     if request.POST:
         form = SessionDetailForm(request.POST)
@@ -150,7 +169,7 @@ def workers(request):
     worker_list = Worker.objects.order_by('type')
 
     context_dict = {
-        'workers_active' : True,
+        'workers_active': True,
         'workers': worker_list,
     }
 
@@ -226,6 +245,7 @@ def measurements_clear(request):
 def session_dashboard(request):
     args = {}
     args.update(csrf(request))
+    args['session_dashboard_active'] = True
     return render_to_response('session_dashboard.html', args)
 
 

@@ -28,7 +28,7 @@
     float:right;
     padding:5px;
 }
-#charts {
+#selected_session_details {
     /*border: #000000 solid;*/
     width:800px;
     float:left;
@@ -61,7 +61,7 @@
 
 .operation_assign_worker {
      float: left;
-     visibility: hidden;
+     visibility: visible;
 }
 
 .operation_pause {

@@ -21,8 +21,8 @@
         <th>Name</th>
         <th>Worker</th>
         <th>Target</th>
-        <th>Hold time</th>
-        <th>Time unit</th>
+        <th>Hold</th>
+        <th>Time</th>
         <!--<th>Notes</th>-->
         <th>Done</th>
         <th nowrap width="210"><!--Operation--></th>
@@ -32,8 +32,8 @@
             <td>{{ detail.index }}</td>
             <td>{{ detail.name }}</td>
             <td>{{ detail.worker_type }}</td>
-            <td>{{ detail.target }}</td>
-            <td>{{ detail.hold_time }}</td>
+            <td style="text-align: right;">{{ detail.target }}</td>
+            <td style="text-align: right;">{{ detail.hold_time }}</td>
             <td>{{ detail.get_time_unit_seconds_display }}</td>
             <td>
                 {% if detail.done %}

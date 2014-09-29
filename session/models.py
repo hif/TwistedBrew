@@ -13,7 +13,7 @@ class Session(models.Model):
     source = models.ForeignKey(brew.models.Brew)
     notes = models.TextField(blank=True)
     locked = models.BooleanField(default=False)
-    active_detail = models.ForeignKey('SessionDetail', related_name='session_active_detail', null=True)
+    active_detail = models.ForeignKey('SessionDetail', related_name='session_active_detail', null=True, blank=True)
 
     def save(self, *args, **kwargs):
         adding = self._state.adding
@@ -35,6 +35,20 @@ class Session(models.Model):
                     detail.skip = False
                     detail.save()
                     index += 1
+
+    def reset(self):
+        for detail in self.sessiondetail_set.all():
+            detail.assigned_worker = None
+            detail.save()
+            worker_set = Worker.objects.filter(working_on=detail)
+            for worker in worker_set:
+                worker.working_on = None
+                if worker.status == Worker.BUSY or worker.status == Worker.PAUSED:
+                    worker.status = Worker.AVAILABLE
+                worker.save()
+        self.active_detail = None
+        self.save()
+
 
     def __unicode__(self):
         #if self.locked:
@@ -65,7 +79,7 @@ class SessionDetail(models.Model):
     time_unit_seconds = models.IntegerField(choices=HOLD_TIME_UNITS, default=MINUTES)
     notes = models.TextField()
     done = models.BooleanField(default=False)
-    assigned_worker = models.ForeignKey('Worker', null=True, default=None)
+    assigned_worker = models.ForeignKey('Worker', null=True, default=None, blank=True)
 
     def begin_work(self, worker_id):
         assigned_worker = Worker.objects.get(pk=worker_id)
@@ -79,10 +93,11 @@ class SessionDetail(models.Model):
         return True
 
     def end_work(self, cancelled=False):
-        self.assigned_worker.status = Worker.AVAILABLE
-        self.assigned_worker.working_on = None
-        self.assigned_worker.save()
-        self.assigned_worker = None
+        if not self.assigned_worker is None:
+            self.assigned_worker.status = Worker.AVAILABLE
+            self.assigned_worker.working_on = None
+            self.assigned_worker.save()
+            self.assigned_worker = None
         self.session.active_detail = None
         self.session.save()
         self.done = not cancelled
@@ -106,7 +121,7 @@ class Worker(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     status = models.IntegerField(choices=WORKER_STATUS, default=AVAILABLE)
-    working_on = models.ForeignKey('SessionDetail', null=True)
+    working_on = models.ForeignKey('SessionDetail', null=True, blank=True, default=None)
 
     @staticmethod
     def enlist_worker(worker_name, worker_type, devices):

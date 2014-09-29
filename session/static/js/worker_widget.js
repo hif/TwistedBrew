@@ -25,6 +25,7 @@ function show_worker_widget(data){
 }
 
 function worker_widget_timer(){
-    get_worker_widget();
+    if(worker_session_id > 0)
+        get_worker_widget();
     setTimeout(worker_widget_timer, worker_widget_interval);
 }

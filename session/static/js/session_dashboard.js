@@ -39,8 +39,15 @@ function get_session_dashboard_details(pk){
     document.dispatchEvent(session_selected_event);
 }
 function show_session_details(data){
-    $('#charts').html(data);
-    update_operations($('#available_sessions').val());
+    $('#selected_session_details').html(data);
+    //update_operations($('#available_sessions').val());
+}
+function show_session_reset_message(data){
+    alert(data);
+}
+function show_session_archive_message(data){
+    alert(data);
+    window.location.href = "/session/session_dashboard/"
 }
 function session_detail_started(data){
     //alert(data);
@@ -79,22 +86,17 @@ function clear_operations(){
     ops = $('.operation_pause');
     for( var n = 0 ; n < ops.length ; n++){
         ops[n].style.visibility="hidden";
-        ops[n].firstElementChild.firstElementChild.innerHTML=""
+        ops[n].firstElementChild.firstElementChild.innerHTML="";
     }
     ops = $('.operation_resume');
     for( var n = 0 ; n < ops.length ; n++){
         ops[n].style.visibility="hidden";
-        ops[n].firstElementChild.firstElementChild.innerHTML=""
+        ops[n].firstElementChild.firstElementChild.innerHTML="";
     }
     ops = $('.operation_reset');
     for( var n = 0 ; n < ops.length ; n++){
         ops[n].style.visibility="hidden";
-        ops[n].firstElementChild.firstElementChild.innerHTML=""
-    }
-    ops = $('.operation_assign_worker');
-    for( var n = 0 ; n < ops.length ; n++){
-        ops[n].style.visibility="hidden";
-        ops[n].firstElementChild.firstElementChild.innerHTML=""
+        ops[n].firstElementChild.firstElementChild.innerHTML="";
     }
 }
 
@@ -106,10 +108,13 @@ function set_operations(work_status){
     if(active_detail == last_active_detail && worker_status == last_worker_status){
         return;
     }
-    last_active_detail = active_detail;
-    last_worker_status = worker_status;
     clear_operations();
     if(active_detail > 0){
+        var ops = $('.operation_assign_worker');
+        for( var n = 0 ; n < ops.length ; n++){
+            ops[n].style.visibility="hidden";
+            ops[n].firstElementChild.firstElementChild.innerHTML="";
+        }
         detail_operations = $('#detail_operations_' + work_status.active_detail)[0];
         if(worker_status == 2){
             detail_operations.children[2].style.visibility="visible";
@@ -123,12 +128,16 @@ function set_operations(work_status){
         detail_operations.children[3].firstElementChild.firstElementChild.innerHTML="[reset]"
     }
     else{
-        ops = $('.operation_assign_worker');
+        if(last_active_detail != -1)
+            get_session_dashboard_details($('#available_sessions').val());
+        var ops = $('.operation_assign_worker');
         for( var n = 0 ; n < ops.length ; n++){
             ops[n].style.visibility="visible";
-            ops[n].firstElementChild.firstElementChild.innerHTML="[assign worker]"
+            ops[n].firstElementChild.firstElementChild.innerHTML="[assign worker]";
         }
     }
+    last_active_detail = active_detail;
+    last_worker_status = worker_status;
 }
 var operations_interval = 5000;
 function operations_timer(){

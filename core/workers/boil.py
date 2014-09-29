@@ -103,7 +103,10 @@ class BoilWorker(BaseWorker):
                 measurement.remaining = '{:.2f}'.format(self.current_set_temperature - self.current_temperature)
             else:
                 measurement.work = 'Holding boil'
-                measurement.remaining = '{:.2f} -> {:.2f}'.format(self.current_temperature, self.current_set_temperature)
+                measurement.remaining = '{:.2f} -> {:.2f} ({:+.2f})'.format(
+                    self.current_temperature,
+                    self.current_set_temperature,
+                    self.current_temperature - self.current_set_temperature)
             if self.simulation:
                 measurement.debug_timer = self.debug_timer
             else:

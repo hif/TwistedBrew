@@ -75,7 +75,10 @@ class FermentationWorker(BaseWorker):
         measurement.value = self.current_temperature
         measurement.set_point = self.current_set_temperature
         measurement.work = 'Temperature'
-        measurement.remaining = '{:.2f} -> {:.2f}'.format(self.current_temperature, self.current_set_temperature)
+        measurement.remaining = '{:.2f} -> {:.2f} ({:+.2f})'.format(
+            self.current_temperature,
+            self.current_set_temperature,
+            self.current_temperature - self.current_set_temperature)
         self.send_measurement(measurement)
         log.debug('{0} reports measured value {1}'.format(self.name, self.current_temperature))
         if self.working and self.hold_timer is None:

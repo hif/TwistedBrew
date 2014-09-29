@@ -17,17 +17,28 @@
 <a href="/session/session_dashboard/">
     <small>[refresh]</small>
 </a>
+<a onclick="get_reset_session($('#available_sessions').val());">
+    <small>[reset]</small>
+</a>
+<a onclick="get_archive_session($('#available_sessions').val());">
+    <small>[archive]</small>
+</a>
+<a onclick="send_master_command('shutdown')">
+    <small>[shutdown master]</small>
+</a>
 {% csrf_token %}
 </div>
 <div id="session_dashboard_middle">
-    <div id="command_widgets" >
+    <!--<div id="command_widgets" >
         {% include 'session_command_widget.html' with command_title='Pause' command='' %}
         {% include 'session_command_widget.html' with command_title='Resume' command=''  %}
         {% include 'session_command_widget.html' with command_title='Reset' command='' %}
         {% include 'session_command_widget.html' with command_title='Archive' command='' %}
-    </div>
-    <div id="charts">
-        No session selected
+    </div>-->
+    <div id="selected_session_details">
+        <i>No session found, please create one
+            <a href="/session/"><small>[here]</small></a>
+        before using the dashboard app</i>
     </div>
     <div id="worker_widgets">
         {% include 'worker_widget.html' with widget_id=1 interval=1000 %}
@@ -35,5 +46,5 @@
 </div>
 {% endblock %}
 {% block footer %}
-{% include 'message_live_feed.html' with count=1 interval=10000 %}
+{% include 'message_live_feed.html' with count=6 interval=3000 %}
 {% endblock %}

@@ -2,7 +2,7 @@
 {% if session %}
 <div id="worker_selection">
      <div>
-         <p>Select worker.</p>
+         <p>Select worker</p>
          <p>
              <select id="available_workers">
 
@@ -15,7 +15,7 @@
      </div>
 </div>
 
-<table class="table table-hover table-condensed">
+<table id="session_detail_table" class="table table-hover table-condensed">
     <tr>
         <th>Index</th>
         <th>Name</th>
@@ -25,7 +25,7 @@
         <th>Time unit</th>
         <!--<th>Notes</th>-->
         <th>Done</th>
-        <th>Operation</th>
+        <th nowrap width="210"><!--Operation--></th>
     </tr>
     {% for detail in session.sessiondetail_set.all %}
         <tr title="{{ detail.notes }}">
@@ -40,11 +40,28 @@
                 <img style="height: 24px" src="{% static 'img/check.png' %}">
                 {% endif %}
             </td>
-            <td>
+            <td nowrap>
                 <div id="detail_operations_{{ detail.id }}">
-                <a onclick="open_worker_selection({{ detail.id }}, '{{ detail.worker_type }}')">
-                    <small>[assign worker]</small>
-                </a>
+                    <div id="operation_assign_worker" class="operation_assign_worker">
+                        <a onclick="open_worker_selection({{ detail.id }}, '{{ detail.worker_type }}')">
+                            <small>[assign worker]</small>
+                        </a>
+                    </div>
+                    <div id="operation_pause" class="operation_pause">
+                        <a onclick="send_detail_command('pause', {{ detail.id }})">
+                            <small>[pause]</small>
+                        </a>
+                    </div>
+                    <div id="operation_resume" class="operation_resume">
+                         <a onclick="send_detail_command('resume', {{ detail.id }})">
+                             <small>[resume]</small>
+                         </a>
+                    </div>
+                    <div id="operation_reset" class="operation_reset">
+                        <a onclick="send_detail_command('reset', {{ detail.id }})">
+                            <small>[reset]</small>
+                        </a>
+                    </div>
                 </div>
             </td>
         </tr>
@@ -55,8 +72,3 @@
 {% else %}
 Session not found
 {% endif %}
-
-        <a onclick="start_session_detail($('#detail_worker{{ detail.id }}').val(),{{ detail.id }})"><small>[start]</small></a>
-        <a onclick="send_worker_command('pause', $('#detail_worker{{ detail.id }}').val())"><small>[pause]</small></a>
-        <a onclick="send_worker_command('resume', $('#detail_worker{{ detail.id }}').val())"><small>[resume]</small></a>
-        <a onclick="send_worker_command('reset', $('#detail_worker{{ detail.id }}').val())"><small>[reset]</small></a>

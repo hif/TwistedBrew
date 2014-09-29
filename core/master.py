@@ -187,6 +187,9 @@ class Master(threading.Thread):
         self.send_all(MessageInfo)
 
     def reset(self, worker_id):
+        reset_worker = Worker.objects.get(pk=int(worker_id))
+        if not reset_worker.working_on is None:
+            reset_worker.working_on.end_work(True)
         self.send(worker_id, MessageReset)
 
     def pause(self, worker_id):

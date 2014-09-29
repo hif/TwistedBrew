@@ -123,6 +123,19 @@ def send_master_command(request):
     return HttpResponse('Missing command to send, use POST')
 
 
+def send_session_detail_command(request):
+    if request.POST:
+        command = request.POST['command']
+        session_detail_id = request.POST['session_detail_id']
+        session_detail = SessionDetail.objects.get(pk=int(session_detail_id))
+        if session_detail.assigned_worker is None:
+            return HttpResponse('Session detail has no assigned worker')
+        worker_id = str(session_detail.assigned_worker.id)
+        Master.send_master(command, worker_id)
+        return HttpResponse('Command sent to worker')
+    return HttpResponse('Missing command and worker to send, use POST')
+
+
 def send_worker_command(request):
     if request.POST:
         command = request.POST['command']
@@ -227,12 +240,16 @@ def session_dashboard_details(request):
 
 
 def session_work_status(request, session_id):
+    #context = RequestContext(request)
+    #context.update(csrf(request))
     work_status = {}
     selected_session = Session.objects.get(pk=int(session_id))
     if selected_session.active_detail is None:
         work_status['active_detail'] = '0'
+        work_status['worker_status'] = '0'
     else:
         work_status['active_detail'] = str(selected_session.active_detail.id)
+        work_status['worker_status'] = str(selected_session.active_detail.assigned_worker.status)
     return HttpResponse(json.dumps(work_status), content_type="application/json")
 
 def worker_widget(request, session_id):

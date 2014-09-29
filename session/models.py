@@ -70,6 +70,7 @@ class SessionDetail(models.Model):
     def begin_work(self, worker_id):
         assigned_worker = Worker.objects.get(pk=worker_id)
         assigned_worker.status = Worker.BUSY
+        assigned_worker.working_on = self
         assigned_worker.save()
         self.assigned_worker = assigned_worker
         self.session.active_detail = self
@@ -77,13 +78,14 @@ class SessionDetail(models.Model):
         self.save()
         return True
 
-    def end_work(self):
+    def end_work(self, cancelled=False):
         self.assigned_worker.status = Worker.AVAILABLE
+        self.assigned_worker.working_on = None
         self.assigned_worker.save()
         self.assigned_worker = None
         self.session.active_detail = None
         self.session.save()
-        self.done = True
+        self.done = not cancelled
         self.save()
 
     def __unicode__(self):

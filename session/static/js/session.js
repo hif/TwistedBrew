@@ -91,6 +91,16 @@ function send_master_command(command){
     });
 }
 
+function send_detail_command(command, session_detail_id){
+    $.ajax({
+        url: "/session/send_session_detail_command/",
+        type: 'POST',
+        data: {'command': command, 'session_detail_id': session_detail_id, 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
+        success: alert_message,
+        dataType: 'html'
+    });
+}
+
 function send_worker_command(command, worker_id){
     $.ajax({
         url: "/session/send_worker_command/",

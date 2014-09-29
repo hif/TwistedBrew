@@ -58,3 +58,23 @@
      text-align:center;
      box-shadow: -10px 10px 5px #888888;
 }
+
+.operation_assign_worker {
+     float: left;
+     visibility: hidden;
+}
+
+.operation_pause {
+     float: left;
+     visibility: hidden;
+}
+
+.operation_resume {
+     float: left;
+     visibility: hidden;
+}
+
+.operation_reset {
+     float: left;
+     visibility: hidden;
+}

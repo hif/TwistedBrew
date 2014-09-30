@@ -41,6 +41,8 @@
         before using the dashboard app</i>
     </div>
     <div id="worker_widgets">
+        {% include 'ping_master.html' %}
+        <br />
         {% include 'worker_widget.html' with widget_id=1 interval=1000 %}
     </div>
 </div>

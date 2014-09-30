@@ -106,6 +106,9 @@ class Master(threading.Thread):
         if str(body).startswith(MessageMeasurement):
             self.handle_measurement(body)
             return
+        if str(body).startswith(MessagePing):
+            self.handle_ping()
+            return
         self.process_command(body)
 
     def handle_ready(self, body):
@@ -248,8 +251,29 @@ class Master(threading.Thread):
         else:
             log.debug('Master requested to send an unauthorized command: {0}'.format(command))
 
+    def handle_ping(self):
+        log.info(MessagePong)
+
+
     @staticmethod
-    def send_master(command, params=None, ip = None, port=None):
+    def send_ping(ip=None, port=None):
+        if ip is None:
+            ip = MessageServerIP
+        if port is None:
+            port = MessageServerPort
+        data = MessagePing
+        log.debug(u'Commanding master - {0}'.format(data))
+
+        connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
+        channel = connection.channel()
+        channel.queue_declare(queue=MasterQueue)
+
+        channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
+        connection.close()
+
+
+    @staticmethod
+    def send_master(command, params=None, ip=None, port=None):
         if ip is None:
             ip = MessageServerIP
         if port is None:
@@ -267,7 +291,7 @@ class Master(threading.Thread):
         connection.close()
 
     @staticmethod
-    def start_work(worker_id, session_detail_id, ip = None, port=None):
+    def start_work(worker_id, session_detail_id, ip=None, port=None):
         if ip is None:
             ip = MessageServerIP
         if port is None:

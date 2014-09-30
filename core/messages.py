@@ -1,4 +1,6 @@
 #!/usr/bin python
+MessagePing = "ping"
+MessagePong = "pong"
 MessageWork = "work"
 MessageMeasurement = "measurement"
 MessageInfo = "info"

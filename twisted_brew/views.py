@@ -7,8 +7,11 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 import json
 from datetime import timedelta as timedelta
+import time
 from models import Command,  Message
 from session.models import Measurement
+from core.master import Master
+from core.messages import MessagePong
 import core.utils.logging as log
 from core.utils.dateutils import *
 
@@ -121,6 +124,24 @@ def message_fake(request, calling_page, message_type):
     msg.text = "This is a faked message of type {0}".format(message_type)
     msg.save()
     return HttpResponseRedirect('/' + calling_page + '/')
+
+
+def ping_master(request):
+    stamp = timezone.now()
+    Master.send_ping()
+    pong = False
+    count = 0
+    while not pong and count < 5:
+        found = Message.objects.filter(type=log.LOG_TYPE_TEXT[log.INFO], timestamp__gt=stamp, text=MessagePong)
+        if len(found) > 0:
+            pong = True
+        else:
+            time.sleep(1)
+            count += 1
+    if pong:
+        return HttpResponse(MessagePong)
+    return HttpResponse('No reply from master')
+
 
 def charts(request):
     context = RequestContext(request)

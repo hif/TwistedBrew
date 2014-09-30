@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^message_fake/(?P<calling_page>\w+)/(?P<message_type>\w+)[/]$', views.message_fake, name='message_fake'),
     url(r'^charts[/]$', views.charts, name='charts'),
     url(r'^charts_update[/]$', views.charts_update, name='charts_update'),
+    url(r'^ping_master[/]$', views.ping_master, name='ping_master'),
     (r'^brew/', include('brew.urls')),
     (r'^session/', include('session.urls')),
 

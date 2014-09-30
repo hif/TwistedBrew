@@ -2,6 +2,8 @@
 
 {% block content_heading %}
 <h1>{{ welcome_message }}</h1>
+<br />
+{% include 'ping_master.html' %}
 {% endblock %}
 {% block content %}
 {% load static %}
@@ -22,7 +24,7 @@
         <li>Incoporate twisted_brew.py into Django's manage.py</li>
         <li><strike>Move all Beer Smith logic into the specialized importer</strike></li>
         <li><strike>Look into 'tail' functionality for messages</strike></li>
-        <li>Ping master</li>
+        <li><strike>Ping master</strike></li>
         <li>Autostart rabbitmq</li>
     </ul>
     <li><b>Hreiðar</b></li>
@@ -33,5 +35,5 @@
 {% endblock %}
 
 {% block footer %}
-{% include 'message_live_feed.html' with count=10 interval=5000 %}
+{% include 'message_live_feed.html' with count=4 interval=10000 %}
 {% endblock %}

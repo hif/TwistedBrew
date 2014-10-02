@@ -196,5 +196,5 @@ class Config():
                     log.warning('Unknown module found {0}!'.format(str(name)))
             if not communication_found:
                 log.warning('No communication node found, defaults will be used')
-        except Exception. e:
-            log.warning('Unable to load config file {0}'.format(self.file))
+        except Exception as e:
+            log.warning('Unable to load config file {0} : {1}'.format(self.file, e.args[0]))

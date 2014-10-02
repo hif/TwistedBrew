@@ -34,8 +34,8 @@ class BoilWorker(BaseWorker):
             self.hold_pause_timer = None
             self.pause_time = timedelta(seconds=0)
             self.do_work(data)
-        except Exception, e:
-            log.debug('Boil worker failed to start work: {0}'.format(e.message))
+        except Exception as e:
+            log.debug('Boil worker failed to start work: {0}'.format(e.args[0]))
             self.stop_all_devices()
 
     def do_work(self, data):
@@ -87,8 +87,8 @@ class BoilWorker(BaseWorker):
                 self.finish()
             elif self.pid is not None:
                 self.outputs['Mash Tun'].write(calc)
-        except Exception, e:
-            log.error('Boil worker unable to react to temperature update, shutting down: {0}'.format(e.message))
+        except Exception as e:
+            log.error('Boil worker unable to react to temperature update, shutting down: {0}'.format(e.args[0]))
             self.stop_all_devices()
 
     def boil_heating_callback(self, heating_time):
@@ -123,8 +123,8 @@ class BoilWorker(BaseWorker):
                                          BOIL_DEBUG_COOLING,
                                          BOIL_DEBUG_DELAY,
                                          BOIL_DEBUG_INIT_TEMP)
-                except Exception, e:
-                    log.debug('Boil worker unable to update test temperature for debug: {0}'.format(e.message))
-        except Exception, e:
-            log.error('Boil worker unable to react to heating update, shutting down: {0}'.format(e.message))
+                except Exception as e:
+                    log.debug('Boil worker unable to update test temperature for debug: {0}'.format(e.args[0]))
+        except Exception as e:
+            log.error('Boil worker unable to react to heating update, shutting down: {0}'.format(e.args[0]))
             self.stop_all_devices()

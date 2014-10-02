@@ -26,8 +26,8 @@ def load_device(config, owner, simulation):
         device_instance.owner = owner
         device_instance.simulation = simulation
         return device_instance
-    except Exception, e:
-        log.error('Unable to load device from config: {0}'.format(e))
+    except Exception as e:
+        log.error('Unable to load device from config: {0}'.format(e.args[0]))
         return None
 
 
@@ -46,8 +46,8 @@ def load_worker(communication_config, config):
         worker_instance.input_config = config.inputs
         worker_instance.output_config = config.outputs
         return worker_instance
-    except Exception, e:
-        log.error('Unable to load worker from config: {0}'.format(e))
+    except Exception as e:
+        log.error('Unable to load worker from config: {0}'.format(e.args[0]))
         return None
 
 
@@ -55,8 +55,8 @@ def parse_config(configfile=defaults.DEFAULT_CONFIG):
     try:
         config = core.config.Config(configfile)
         return config
-    except Exception, e:
-        log.error('Unable to parse config: {0}'.format(e))
+    except Exception as e:
+        log.error('Unable to parse config: {0}'.format(e.args[0]))
         return None
 
 

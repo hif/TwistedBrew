@@ -36,8 +36,8 @@ class FermentationWorker(BaseWorker):
             self.hold_pause_timer = None
             self.pause_time = timedelta(seconds=0)
             self.do_work(data)
-        except Exception, e:
-            log.debug('Fermentation worker failed to start work: {0}'.format(e.message))
+        except Exception as e:
+            log.debug('Fermentation worker failed to start work: {0}'.format(e.args[0]))
             self.stop_all_devices()
 
     def do_work(self, data):

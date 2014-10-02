@@ -102,6 +102,6 @@ class Device(threading.Thread):
             if not self.check():
                 self.register()
             return True, None
-        except Exception, e:
-            return False, e.message
+        except Exception as e:
+            return False, e.args[0]
 

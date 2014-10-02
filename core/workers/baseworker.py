@@ -2,7 +2,7 @@
 import threading
 import time
 from django.core import serializers
-from datetime import datetime as dt
+from django.utils import timezone as dt
 from datetime import timedelta as timedelta
 import pika
 from core.defaults import *
@@ -31,7 +31,7 @@ class BaseWorker(threading.Thread):
         self.broadcast_exchange = BroadcastExchange
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         self.channel = self.connection.channel()
-        self.channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
+        self.channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
         self.channel.queue_declare(queue=self.name)
         self.input_config = None
         self.output_config = None
@@ -273,8 +273,8 @@ class BaseWorker(threading.Thread):
             self.done()
             self.session_detail_id = 0
             return True
-        except Exception, e:
-            log.error('Error in cleaning up after work: {0}'.format(e.message))
+        except Exception as e:
+            log.error('Error in cleaning up after work: {0}'.format(e.args[0]))
             return False
 
     def on_start(self):

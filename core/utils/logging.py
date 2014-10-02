@@ -1,6 +1,6 @@
 #!/usr/bin python
 from twisted_brew.models import Message
-from datetime import datetime as dt
+from django.utils import timezone as dt
 import threading
 
 LOG_RECEIVER_DB = 1
@@ -37,12 +37,12 @@ def log_message(msg, msg_type, only_std=False):
                     db_item.type = LOG_TYPE_TEXT[msg_type]
                     db_item.text = umsg
                     db_item.save()
-            except Exception, e:
-                log_message('Logger could not save message to database ({0})'.format(e.message), ERROR, True)
-    except Exception, e:
+            except Exception as e:
+                log_message('Logger could not save message to database ({0})'.format(e.args[0]), ERROR, True)
+    except Exception as e:
         if e.message == "Unable to log Debug message: global name 'Error' is not defined":
             print 'hey you'
-        log_message('Unable to log {0} message: {1}'.format(LOG_TYPE_TEXT[msg_type], e.message), ERROR)
+        log_message('Unable to log {0} message: {1}'.format(LOG_TYPE_TEXT[msg_type], e.args[0]), ERROR)
 
 
 def debug(message):

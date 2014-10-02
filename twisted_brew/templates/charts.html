@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Twisted Brew - Brews{% endblock %}
 
-{% block content %}
+{% block content_heading %}
     <h2>Charts</h2>
+{% endblock %}
+{% block content %}
 {% load static %}
 {% csrf_token %}
 <script type="text/javascript">

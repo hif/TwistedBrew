@@ -288,7 +288,7 @@ def worker_widget(request, session_id):
                     filter(worker=selected_worker.name).\
                     filter(device=device).\
                     latest('timestamp')
-            except Exception, e:
+            except Exception:
                 last_measurement = "-n/a-"
             last_measurements.append(last_measurement)
     args = {}

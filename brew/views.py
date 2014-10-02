@@ -61,9 +61,9 @@ def brews_import(request):
                 fd.write(chunk)
             fd.close()
             brew_importer.BrewImporter.import_brews(index, uri)
-    except Exception, e:
+    except Exception as e:
         if not uri is None:
-            log.error('Failed to upload file {0} : {1}'.format(uri, e.message))
+            log.error('Failed to upload file {0} : {1}'.format(uri, e.args[0]))
         else:
             log.error('Failed to upload file : {0}'.format(e.message))
     return HttpResponseRedirect('/brew/brews/')

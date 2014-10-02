@@ -3,7 +3,8 @@ from core.workers.baseworker import *
 import core.utils.logging as log
 from session.models import SessionDetail, Worker, Measurement
 from twisted_brew.models import Command
-import datetime as dt
+from django.utils import timezone as dt
+from datetime import datetime
 
 
 class Master(threading.Thread):
@@ -125,7 +126,7 @@ class Master(threading.Thread):
         session_detail = SessionDetail.objects.get(pk=session_detail_id)
         session_detail.end_work()
         done_measurement = Measurement()
-        done_measurement.timestamp = dt.datetime.now()
+        done_measurement.timestamp = dt.now()
         done_measurement.worker_name = worker_name
         done_measurement.session_detail_id = session_detail_id
         done_measurement.value = 0
@@ -150,12 +151,14 @@ class Master(threading.Thread):
                 measurement.work = worker_measurement.work
                 measurement.remaining = worker_measurement.remaining
                 if not worker_measurement.debug_timer is None:   # In simulation mode, use fake timestamps
-                    measurement.timestamp = dt.datetime.strptime(worker_measurement.debug_timer, "%Y-%m-%d %H:%M:%S.%f")
+                    #measurement.timestamp = datetime.strptime(worker_measurement.debug_timer, "%Y-%m-%d %H:%M:%S.%f")
+                    #measurement.timestamp = dt.get_current_timezone.localize(measurement.timestamp)
+                    measurement.timestamp = worker_measurement.debug_timer
                 else:
-                    measurement.timestamp = dt.datetime.now()
+                    measurement.timestamp = dt.now()
                 measurement.save()
-        except Exception, e:
-            log.error('Master could not save measurement to database ({0})'.format(e.message))
+        except Exception as e:
+            log.error('Master could not save measurement to database ({0})'.format(e.args[0]))
 
     def lookup_worker(self, worker_id):
         if int(worker_id) in self.workers.keys():
@@ -179,7 +182,7 @@ class Master(threading.Thread):
         log.debug('Sending:{0}'.format(data))
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
-        channel.exchange_declare(exchange=BroadcastExchange, type='fanout')
+        channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
 
         channel.basic_publish(exchange=BroadcastExchange, routing_key='', body=data)
         connection.close()
@@ -219,8 +222,8 @@ class Master(threading.Thread):
         self.send(worker_id, data)
         try:
             log.debug('Work detail sent to {0}'.format(self.workers[int(worker_id)]))
-        except Exception, e:
-            log.debug('Work detail not sent')
+        except Exception as e:
+            log.debug('Work detail not sent: {0}'.format(e.args[0]))
         return True
 
     def shutdown(self):

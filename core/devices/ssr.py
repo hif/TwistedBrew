@@ -35,7 +35,7 @@ class SSR(Device):
             fo.write("out")
             fo.close()
             return True
-        except Exception, e:
+        except Exception:
             raise Exception("Cannot register gpio{0}".format(gpio_numb))
         return False
 

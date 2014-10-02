@@ -51,8 +51,8 @@ class BeerSmithImporter(BrewImporter):
                             if brew_step is not None:
                                 brew_step.save()
             log.debug('...done loading recipe file {0}'.format(self.recipe_file))
-        except Exception, e:
-            log.error('Failed to load recipes {0} ({1})'.format(self.recipe_file, e.message))
+        except Exception as e:
+            log.error('Failed to load recipes {0} ({1})'.format(self.recipe_file, e.args[0]))
         return self.counter
 
 

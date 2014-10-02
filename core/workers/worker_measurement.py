@@ -32,7 +32,7 @@ class WorkerMeasurement:
                 if not worker_measurement.debug_timer is None:
                     worker_measurement.debug_timer = str(worker_measurement.debug_timer)
                 return MessageMeasurement + MessageSplit + json.dumps(worker_measurement.__dict__)
-            except Exception, e:
+            except Exception:
                 log.error('Unable to serialize worker measurement, object is {0}'.
                           format(worker_measurement))
         return None
@@ -61,7 +61,7 @@ class WorkerMeasurement:
                     worker_measurement.debug_timer = None
 
                 return worker_measurement
-            except Exception, e:
+            except Exception:
                 log.error('Unable to deserialize worker measurement, serialized object is {0}'.
                           format(serialized_worker_measurement))
         return None

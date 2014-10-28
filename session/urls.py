@@ -29,5 +29,6 @@ urlpatterns = patterns('',
     url(r'^session_dashboard_details/$', 'session.views.session_dashboard_details'),
     url(r'^session_work_status/(?P<session_id>\d+)/$', 'session.views.session_work_status'),
     url(r'^worker_available_options/$', 'session.views.worker_available_options'),
-    url(r'^worker_widget/(?P<session_id>\d+)/$', 'session.views.worker_widget'),
+    url(r'^session_worker_widget/(?P<session_id>\d+)/$', 'session.views.session_worker_widget'),
+    url(r'^worker_widget/(?P<worker_id>\d+)/$', 'session.views.worker_widget'),
 )

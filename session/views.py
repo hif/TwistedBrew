@@ -272,7 +272,8 @@ def session_work_status(request, session_id):
         work_status['worker_status'] = str(selected_session.active_detail.assigned_worker.status)
     return HttpResponse(json.dumps(work_status), content_type="application/json")
 
-def worker_widget(request, session_id):
+
+def session_worker_widget(request, session_id):
     selected_session = Session.objects.get(pk=int(session_id))
     selected_session_detail = selected_session.active_detail
     selected_worker = None
@@ -300,4 +301,33 @@ def worker_widget(request, session_id):
     return render_to_response('worker_widget_data.html', args)
 
 
-
+def worker_widget(request, worker_id):
+    selected_worker = Worker.objects.get(pk=int(worker_id))
+    if selected_worker is None:
+        return HttpResponse('')
+    if selected_worker.working_on is None:
+        return HttpResponse('')
+    selected_session_detail = selected_worker.working_on
+    selected_worker = None
+    if not selected_session_detail is None:
+        selected_worker = selected_session_detail.assigned_worker
+    last_measurements = None
+    if not selected_worker is None:
+        last_measurements = list()
+        for device in selected_worker.workerdevice_set.all():
+            try:
+                last_measurement = Measurement.objects.\
+                    filter(session_detail=selected_session_detail).\
+                    filter(worker=selected_worker.name).\
+                    filter(device=device).\
+                    latest('timestamp')
+            except Exception:
+                last_measurement = "-n/a-"
+            last_measurements.append(last_measurement)
+    args = {}
+    args.update(csrf(request))
+    args['session'] = selected_session_detail.session
+    args['session_detail'] = selected_session_detail
+    args['worker'] = selected_worker
+    args['last_measurements'] = last_measurements
+    return render_to_response('worker_widget_data.html', args)

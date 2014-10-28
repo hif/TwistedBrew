@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 {% block content_heading %}
+    {% load static %}
+    <script type="text/javascript">
+        var interval = 3000;
+    </script>
+    <link href="{% static 'css/worker_widget.css' %}" rel="stylesheet">
+    <script src="{% static 'js/worker_widget.js' %}"></script>
     <h2>Workers</h2>
 {% endblock %}
 {% block content %}
@@ -12,8 +18,18 @@
                 <li>{{ device.name }}</li>
                 {% endfor %}
             </ul>
+            {% if worker.working_on %}
+            {% include 'worker_widget.html' with widget_id=1 interval=1000 %}
+            <script type="text/javascript">
+                $(function() {
+                    var active_worker_widget_{{ worker.id }} = new WorkerWidget( {{ worker.id }}, interval);
+                    active_worker_widget_{{ worker.id }}.run();
+                });
+            </script>
+            <div id="worker_widget_{{ worker.id }}" class="worker_widget">
+            {% endif %}
             {% empty %}
             <li>No workers found.</li>
             {% endfor %}
-            </ul>
+        </ul>
 {% endblock %}

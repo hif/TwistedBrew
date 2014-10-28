@@ -1,31 +1,27 @@
-$(function() {
-    document.addEventListener("session_selected", change_session, false);
-    setTimeout(worker_widget_timer, worker_widget_interval);
-});
-var worker_session_id = 0;
+function WorkerWidget(id, interval){
+    this.id = id;
+    this.interval = interval;
+};
 
-function change_session(e){
-    worker_session_id = e.detail.session_id_elem.value;
-    get_worker_widget();
-}
+WorkerWidget.prototype.run = function(){
+    this.get_data();
+};
 
-
-function get_worker_widget(){
+WorkerWidget.prototype.get_data = function(){
     $.ajax({
-        url: "/session/worker_widget/" + worker_session_id,
+        url: "/session/worker_widget/" + this.id,
         type: 'GET',
         data: {'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()},
-        success: show_worker_widget,
+        success: this.update.bind(this),
         dataType: 'html'
     });
-}
+};
 
-function show_worker_widget(data){
-    $('#worker_widget_1').html(data);
-}
-
-function worker_widget_timer(){
-    if(worker_session_id > 0)
-        get_worker_widget();
-    setTimeout(worker_widget_timer, worker_widget_interval);
-}
+WorkerWidget.prototype.update = function(data){
+    if(data.length == 0){
+        $('#worker_widget_' + this.id).html('Done');
+        return;
+    }
+    $('#worker_widget_' + this.id).html(data);
+    setTimeout(this.get_data.bind(this), this.interval);
+};

@@ -5,11 +5,11 @@
 {% endblock %}
 {% block content %}
 {% if object_list %}
-    <a href="/session/measurements_clear/">
-        <small>[clear all measurements]</small>
+    <a class="btn btn-small btn-danger" href="/session/measurements_clear/">
+        clear all measurements
     </a>
-    <a href="/session/measurements/">
-        <small>[refresh measurements]</small>
+    <a class="btn btn-small btn-success" href="/session/measurements/">
+        refresh measurements
     </a>
     <br />
     <table class="table table-hover">

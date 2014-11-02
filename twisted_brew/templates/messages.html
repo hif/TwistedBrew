@@ -8,18 +8,20 @@
     <h2>{{ heading }}</h2>{% load static %}
 {% endblock %}
 {% block content %}
-<a href="/message_fake/{{ messages_type }}/Warning/">
-    <small>[fake a warning]</small>
+<div class="btn-group btn-group-justified">
+<a class="btn btn-small btn-primary" href="/message_fake/{{ messages_type }}/Warning/">
+    fake a warning
 </a>
-<a href="/message_fake/{{ messages_type }}/Error/">
-    <small>[fake an error]</small>
-</a><br />
+<a class="btn btn-small btn-primary" href="/message_fake/{{ messages_type }}/Error/">
+    fake an error
+</a>
+</div>
 {% if object_list %}
-    <a href="/{{ messages_type }}_clear/">
-        <small>[clear all {{ messages_type }}]</small>
+    <a class="btn btn-small btn-danger" href="/{{ messages_type }}_clear/">
+        clear all {{ messages_type }}
     </a>
-    <a href="/{{ messages_type }}/">
-        <small>[refresh {{ messages_type }}]</small>
+    <a class="btn btn-small btn-success" href="/{{ messages_type }}/">
+        refresh {{ messages_type }}
     </a>
     <br />
     <table id="tb_messages_table" class="table table-hover table-condensed"">
@@ -31,13 +33,13 @@
         </thead>
         <tbody>
             {% for message in object_list %}
-            <tr class="{{ message.type.lower }}">
+            <tr id="message_{{ forloop.counter0 }}" class="{{ message.type.lower }}">
             <td>
                 {{ message.timestamp|date:"G"}}:{{ message.timestamp|date:"i"}}:{{ message.timestamp|date:"s"}}
             </td>
             <td>{{ message.type }}</td>
             <td>{{ message.text }}</td>
-            <td><button onclick="message_delete({{ message.id }}, {{forloop.counter0}});">Delete</button></td>
+            <td><button class="btn btn-small btn-danger" onclick="message_delete({{ message.id }}, {{forloop.counter0}});">Delete</button></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -53,6 +55,6 @@
         {% endif %}
     {% endif %}
 {% else %}
-    <b>No messages found.</b>
+    <p></p><b>No messages found.</b></p>
 {% endif %}
 {% endblock %}

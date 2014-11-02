@@ -6,4 +6,9 @@ function message_delete(message_id, table_row){
     });
     removeTableRow(table_row)
 }
+
+function removeTableRow(index){
+    $("#message_" + index).remove();
+}
+
 function fake(){return 0}

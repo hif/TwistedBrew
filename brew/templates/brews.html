@@ -15,7 +15,7 @@
 <div class="brew_import" id="brew_import">
     <div class="form-group">
         <br/><br/>
-        <small><a href="/brew/brews_delete_all/">[delete all]</a></small>
+        <a class="btn btn-xs btn-danger" href="/brew/brews_delete_all/">delete all</a>
         <br/><br/>
         <form action="/brew/brews_import/" method="post" enctype="multipart/form-data" role="form">
             {% csrf_token %}

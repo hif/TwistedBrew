@@ -14,6 +14,7 @@ class Device(threading.Thread):
         self.shutdown = False
         self.owner = owner
         self.name = config.name
+        self.key = config.key
         self.io = config.io
         self.active = config.active
         self.cycle_time = config.cycle_time

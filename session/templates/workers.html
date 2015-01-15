@@ -15,7 +15,7 @@
             <li>{{ worker }}</li>
             <ul>
                 {% for device in worker.workerdevice_set.all %}
-                <li>{{ device.name }}</li>
+                <li>{{ device.name }} {{ device.io }}</li>
                 {% endfor %}
             </ul>
             {% if worker.working_on %}

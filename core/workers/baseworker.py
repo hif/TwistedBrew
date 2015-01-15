@@ -28,11 +28,6 @@ class BaseWorker(threading.Thread):
         self.ip = MessageServerIP
         self.port = MessageServerPort
         self.master_queue = MasterQueue
-        self.broadcast_exchange = BroadcastExchange
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        self.channel = self.connection.channel()
-        self.channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
-        self.channel.queue_declare(queue=self.name)
         self.input_config = None
         self.output_config = None
         self.outputs = {}
@@ -51,6 +46,16 @@ class BaseWorker(threading.Thread):
     def __str__(self):
         return 'Worker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
+
+    def init_communication(self, ip, port, master_queue, broadcast_exchange):
+        self.ip = ip
+        self.port = port
+        self.master_queue = master_queue
+        self.broadcast_exchange = broadcast_exchange
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        self.channel = self.connection.channel()
+        self.channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
+        self.channel.queue_declare(queue=self.name)
 
     def create_device_threads(self):
         for i in self.input_config:
@@ -151,7 +156,7 @@ class BaseWorker(threading.Thread):
         self.enabled = False
 
     def send_to_master(self, data):
-        #log.debug('Sending to master - ' + data)
+        log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port))
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
         channel.queue_declare(queue=self.master_queue)

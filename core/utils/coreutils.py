@@ -38,10 +38,11 @@ def load_worker(communication_config, config):
             log.error('Unable to load worker from config: {0} is not a subclass of core.workers.BaseWorker'.
                   format(config.class_name))
             return None
-        worker_instance.ip = communication_config.ip
-        worker_instance.port = int(communication_config.port)
-        worker_instance.master_queue = communication_config.master_queue
-        worker_instance.broadcast_exchange = communication_config.broadcast_exchange
+        ip = communication_config.ip
+        port = int(communication_config.port)
+        master_queue = communication_config.master_queue
+        broadcast_exchange = communication_config.broadcast_exchange
+        worker_instance.init_communication(ip, port, master_queue, broadcast_exchange)
         worker_instance.simulation = config.simulation
         worker_instance.input_config = config.inputs
         worker_instance.output_config = config.outputs

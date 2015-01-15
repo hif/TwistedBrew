@@ -28,5 +28,3 @@ workers:
                 active: "False"
                 callback: "mash_temperature_callback"
                 cycle_time: "10.0"
-
-    - worker:

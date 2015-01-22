@@ -138,7 +138,7 @@ def create_fermentation_step(step, section, index):
 def lookup_brew_info(data, key):
     if data.data.__contains__(key):
         return __brew_html_parser__.unescape(data.data[key])
-    return None
+    return ""
 
 
 def lookup_brew_name(data):
@@ -147,8 +147,8 @@ def lookup_brew_name(data):
 
 def lookup_brewstyle_info(data, key):
     if not data.children.__contains__(BREW_STYLE_NODE):
-        return None
+        return ""
     style = data.children[BREW_STYLE_NODE]
     if style.data.__contains__(key):
         return __brew_html_parser__.unescape(style.data[key])
-    return None
+    return ""

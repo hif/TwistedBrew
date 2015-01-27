@@ -1,5 +1,5 @@
 communication:
-    ip: "192.168.1.72"
+    ip: "localhost"
     port: "5672"
     master_queue: "MasterQueue"
     broadcast_exchange: "TwistedBrewBroadcast"
@@ -9,22 +9,22 @@ master:
 
 workers:
     - worker:
-        name: "Mash Dude"
-        class: "core.workers.mash.MashWorker"
+        name: "Fermat"
+        class: "core.workers.fermentation.FermentationWorker"
         simulation: "True"
         outputs:
             - output:
-                name: "Mash Tun"
+                name: "Fermenter"
                 device_class: "core.devices.ssr.SSR"
-                io: "/sys/class/gpio/gpio17/value"
+                io: "gpio4"
                 active: "False"
-                callback: "mash_heating_callback"
+                callback: "fermentation_heating_callback"
                 cycle_time: "10.0"
         inputs:
             - input:
                 name: "Temperature"
                 device_class: "core.devices.probe.Probe"
-                io: "/sys/bus/w1/devices/28-00000607f0de/w1_slave"
+                io: "gpio5"
                 active: "False"
-                callback: "mash_temperature_callback"
+                callback: "fermentation_temperature_callback"
                 cycle_time: "10.0"

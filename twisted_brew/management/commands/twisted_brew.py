@@ -35,7 +35,7 @@ class Command(BaseCommand):
             coreutils.start_workers(config)
             if not master is None:
                 master.info()
-            master.start()
+                master.start()
         except Exception as e:
-            raise CommandError('Could not start Twisted Brew: {0}'.format(e.args[0]))
+            raise CommandError('Could not start Twisted Brew: {0}'.format(e.__class__.__name__))
         self.stdout.write('Successfully started Twisted Brew')

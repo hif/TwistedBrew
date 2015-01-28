@@ -1,5 +1,5 @@
 communication:
-    ip: "localhost"
+    ip: "brewmaster"
     port: "5672"
     master_queue: "MasterQueue"
     broadcast_exchange: "TwistedBrewBroadcast"

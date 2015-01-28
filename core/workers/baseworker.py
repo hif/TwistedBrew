@@ -156,7 +156,7 @@ class BaseWorker(threading.Thread):
         self.enabled = False
 
     def send_to_master(self, data):
-        log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port))
+        #log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port))
         connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         channel = connection.channel()
         channel.queue_declare(queue=self.master_queue)

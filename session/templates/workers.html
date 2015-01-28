@@ -10,6 +10,9 @@
     <h2>Workers</h2>
 {% endblock %}
 {% block content %}
+        <a class="btn btn-small btn-danger" href="/session/workers_info/">
+        reregister all workers
+        </a>
         <ul>
             {% for worker in workers %}
             <li>{{ worker }}</li>

@@ -164,6 +164,11 @@ def send_worker_command(request):
     return HttpResponse('Missing command and worker to send, use POST')
 
 
+def workers_info(request):
+    Master.send_master("info")
+    return HttpResponse('All workers asked to reregister')
+
+
 def workers(request):
     context = RequestContext(request)
     worker_list = Worker.objects.order_by('type')

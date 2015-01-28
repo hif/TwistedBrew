@@ -114,6 +114,7 @@ class Master(threading.Thread):
 
     def handle_ready(self, body):
         data = str(body).split(MessageSplit)
+        log.debug("Ready reply from {0} - {1}".format(data[1], data[2]))
         devices = list()
         for device in range(3, len(data)):
             devices.append(data[device])

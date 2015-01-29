@@ -4,7 +4,7 @@ import core.utils.logging as log
 from session.models import SessionDetail, Worker, Measurement
 from twisted_brew.models import Command
 from django.utils import timezone as dt
-from datetime import datetime
+from core.comm.rabbitmq import RabbitMQ as MQImpl
 
 
 class Master(threading.Thread):
@@ -35,9 +35,10 @@ class Master(threading.Thread):
 
         self.workers = {}
 
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        self.channel = self.connection.channel()
-        self.channel.queue_declare(queue=self.master_queue)
+        self.mq = MQImpl(self.ip, self.port, self.master_queue, self.broadcast_exchange, True)
+        #self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        #self.channel = self.connection.channel()
+        #self.channel.queue_declare(queue=self.master_queue)
         self.enabled = False
 
     def run(self):
@@ -79,12 +80,12 @@ class Master(threading.Thread):
         Worker.force_workers_off_line()
         log.debug('Waiting for worker updates. To exit press CTRL+C')
         self.enabled = True
-        #self.channel.basic_consume(self.handle, queue=self.master_queue, no_ack=True)
-        #self.channel.start_consuming()
         while self.enabled:
-            method, properties, body = self.channel.basic_get(queue=self.master_queue, no_ack=True)
-            if body is not None:
-                self.handle(self.channel, method, properties, body)
+            data = self.mq.check()
+            #method, properties, data = self.channel.basic_get(queue=self.master_queue, no_ack=True)
+            if data is not None:
+                self.handle(data)
+                #self.handle(self.channel, method, properties, data)
             time.sleep(0.5)
         self.stop_all_workers()
         Worker.force_workers_off_line()
@@ -95,22 +96,22 @@ class Master(threading.Thread):
         for worker in self.workers.keys():
             self.send(worker, 'stop')
 
-    def handle(self, ch, method, properties, body):
+    def handle(self, data):
         #log.debug('Handling message')
-        #log.debug(body)
-        if str(body).startswith(MessageReady):
-            self.handle_ready(body)
+        #log.debug(data)
+        if str(data).startswith(MessageReady):
+            self.handle_ready(data)
             return
-        if str(body).startswith(MessageDone):
-            self.handle_done(body)
+        if str(data).startswith(MessageDone):
+            self.handle_done(data)
             return
-        if str(body).startswith(MessageMeasurement):
-            self.handle_measurement(body)
+        if str(data).startswith(MessageMeasurement):
+            self.handle_measurement(data)
             return
-        if str(body).startswith(MessagePing):
+        if str(data).startswith(MessagePing):
             self.handle_ping()
             return
-        self.process_command(body)
+        self.process_command(data)
 
     def handle_ready(self, body):
         data = str(body).split(MessageSplit)
@@ -172,21 +173,25 @@ class Master(threading.Thread):
             log.warning('Worker {0} not available'.format(worker))
             return
         log.debug('Sending:{0} to {1}'.format(data, worker))
-        connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        channel = connection.channel()
-        channel.queue_declare(queue=worker)
 
-        channel.basic_publish(exchange='', routing_key=worker, body=data)
-        connection.close()
+        self.mq.publish(worker, data)
+
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        #channel = connection.channel()
+        #channel.queue_declare(queue=worker)
+        #channel.basic_publish(exchange='', routing_key=worker, body=data)
+        #connection.close()
 
     def send_all(self, data):
         log.debug('Sending:{0}'.format(data))
-        connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        channel = connection.channel()
-        channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
 
-        channel.basic_publish(exchange=BroadcastExchange, routing_key='', body=data)
-        connection.close()
+        self.mq.broadcast(data)
+
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        #channel = connection.channel()
+        #channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
+        #channel.basic_publish(exchange=BroadcastExchange, routing_key='', body=data)
+        #connection.close()
 
     def info(self):
         Worker.take_workers_off_line()
@@ -268,12 +273,14 @@ class Master(threading.Thread):
         data = MessagePing
         log.debug(u'Commanding master - {0}'.format(data))
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
-        channel = connection.channel()
-        channel.queue_declare(queue=MasterQueue)
+        mq = core.comm.rabbitmq.RabbitMQ(ip, port, MasterQueue, BroadcastExchange, True)
+        mq.publish(MasterQueue, data)
 
-        channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
-        connection.close()
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
+        #channel = connection.channel()
+        #channel.queue_declare(queue=MasterQueue)
+        #channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
+        #connection.close()
 
 
     @staticmethod
@@ -283,16 +290,18 @@ class Master(threading.Thread):
         if port is None:
             port = MessageServerPort
         data = command
-        if not params is None:
+        if params is not None:
             data += (MessageSplit + params)
         log.debug(u'Commanding master - {0}'.format(data))
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
-        channel = connection.channel()
-        channel.queue_declare(queue=MasterQueue)
+        mq = MQImpl(ip, port, MasterQueue, BroadcastExchange, True)
+        mq.publish(MasterQueue, data)
 
-        channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
-        connection.close()
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
+        #channel = connection.channel()
+        #channel.queue_declare(queue=MasterQueue)
+        #channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
+        #connection.close()
 
     @staticmethod
     def start_work(worker_id, session_detail_id, ip=None, port=None):
@@ -300,13 +309,15 @@ class Master(threading.Thread):
             ip = MessageServerIP
         if port is None:
             port = MessageServerPort
-        body = MessageWork + MessageSplit + worker_id + MessageSplit + session_detail_id
+        data = MessageWork + MessageSplit + worker_id + MessageSplit + session_detail_id
 
-        log.debug(u'Commanding master - {0}'.format(body))
+        log.debug(u'Commanding master - {0}'.format(data))
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
-        channel = connection.channel()
-        channel.queue_declare(queue=MasterQueue)
+        mq = MQImpl(ip, port, MasterQueue, BroadcastExchange, True)
+        mq.publish(MasterQueue, data)
 
-        channel.basic_publish(exchange='', routing_key=MasterQueue, body=body)
-        connection.close()
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
+        #channel = connection.channel()
+        #channel.queue_declare(queue=MasterQueue)
+        #channel.basic_publish(exchange='', routing_key=MasterQueue, body=body)
+        #connection.close()

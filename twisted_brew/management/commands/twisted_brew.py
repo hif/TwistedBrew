@@ -33,7 +33,7 @@ class Command(BaseCommand):
             if config.master is not None:
                 master = Master(config.communication, config.master)
             coreutils.start_workers(config)
-            if not master is None:
+            if master is not None:
                 master.info()
                 master.start()
         except Exception as e:

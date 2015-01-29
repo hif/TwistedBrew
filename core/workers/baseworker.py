@@ -10,6 +10,7 @@ from core.messages import *
 from core.utils.coreutils import *
 from worker_measurement import WorkerMeasurement
 import core.utils.logging as log
+from core.comm.rabbitmq import RabbitMQ as MQImpl
 
 
 MessageFunctions = (MessageInfo,
@@ -28,6 +29,7 @@ class BaseWorker(threading.Thread):
         self.ip = MessageServerIP
         self.port = MessageServerPort
         self.master_queue = MasterQueue
+        self.broadcast_exchange = BroadcastExchange
         self.input_config = None
         self.output_config = None
         self.outputs = {}
@@ -52,10 +54,13 @@ class BaseWorker(threading.Thread):
         self.port = port
         self.master_queue = master_queue
         self.broadcast_exchange = broadcast_exchange
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        self.channel = self.connection.channel()
-        self.channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
-        self.channel.queue_declare(queue=self.name)
+
+        self.mq = MQImpl(self.ip, self.port, self.name, self.broadcast_exchange)
+
+        #self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        #self.channel = self.connection.channel()
+        #self.channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
+        #self.channel.queue_declare(queue=self.name)
 
     def create_device_threads(self):
         for i in self.input_config:
@@ -139,13 +144,13 @@ class BaseWorker(threading.Thread):
     def listen(self):
         self.enabled = True
         self.on_start()
-        self.channel.queue_bind(exchange=self.broadcast_exchange, queue=self.name)
-        #self.channel.basic_consume(self.receive, queue=self.name, no_ack=True)
-        #self.channel.start_consuming()
+        #self.channel.queue_bind(exchange=self.broadcast_exchange, queue=self.name)
         while self.enabled:
-            method, properties, body = self.channel.basic_get(queue=self.name, no_ack=True)
-            if body is not None:
-                self.receive(self.channel, method, properties, body)
+            data = self.mq.check()
+            #method, properties, data = self.channel.basic_get(queue=self.name, no_ack=True)
+            if data is not None:
+                self.receive(data)
+                #self.receive(self.channel, method, properties, body)
             time.sleep(0.5)
         log.debug('Shutting down worker {0}'.format(self))
 
@@ -157,12 +162,14 @@ class BaseWorker(threading.Thread):
 
     def send_to_master(self, data):
         #log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port))
-        connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        channel = connection.channel()
-        channel.queue_declare(queue=self.master_queue)
 
-        channel.basic_publish(exchange='', routing_key=self.master_queue, body=data)
-        connection.close()
+        self.mq.publish(self.master_queue, data)
+
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
+        #channel = connection.channel()
+        #channel.queue_declare(queue=self.master_queue)
+        #channel.basic_publish(exchange='', routing_key=self.master_queue, body=data)
+        #connection.close()
 
     def send_measurement(self, worker_measurement):
         message = WorkerMeasurement.serialize_message(worker_measurement)
@@ -205,7 +212,7 @@ class BaseWorker(threading.Thread):
             remaining -= timedelta(microseconds=remaining.microseconds)
         return str(remaining)
 
-    def receive(self, ch, method, properties, body):
+    def receive(self, body):
         if body in MessageFunctions and hasattr(self, body):
             getattr(self, body)()
             return
@@ -214,7 +221,6 @@ class BaseWorker(threading.Thread):
             self.session_detail_id = session_detail.id
             self.work(session_detail)
             break   # only the first instance
-        #self.work(ch, method, properties, body)
 
     def info(self):
         log.debug('{0} is sending info to master'.format(self.name))

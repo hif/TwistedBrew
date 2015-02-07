@@ -24,7 +24,7 @@ message_lock = threading.Lock()
 def log_message(msg, msg_type, only_std=False):
     try:
         try:
-            umsg = unicode(msg)
+            umsg = u"{0}".format(msg)
         except:
             umsg = msg.decode('utf-8')
         if only_std or LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:
@@ -40,24 +40,22 @@ def log_message(msg, msg_type, only_std=False):
             except Exception as e:
                 log_message('Logger could not save message to database ({0})'.format(e.args[0]), ERROR, True)
     except Exception as e:
-        if e.message == "Unable to log Debug message: global name 'Error' is not defined":
-            print 'hey you'
         log_message('Unable to log {0} message: {1}'.format(LOG_TYPE_TEXT[msg_type], e.args[0]), ERROR)
 
 
-def debug(message):
+def debug(message, only_std=False):
     if not DEBUG_BREW:
         return
-    log_message(message, DEBUG)
+    log_message(message, DEBUG, only_std)
 
 
-def info(message):
-    log_message(message, INFO)
+def info(message, only_std=False):
+    log_message(message, INFO, only_std)
 
 
-def warning(message):
-    log_message(message, WARNING)
+def warning(message, only_std=False):
+    log_message(message, WARNING, only_std)
 
 
-def error(message):
-    log_message(message, ERROR)
+def error(message, only_std=False):
+    log_message(message, ERROR, only_std)

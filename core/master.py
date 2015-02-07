@@ -4,7 +4,7 @@ import core.utils.logging as log
 from session.models import SessionDetail, Worker, Measurement
 from twisted_brew.models import Command
 from django.utils import timezone as dt
-from core.comm.rabbitmq import RabbitMQ as MQImpl
+from core.comm.connection import Connection
 
 
 class Master(threading.Thread):
@@ -35,7 +35,7 @@ class Master(threading.Thread):
 
         self.workers = {}
 
-        self.mq = MQImpl(self.ip, self.port, self.master_queue, self.broadcast_exchange, True)
+        self.connection = Connection(self.ip, self.port, self.master_queue, self.broadcast_exchange, True)
         #self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         #self.channel = self.connection.channel()
         #self.channel.queue_declare(queue=self.master_queue)
@@ -64,7 +64,7 @@ class Master(threading.Thread):
 
     @staticmethod
     def store_commands(commands, command_type):
-        for name, description in commands.iteritems():
+        for name, description in commands.items():
             tmp = Command()
             tmp.name = name
             tmp.type = command_type
@@ -81,7 +81,8 @@ class Master(threading.Thread):
         log.debug('Waiting for worker updates. To exit press CTRL+C')
         self.enabled = True
         while self.enabled:
-            data = self.mq.check()
+            data = self.connection.check()
+            #log.debug("master got : {0}".format(data))
             #method, properties, data = self.channel.basic_get(queue=self.master_queue, no_ack=True)
             if data is not None:
                 self.handle(data)
@@ -174,7 +175,7 @@ class Master(threading.Thread):
             return
         log.debug('Sending:{0} to {1}'.format(data, worker))
 
-        self.mq.publish(worker, data)
+        self.connection.publish(worker, data)
 
         #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         #channel = connection.channel()
@@ -185,7 +186,7 @@ class Master(threading.Thread):
     def send_all(self, data):
         log.debug('Sending:{0}'.format(data))
 
-        self.mq.broadcast(data)
+        self.connection.broadcast(data)
 
         #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         #channel = connection.channel()
@@ -273,8 +274,8 @@ class Master(threading.Thread):
         data = MessagePing
         log.debug(u'Commanding master - {0}'.format(data))
 
-        mq = core.comm.rabbitmq.RabbitMQ(ip, port, MasterQueue, BroadcastExchange, True)
-        mq.publish(MasterQueue, data)
+        mq = Connection(ip, port, "Web", BroadcastExchange, True)
+        mq.publish("Web", data)
 
         #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
         #channel = connection.channel()
@@ -294,8 +295,8 @@ class Master(threading.Thread):
             data += (MessageSplit + params)
         log.debug(u'Commanding master - {0}'.format(data))
 
-        mq = MQImpl(ip, port, MasterQueue, BroadcastExchange, True)
-        mq.publish(MasterQueue, data)
+        mq = Connection(ip, port, "Web", BroadcastExchange, True)
+        mq.publish("Web", data)
 
         #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
         #channel = connection.channel()
@@ -313,8 +314,8 @@ class Master(threading.Thread):
 
         log.debug(u'Commanding master - {0}'.format(data))
 
-        mq = MQImpl(ip, port, MasterQueue, BroadcastExchange, True)
-        mq.publish(MasterQueue, data)
+        mq = Connection(ip, port, "Web", BroadcastExchange, True)
+        mq.publish("Web", data)
 
         #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
         #channel = connection.channel()

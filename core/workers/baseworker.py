@@ -4,13 +4,12 @@ import time
 from django.core import serializers
 from django.utils import timezone as dt
 from datetime import timedelta as timedelta
-import pika
 from core.defaults import *
 from core.messages import *
 from core.utils.coreutils import *
-from worker_measurement import WorkerMeasurement
+from core.workers.worker_measurement import WorkerMeasurement
 import core.utils.logging as log
-from core.comm.rabbitmq import RabbitMQ as MQImpl
+from core.comm.connection import Connection
 
 
 MessageFunctions = (MessageInfo,
@@ -55,7 +54,7 @@ class BaseWorker(threading.Thread):
         self.master_queue = master_queue
         self.broadcast_exchange = broadcast_exchange
 
-        self.mq = MQImpl(self.ip, self.port, self.name, self.broadcast_exchange)
+        self.connection = Connection(self.ip, self.port, self.name, self.broadcast_exchange)
 
         #self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         #self.channel = self.connection.channel()
@@ -78,16 +77,16 @@ class BaseWorker(threading.Thread):
         return True
 
     def start_all_devices(self):
-        for i in self.inputs.itervalues():
+        for i in self.inputs.values():
             self.inputs[i.name] = i.start_device()
-        for o in self.outputs.itervalues():
+        for o in self.outputs.values():
             self.outputs[o.name] = o.start_device()
 
     def is_any_device_enabled(self):
-        for i in self.inputs.itervalues():
+        for i in self.inputs.values():
             if i.enabled:
                 return True
-        for o in self.outputs.itervalues():
+        for o in self.outputs.values():
             if o.enabled:
                 return True
         return False
@@ -107,9 +106,9 @@ class BaseWorker(threading.Thread):
         self.pausing_all_devices = True
         while self.is_any_device_enabled():
             log.debug('Trying to pause all passive devices...')
-            for i in self.inputs.itervalues():
+            for i in self.inputs.values():
                 i.pause_device()
-            for o in self.outputs.itervalues():
+            for o in self.outputs.values():
                 o.pause_device()
             time.sleep(1)
         log.debug('All passive devices paused')
@@ -119,17 +118,17 @@ class BaseWorker(threading.Thread):
         while self.pausing_all_devices:
             time.sleep(1)
         log.debug('Resuming all passive devices...')
-        for i in self.inputs.itervalues():
+        for i in self.inputs.values():
             i.resume_device()
-        for o in self.outputs.itervalues():
+        for o in self.outputs.values():
             o.resume_device()
         log.debug('All passive devices resumed')
         self.pausing_all_devices = False
 
     def stop_all_devices(self):
-        for i in self.inputs.itervalues():
+        for i in self.inputs.values():
             i.stop_device()
-        for o in self.outputs.itervalues():
+        for o in self.outputs.values():
             o.stop_device()
 
     #def work(self, ch, method, properties, body):
@@ -138,7 +137,8 @@ class BaseWorker(threading.Thread):
 
     def run(self):
         if not self.create_device_threads():
-            log.error('Unable to load all devices, shutting down')
+            log.error('Unable to load all devices, shutting down', True)
+        self.info()
         self.listen()
 
     def listen(self):
@@ -146,13 +146,15 @@ class BaseWorker(threading.Thread):
         self.on_start()
         #self.channel.queue_bind(exchange=self.broadcast_exchange, queue=self.name)
         while self.enabled:
-            data = self.mq.check()
+            log.debug("worker is listening", True)
+            data = self.connection.check()
+            #log.debug("worker got : {0}".format(data), True)
             #method, properties, data = self.channel.basic_get(queue=self.name, no_ack=True)
             if data is not None:
                 self.receive(data)
                 #self.receive(self.channel, method, properties, body)
             time.sleep(0.5)
-        log.debug('Shutting down worker {0}'.format(self))
+        log.debug('Shutting down worker {0}'.format(self), True)
 
     def stop(self):
         self.stop_all_devices()
@@ -161,9 +163,9 @@ class BaseWorker(threading.Thread):
         self.enabled = False
 
     def send_to_master(self, data):
-        #log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port))
+        #log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port), True)
 
-        self.mq.publish(self.master_queue, data)
+        self.connection.publish(self.master_queue, data)
 
         #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
         #channel = connection.channel()
@@ -223,7 +225,7 @@ class BaseWorker(threading.Thread):
             break   # only the first instance
 
     def info(self):
-        log.debug('{0} is sending info to master'.format(self.name))
+        log.debug('{0} is sending info to master'.format(self.name), True)
         if self.on_info():
             worker_type = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
             message = MessageReady + MessageSplit + self.name + MessageSplit + worker_type
@@ -236,7 +238,7 @@ class BaseWorker(threading.Thread):
             self.report_error('Info failed')
 
     def done(self):
-        log.debug('{0} is sending done to master'.format(self.name))
+        log.debug('{0} is sending done to master'.format(self.name), True)
         if self.on_done():
             message = MessageDone + MessageSplit + self.name + MessageSplit + unicode(self.session_detail_id)
             self.send_to_master(message)
@@ -244,24 +246,24 @@ class BaseWorker(threading.Thread):
             self.report_error('Done failed')
 
     def pause(self):
-        log.debug('{0} is sending paused to master'.format(self.name))
+        log.debug('{0} is sending paused to master'.format(self.name), True)
         if not self.on_pause():
             self.report_error('Pause failed')
 
     def resume(self):
-        log.debug('{0} is sending resumed to master'.format(self.name))
+        log.debug('{0} is sending resumed to master'.format(self.name), True)
         if not self.on_resume():
             self.report_error('Resume failed')
 
     def reset(self):
-        log.debug('{0} is resetting'.format(self.name))
+        log.debug('{0} is resetting'.format(self.name), True)
         if self.on_reset():
             self.info()
         else:
             self.report_error('Reset failed')
 
     def report_error(self, err):
-        log.error('{0}: {1}'.format(self.name, err))
+        log.error('{0}: {1}'.format(self.name, err), True)
 
     def is_done(self):
         if self.hold_timer is None:
@@ -274,7 +276,7 @@ class BaseWorker(threading.Thread):
             return False
         if finish >= work:
             return True
-        log.debug('Time until work done: {0}'.format(work - finish))
+        log.debug('Time until work done: {0}'.format(work - finish), True)
         return False
 
     def finish(self):
@@ -285,28 +287,28 @@ class BaseWorker(threading.Thread):
             self.session_detail_id = 0
             return True
         except Exception as e:
-            log.error('Error in cleaning up after work: {0}'.format(e.args[0]))
+            log.error('Error in cleaning up after work: {0}'.format(e.args[0]), True)
             return False
 
     def on_start(self):
-        log.debug('Starting {0}'.format(self))
+        log.debug('Starting {0}'.format(self), True)
 
     def on_info(self):
-        log.debug('Info {0}'.format(self))
+        log.debug('Info {0}'.format(self), True)
         return True
 
     def on_done(self):
-        log.debug('Done {0}'.format(self))
+        log.debug('Done {0}'.format(self), True)
         return True
 
     def on_pause(self):
-        log.debug('Pause {0}'.format(self))
+        log.debug('Pause {0}'.format(self), True)
         self.pause_all_devices()
         self.hold_pause_timer = dt.now()
         return True
 
     def on_resume(self):
-        log.debug('Resume {0}'.format(self))
+        log.debug('Resume {0}'.format(self), True)
         self.pause_time += (dt.now() - self.hold_pause_timer)
         self.resume_all_devices()
         return True

@@ -1,7 +1,7 @@
 #!/usr/bin python
 import yaml
-import defaults
-import utils.logging as log
+import core.defaults as defaults
+import core.utils.logging as log
 
 
 # Config file keys
@@ -123,9 +123,9 @@ class WorkerConfig(MasterConfig):
 
     def __str__(self):
         tmp = 'Worker ({0} as {3}) - {1}:{2}\r\n'.format(self.name, self.ip, self.port, self.class_name)
-        for config in self.outputs.itervalues():
+        for config in self.outputs.values():
             tmp = tmp + '* Output: {0}\r\n'.format(config)
-        for config in self.inputs.itervalues():
+        for config in self.inputs.values():
             tmp = tmp + '* Input: {0}\r\n'.format(config)
         return tmp
 
@@ -173,7 +173,7 @@ class Config():
             self.communication = CommunicationConfig()
             communication_found = False
             master_found = False
-            for name, section in data.iteritems():
+            for name, section in data.items():
                 if is_communication(name):
                     if communication_found:
                         log.warning('More than one communication node found, discarding')

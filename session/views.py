@@ -5,8 +5,8 @@ from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from core.master import Master
-from models import Worker, Measurement
-from forms import *
+from session.models import Worker, Measurement
+from session.forms import *
 import json
 
 

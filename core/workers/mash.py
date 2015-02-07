@@ -25,7 +25,7 @@ class MashWorker(BaseWorker):
         self.test_temperature = MASH_DEBUG_INIT_TEMP
 
     def on_start(self):
-        log.debug('Waiting for mash schedule. To exit press CTRL+C')
+        log.debug('Waiting for mash schedule. To exit press CTRL+C', True)
 
     #def work(self, ch, method, properties, body):
     def work(self, data):

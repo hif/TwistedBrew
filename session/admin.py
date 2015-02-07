@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Session, SessionDetail, Worker, WorkerDevice, Measurement
+from session.models import Session, SessionDetail, Worker, WorkerDevice, Measurement
 
 admin.site.register(Session)
 admin.site.register(SessionDetail)

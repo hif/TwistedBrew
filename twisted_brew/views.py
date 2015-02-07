@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 import json
 from datetime import timedelta as timedelta
 import time
-from models import Command,  Message
+from twisted_brew.models import Command,  Message
 from session.models import Measurement
 from core.master import Master
 from core.messages import MessagePong
@@ -101,9 +101,9 @@ def message_rows(request, latest_timestamp, max_rows):
         .order_by('-timestamp')
     for row in rows:
         str_timestamp = '{0}:{1}:{2}'.format(
-            unicode(row.timestamp.hour).zfill(2),
-            unicode(row.timestamp.minute).zfill(2),
-            unicode(row.timestamp.second).zfill(2))
+            str(row.timestamp.hour).zfill(2),
+            str(row.timestamp.minute).zfill(2),
+            str(row.timestamp.second).zfill(2))
         rows_html.append('<tr class="{3}"><td>{0}</td><td>{1}</td><td>{2}</td></tr>'.format(
             str_timestamp, row.type, row.text, row.type.lower()))
         counter += 1

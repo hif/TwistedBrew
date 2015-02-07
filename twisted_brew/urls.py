@@ -1,26 +1,26 @@
 from django.conf.urls import patterns, include, url
-import views
+from twisted_brew.views import *
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', views.home, name='home'),
-    url(r'^index[/]$', views.home, name='home'),
-    url(r'^home[/]$', views.home, name='home'),
-    url(r'^commands[/]$', views.commands, name='commands'),
-    url(r'^messages[/]$', views.MessageListView.as_view()),
-    url(r'^warnings[/]$', views.WarningListView.as_view()),
-    url(r'^errors[/]$', views.ErrorListView.as_view()),
-    url(r'^messages_clear[/]$', views.messages_clear, name='messages_clear'),
-    url(r'^message_head[/]$', views.message_head, name='message_head'),
-    url(r'^message_rows/(?P<latest_timestamp>\d+)/(?P<max_rows>\d+)[/]$', views.message_rows, name='message_rows'),
-    url(r'^message_delete/(?P<message_id>\d+)[/]$', views.message_delete, name='message_delete'),
-    url(r'^message_fake/(?P<calling_page>\w+)/(?P<message_type>\w+)[/]$', views.message_fake, name='message_fake'),
-    url(r'^charts[/]$', views.charts, name='charts'),
-    url(r'^charts_update[/]$', views.charts_update, name='charts_update'),
-    url(r'^ping_master[/]$', views.ping_master, name='ping_master'),
+    url(r'^$', home, name='home'),
+    url(r'^index[/]$', home, name='home'),
+    url(r'^home[/]$', home, name='home'),
+    url(r'^commands[/]$', commands, name='commands'),
+    url(r'^messages[/]$', MessageListView.as_view()),
+    url(r'^warnings[/]$', WarningListView.as_view()),
+    url(r'^errors[/]$', ErrorListView.as_view()),
+    url(r'^messages_clear[/]$', messages_clear, name='messages_clear'),
+    url(r'^message_head[/]$', message_head, name='message_head'),
+    url(r'^message_rows/(?P<latest_timestamp>\d+)/(?P<max_rows>\d+)[/]$', message_rows, name='message_rows'),
+    url(r'^message_delete/(?P<message_id>\d+)[/]$', message_delete, name='message_delete'),
+    url(r'^message_fake/(?P<calling_page>\w+)/(?P<message_type>\w+)[/]$', message_fake, name='message_fake'),
+    url(r'^charts[/]$', charts, name='charts'),
+    url(r'^charts_update[/]$', charts_update, name='charts_update'),
+    url(r'^ping_master[/]$', ping_master, name='ping_master'),
     (r'^brew/', include('brew.urls')),
     (r'^session/', include('session.urls')),
 

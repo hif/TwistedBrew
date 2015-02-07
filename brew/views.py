@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from models import Brew
+from brew.models import Brew
 from brew.importing import brew_importer
 import core.utils.logging as log
 

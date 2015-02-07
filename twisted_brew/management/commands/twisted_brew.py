@@ -1,11 +1,4 @@
 #!/usr/bin python
-#import django.conf
-#import sys
-#import twisted_brew.settings
-
-#django.conf.settings.configure()
-#django.conf.settings.DATABASES = twisted_brew.settings.DATABASES
-#django.conf.settings.INSTALLED_APPS = twisted_brew.settings.INSTALLED_APPS
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import translation

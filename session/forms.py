@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms.formsets import formset_factory
-from models import Session, SessionDetail
+from session.models import Session, SessionDetail
 
 
 class SessionForm(ModelForm):

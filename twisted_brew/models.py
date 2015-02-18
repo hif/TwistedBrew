@@ -9,7 +9,7 @@ class Command(models.Model):
     type = models.CharField(max_length=COLUMN_SMALL_SIZE)
     description = models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} - {1}'.format(self.name, self.description)
 
 
@@ -25,5 +25,5 @@ class Message(models.Model):
     def clear():
         Message.objects.all().delete()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} [{1}] {2}'.format(self.timestamp, self.type, self.text)

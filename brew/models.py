@@ -13,7 +13,7 @@ class Brew(models.Model):
     ingredients = models.TextField()
     web_link = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0} ({1}) by {2}'.format(self.name, self.style, self.brewer)
 
     class Meta:
@@ -26,7 +26,7 @@ class BrewSection(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     worker_type = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0} using {1}'.format(self.name, self.worker_type)
 
     class Meta:
@@ -52,7 +52,7 @@ class BrewStep(models.Model):
     hold_time = models.IntegerField(default=1)
     time_unit_seconds = models.IntegerField(choices=HOLD_TIME_UNITS, default=MINUTES)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0} with target {1}'.format(self.name, self.target)
 
     class Meta:

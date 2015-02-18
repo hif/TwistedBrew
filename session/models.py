@@ -50,7 +50,7 @@ class Session(models.Model):
         self.save()
 
 
-    def __unicode__(self):
+    def __str__(self):
         #if self.locked:
         #    status = 'locked'
         #else:
@@ -103,7 +103,7 @@ class SessionDetail(models.Model):
         self.done = not cancelled
         self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker_type)
 
 
@@ -174,7 +174,7 @@ class Worker(models.Model):
             return None
         return worker.status
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} - {1} ({2})'.format(self.name, self.type, Worker.WORKER_STATUS[self.status][1])
 
 
@@ -182,7 +182,7 @@ class WorkerDevice(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
     worker = models.ForeignKey(Worker)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -203,7 +203,7 @@ class Measurement(models.Model):
     def clear():
         Measurement.objects.all().delete()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} [{1}-{2}] {3}'.format(self.timestamp, self.worker, self.device, self.value)
 
 

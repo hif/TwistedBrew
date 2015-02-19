@@ -39,10 +39,9 @@ def load_worker(communication_config, config):
                   format(config.class_name))
             return None
         ip = communication_config.ip
-        port = int(communication_config.port)
-        master_queue = communication_config.master_queue
-        broadcast_exchange = communication_config.broadcast_exchange
-        worker_instance.init_communication(ip, port, master_queue, broadcast_exchange)
+        master_port = int(communication_config.master_port)
+        worker_port = int(communication_config.worker_port)
+        worker_instance.init_communication(ip, master_port, worker_port)
         worker_instance.simulation = config.simulation
         worker_instance.input_config = config.inputs
         worker_instance.output_config = config.outputs

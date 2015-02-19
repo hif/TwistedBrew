@@ -1,8 +1,7 @@
 communication:
     ip: "brewmaster"
-    port: "5672"
-    master_queue: "MasterQueue"
-    broadcast_exchange: "TwistedBrewBroadcast"
+    master_port: "9991"
+    worker_port: "9992"
 
 master:
     name: "BrewMaster"

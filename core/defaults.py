@@ -2,10 +2,9 @@
 # The default config file name
 DEFAULT_CONFIG = 'config/twisted_brew.yml'
 
-MessageServerIP = "localhost"
-MessageServerPort = 5672
-MasterQueue = "MasterQueue"
-BroadcastExchange = "TwistedBrewBroadcast"
+MessageServerIP = "192.168.1.65"
+MessageServerMasterPort = 9991
+MessageServerWorkerPort = 9992
 
 DefaultDBHost = 'localhost'
 DefaultDBPort = '5432'

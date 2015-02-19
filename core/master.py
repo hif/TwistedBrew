@@ -4,7 +4,7 @@ import core.utils.logging as log
 from session.models import SessionDetail, Worker, Measurement
 from twisted_brew.models import Command
 from django.utils import timezone as dt
-from core.comm.connection import Connection
+from core.comm.connection import MasterConnection, CONNECTION_MASTER_QUEUE, PushConnection
 
 
 class Master(threading.Thread):
@@ -14,18 +14,13 @@ class Master(threading.Thread):
         self.measurements_lock = threading.Lock()
         if communication_config is None:
             self.ip = MessageServerIP
-            self.port = MessageServerPort
-            self.master_queue = MasterQueue
-            self.broadcast_exchange = BroadcastExchange
+            self.master_port = MessageServerMasterPort
+            self.worker_port = MessageServerWorkerPort
         else:
             self.ip = communication_config.ip
-            self.port = communication_config.port
-            self.master_queue = communication_config.master_queue
-            self.broadcast_exchange = communication_config.broadcast_exchange
-        if config is None:
-            self.name = MasterQueue
-        else:
-            self.name = config.name
+            self.master_port = communication_config.master_port
+            self.worker_port = communication_config.worker_port
+        self.name = CONNECTION_MASTER_QUEUE
 
         self.broadcasts = {}
         self.messages = {}
@@ -35,10 +30,7 @@ class Master(threading.Thread):
 
         self.workers = {}
 
-        self.connection = Connection(self.ip, self.port, self.master_queue, self.broadcast_exchange, True)
-        #self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        #self.channel = self.connection.channel()
-        #self.channel.queue_declare(queue=self.master_queue)
+        self.connection = MasterConnection(self.ip, self.master_port, self.worker_port)
         self.enabled = False
 
     def run(self):
@@ -73,7 +65,7 @@ class Master(threading.Thread):
 
     def add_worker(self, worker, worker_type, devices):
         added_worker = Worker.enlist_worker(worker, worker_type, devices)
-        if not added_worker.id in self.workers.keys():
+        if added_worker.id not in self.workers.keys():
             self.workers[added_worker.id] = added_worker.name
 
     def listen(self):
@@ -82,12 +74,9 @@ class Master(threading.Thread):
         self.enabled = True
         while self.enabled:
             data = self.connection.check()
-            #log.debug("master got : {0}".format(data))
-            #method, properties, data = self.channel.basic_get(queue=self.master_queue, no_ack=True)
             if data is not None:
                 self.handle(data)
-                #self.handle(self.channel, method, properties, data)
-            time.sleep(0.5)
+            time.sleep(0)
         self.stop_all_workers()
         Worker.force_workers_off_line()
         #Worker.objects.all().delete()
@@ -174,25 +163,11 @@ class Master(threading.Thread):
             log.warning('Worker {0} not available'.format(worker))
             return
         log.debug('Sending:{0} to {1}'.format(data, worker))
-
-        self.connection.publish(worker, data)
-
-        #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        #channel = connection.channel()
-        #channel.queue_declare(queue=worker)
-        #channel.basic_publish(exchange='', routing_key=worker, body=data)
-        #connection.close()
+        self.connection.send(data, worker)
 
     def send_all(self, data):
         log.debug('Sending:{0}'.format(data))
-
         self.connection.broadcast(data)
-
-        #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        #channel = connection.channel()
-        #channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
-        #channel.basic_publish(exchange=BroadcastExchange, routing_key='', body=data)
-        #connection.close()
 
     def info(self):
         Worker.take_workers_off_line()
@@ -234,7 +209,6 @@ class Master(threading.Thread):
         return True
 
     def shutdown(self):
-        #self.channel.stop_consuming()
         self.enabled = False
 
     def process_command(self, body):
@@ -270,18 +244,12 @@ class Master(threading.Thread):
         if ip is None:
             ip = MessageServerIP
         if port is None:
-            port = MessageServerPort
+            port = MessageServerMasterPort
         data = MessagePing
         log.debug(u'Commanding master - {0}'.format(data))
 
-        mq = Connection(ip, port, "Web", BroadcastExchange, True)
-        mq.publish("Web", data)
-
-        #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
-        #channel = connection.channel()
-        #channel.queue_declare(queue=MasterQueue)
-        #channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
-        #connection.close()
+        mq = PushConnection(ip, port)
+        mq.send(data)
 
 
     @staticmethod
@@ -289,36 +257,24 @@ class Master(threading.Thread):
         if ip is None:
             ip = MessageServerIP
         if port is None:
-            port = MessageServerPort
+            port = MessageServerMasterPort
         data = command
         if params is not None:
             data += (MessageSplit + params)
         log.debug(u'Commanding master - {0}'.format(data))
 
-        mq = Connection(ip, port, "Web", BroadcastExchange, True)
-        mq.publish("Web", data)
-
-        #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
-        #channel = connection.channel()
-        #channel.queue_declare(queue=MasterQueue)
-        #channel.basic_publish(exchange='', routing_key=MasterQueue, body=data)
-        #connection.close()
+        mq = PushConnection(ip, port)
+        mq.send(data)
 
     @staticmethod
     def start_work(worker_id, session_detail_id, ip=None, port=None):
         if ip is None:
             ip = MessageServerIP
         if port is None:
-            port = MessageServerPort
+            port = MessageServerMasterPort
         data = MessageWork + MessageSplit + worker_id + MessageSplit + session_detail_id
 
         log.debug(u'Commanding master - {0}'.format(data))
 
-        mq = Connection(ip, port, "Web", BroadcastExchange, True)
-        mq.publish("Web", data)
-
-        #connection = pika.BlockingConnection(pika.ConnectionParameters(ip, port))
-        #channel = connection.channel()
-        #channel.queue_declare(queue=MasterQueue)
-        #channel.basic_publish(exchange='', routing_key=MasterQueue, body=body)
-        #connection.close()
+        mq = PushConnection(ip, port)
+        mq.send(data)

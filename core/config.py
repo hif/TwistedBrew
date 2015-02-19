@@ -2,6 +2,7 @@
 import yaml
 import core.defaults as defaults
 import core.utils.logging as log
+from core.comm.connection import CONNECTION_MASTER_QUEUE
 
 
 # Config file keys
@@ -11,9 +12,8 @@ CONFIG_WORKERS = 'workers'
 CONFIG_WORKER = 'worker'
 CONFIG_NAME = 'name'
 CONFIG_IP = 'ip'
-CONFIG_PORT = 'port'
-CONFIG_MASTER_QUEUE = 'master_queue'
-CONFIG_BROADCAST_EXCHANGE = 'broadcast_exchange'
+CONFIG_MASTER_PORT = 'master_port'
+CONFIG_WORKER_PORT = 'worker_port'
 CONFIG_CLASS = 'class'
 CONFIG_SIMULATION = 'simulation'
 CONFIG_DEVICE_CLASS = 'device_class'
@@ -60,37 +60,33 @@ class IOConfig():
 class CommunicationConfig():
     def __init__(self):
         self.ip = None
-        self.port = None
-        self.master_queue = None
-        self.broadcast_exchange = None
+        self.master_port = None
+        self.worker_port = None
         self.verify_data()
 
-    def set(self, ip=defaults.MessageServerIP, port=defaults.MessageServerPort,
-            master_queue=defaults.MasterQueue, broadcast_exchange=defaults.BroadcastExchange):
+    def set(self, ip=defaults.MessageServerIP,
+            master_port=defaults.MessageServerMasterPort,
+            worker_port=defaults.MessageServerWorkerPort):
         self.ip = ip
-        self.port = port
-        self.master_queue = master_queue
-        self.broadcast_exchange = broadcast_exchange
+        self.master_port = master_port
+        self.worker_port = worker_port
 
     def verify_data(self):
         if self.ip is None or self.ip == '':
             self.ip = defaults.MessageServerIP
-        if self.port is None or self.port == 0:
-            self.port = defaults.MessageServerPort
-        if self.master_queue is None or self.master_queue == '':
-            self.master_queue = defaults.MasterQueue
-        if self.broadcast_exchange is None or self.broadcast_exchange == '':
-            self.broadcast_exchange = defaults.BroadcastExchange
+        if self.master_port is None or self.master_port == 0:
+            self.master_port = defaults.MessageServerMasterPort
+        if self.master_port is None or self.worker_port == 0:
+            self.worker_port = defaults.MessageServerWorkerPort
 
     def set_from_yaml(self, yaml_data):
         self.ip = yaml_data[CONFIG_IP]
-        self.port = int(yaml_data[CONFIG_PORT])
-        self.master_queue = yaml_data[CONFIG_MASTER_QUEUE]
-        self.broadcast_exchange = yaml_data[CONFIG_BROADCAST_EXCHANGE]
+        self.master_port = int(yaml_data[CONFIG_MASTER_PORT])
+        self.worker_port = int(yaml_data[CONFIG_WORKER_PORT])
         self.verify_data()
 
     def __str__(self):
-        return 'Communication - {0}:{1}\r\n'.format(self.ip, self.port)
+        return 'Communication - {0}:{1}:{2}\r\n'.format(self.ip, self.master_port, self.worker_port)
 
 
 class MasterConfig():
@@ -103,7 +99,7 @@ class MasterConfig():
 
     def verify_data(self):
         if self.name is None:
-            self.name = defaults.MasterQueue
+            self.name = CONNECTION_MASTER_QUEUE
 
     def set_from_yaml(self, yamldata):
         self.name = yamldata[CONFIG_NAME]
@@ -122,7 +118,7 @@ class WorkerConfig(MasterConfig):
         self.inputs = []
 
     def __str__(self):
-        tmp = 'Worker ({0} as {3}) - {1}:{2}\r\n'.format(self.name, self.ip, self.port, self.class_name)
+        tmp = 'Worker ({0} as {3}) - {1}:{2}\r\n'.format(self.name, self.ip, self.master_port, self.class_name)
         for config in self.outputs.values():
             tmp = tmp + '* Output: {0}\r\n'.format(config)
         for config in self.inputs.values():
@@ -137,13 +133,15 @@ class WorkerConfig(MasterConfig):
         if CONFIG_OUTPUTS in yaml_data and yaml_data[CONFIG_OUTPUTS] is not None:
             for iooutput in yaml_data[CONFIG_OUTPUTS]:
                 iooutput = iooutput[CONFIG_OUTPUT]
-                self.outputs.append(IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE_CLASS], iooutput[CONFIG_IO],
-                                            iooutput[CONFIG_ACTIVE], iooutput[CONFIG_CALLBACK], iooutput[CONFIG_CYCLE_TIME]))
+                self.outputs.append(IOConfig(iooutput[CONFIG_NAME], iooutput[CONFIG_DEVICE_CLASS],
+                                             iooutput[CONFIG_IO], iooutput[CONFIG_ACTIVE],
+                                             iooutput[CONFIG_CALLBACK], iooutput[CONFIG_CYCLE_TIME]))
         if CONFIG_INPUTS in yaml_data and yaml_data[CONFIG_INPUTS] is not None:
             for ioinput in yaml_data[CONFIG_INPUTS]:
                 ioinput = ioinput[CONFIG_INPUT]
-                self.inputs.append(IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE_CLASS], ioinput[CONFIG_IO],
-                                            ioinput[CONFIG_ACTIVE], ioinput[CONFIG_CALLBACK], ioinput[CONFIG_CYCLE_TIME]))
+                self.inputs.append(IOConfig(ioinput[CONFIG_NAME], ioinput[CONFIG_DEVICE_CLASS],
+                                            ioinput[CONFIG_IO], ioinput[CONFIG_ACTIVE],
+                                            ioinput[CONFIG_CALLBACK], ioinput[CONFIG_CYCLE_TIME]))
 
 
 class Config():

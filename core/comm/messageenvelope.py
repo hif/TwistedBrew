@@ -32,7 +32,7 @@ class MessageEnvelope:
         return sealed_msg
 
     def __str__(self):
-        fmt = "{{ \"receiver\":\"{0}\", \"command\":\"{1}\", \"subject_id\":{2}, \"status\":{3}, \"data\":\"{4}\" }}"
+        fmt = "{{\"receiver\":\"{0}\",\"command\":\"{1}\",\"subject_id\":{2},\"status\":{3},\"data\":\"{4}\"}}"
         return fmt.format(self.receiver, self.command, self.subject_id, self.status, self.data)
 
 

@@ -9,7 +9,7 @@ from core.messages import *
 from core.utils.coreutils import *
 from core.workers.worker_measurement import WorkerMeasurement
 import core.utils.logging as log
-from core.comm.connection import Connection
+from core.comm.connection import WorkerConnection
 
 
 MessageFunctions = (MessageInfo,
@@ -26,9 +26,8 @@ class BaseWorker(threading.Thread):
         self.name = name
         self.simulation = False
         self.ip = MessageServerIP
-        self.port = MessageServerPort
-        self.master_queue = MasterQueue
-        self.broadcast_exchange = BroadcastExchange
+        self.master_port = 0
+        self.worker_port = 0
         self.input_config = None
         self.output_config = None
         self.outputs = {}
@@ -43,23 +42,17 @@ class BaseWorker(threading.Thread):
         self.pause_time = 0.0
         self.debug_timer = dt.now()
         self.session_detail_id = 0
+        self.connection = None
 
     def __str__(self):
         return 'Worker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
 
-    def init_communication(self, ip, port, master_queue, broadcast_exchange):
+    def init_communication(self, ip, master_port, worker_port):
         self.ip = ip
-        self.port = port
-        self.master_queue = master_queue
-        self.broadcast_exchange = broadcast_exchange
-
-        self.connection = Connection(self.ip, self.port, self.name, self.broadcast_exchange)
-
-        #self.connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        #self.channel = self.connection.channel()
-        #self.channel.exchange_declare(exchange=BroadcastExchange, exchange_type='fanout')
-        #self.channel.queue_declare(queue=self.name)
+        self.master_port = master_port
+        self.worker_port = worker_port
+        self.connection = WorkerConnection(self.ip, self.master_port, self.worker_port, self.name)
 
     def create_device_threads(self):
         for i in self.input_config:
@@ -131,7 +124,6 @@ class BaseWorker(threading.Thread):
         for o in self.outputs.values():
             o.stop_device()
 
-    #def work(self, ch, method, properties, body):
     def work(self, data):
         pass
 
@@ -144,34 +136,22 @@ class BaseWorker(threading.Thread):
     def listen(self):
         self.enabled = True
         self.on_start()
-        #self.channel.queue_bind(exchange=self.broadcast_exchange, queue=self.name)
         while self.enabled:
             log.debug("worker is listening", True)
             data = self.connection.check()
-            #log.debug("worker got : {0}".format(data), True)
-            #method, properties, data = self.channel.basic_get(queue=self.name, no_ack=True)
             if data is not None:
                 self.receive(data)
-                #self.receive(self.channel, method, properties, body)
-            time.sleep(0.5)
+            time.sleep(0)
         log.debug('Shutting down worker {0}'.format(self), True)
 
     def stop(self):
         self.stop_all_devices()
         self.on_stop()
-        #self.channel.stop_consuming()
         self.enabled = False
 
     def send_to_master(self, data):
         #log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port), True)
-
-        self.connection.publish(self.master_queue, data)
-
-        #connection = pika.BlockingConnection(pika.ConnectionParameters(self.ip, self.port))
-        #channel = connection.channel()
-        #channel.queue_declare(queue=self.master_queue)
-        #channel.basic_publish(exchange='', routing_key=self.master_queue, body=data)
-        #connection.close()
+        self.connection.send(data)
 
     def send_measurement(self, worker_measurement):
         message = WorkerMeasurement.serialize_message(worker_measurement)
@@ -240,7 +220,9 @@ class BaseWorker(threading.Thread):
     def done(self):
         log.debug('{0} is sending done to master'.format(self.name), True)
         if self.on_done():
-            message = MessageDone + MessageSplit + self.name + MessageSplit + unicode(self.session_detail_id)
+            message = "{0}{1}{2}{3}{4}".format(MessageDone, MessageSplit,
+                                               self.name, MessageSplit,
+                                               str(self.session_detail_id))
             self.send_to_master(message)
         else:
             self.report_error('Done failed')

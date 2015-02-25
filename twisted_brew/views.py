@@ -88,7 +88,7 @@ def message_rows(request, latest_timestamp, max_rows):
     rows_html = list()
     counter = 0
     limit = int(max_rows)
-    if latest_timestamp == u'0':
+    if latest_timestamp == '0':
         obj = Message.objects.all().aggregate(Min('timestamp'))
         if obj['timestamp__min'] is None:
             converted_timestamp = timezone.now()

@@ -24,7 +24,7 @@ message_lock = threading.Lock()
 def log_message(msg, msg_type, only_std=False):
     try:
         try:
-            umsg = u"{0}".format(msg)
+            umsg = "{0}".format(msg)
         except:
             umsg = msg.decode('utf-8')
         if only_std or LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:

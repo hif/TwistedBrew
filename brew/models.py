@@ -14,7 +14,7 @@ class Brew(models.Model):
     web_link = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
     def __str__(self):
-        return u'{0} ({1}) by {2}'.format(self.name, self.style, self.brewer)
+        return '{0} ({1}) by {2}'.format(self.name, self.style, self.brewer)
 
     class Meta:
         ordering = ['name']
@@ -27,7 +27,7 @@ class BrewSection(models.Model):
     worker_type = models.CharField(max_length=COLUMN_SMALL_SIZE)
 
     def __str__(self):
-        return u'{0} using {1}'.format(self.name, self.worker_type)
+        return '{0} using {1}'.format(self.name, self.worker_type)
 
     class Meta:
         ordering = ['index']
@@ -53,7 +53,7 @@ class BrewStep(models.Model):
     time_unit_seconds = models.IntegerField(choices=HOLD_TIME_UNITS, default=MINUTES)
 
     def __str__(self):
-        return u'{0} with target {1}'.format(self.name, self.target)
+        return '{0} with target {1}'.format(self.name, self.target)
 
     class Meta:
         ordering = ['index']

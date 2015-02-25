@@ -246,7 +246,7 @@ class Master(threading.Thread):
         if port is None:
             port = MessageServerMasterPort
         data = MessagePing
-        log.debug(u'Commanding master - {0}'.format(data))
+        log.debug('Commanding master - {0}'.format(data))
 
         mq = PushConnection(ip, port)
         mq.send(data)
@@ -261,7 +261,7 @@ class Master(threading.Thread):
         data = command
         if params is not None:
             data += (MessageSplit + params)
-        log.debug(u'Commanding master - {0}'.format(data))
+        log.debug('Commanding master - {0}'.format(data))
 
         mq = PushConnection(ip, port)
         mq.send(data)
@@ -274,7 +274,7 @@ class Master(threading.Thread):
             port = MessageServerMasterPort
         data = MessageWork + MessageSplit + worker_id + MessageSplit + session_detail_id
 
-        log.debug(u'Commanding master - {0}'.format(data))
+        log.debug('Commanding master - {0}'.format(data))
 
         mq = PushConnection(ip, port)
         mq.send(data)

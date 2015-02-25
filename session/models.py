@@ -56,7 +56,7 @@ class Session(models.Model):
         #else:
         #    status = 'active'
         #return u'[{1}] {0} ({2})'.format(self.name, self.session_date, status)
-        return u'[{1}] {0}'.format(self.name, self.session_date)
+        return '[{1}] {0}'.format(self.name, self.session_date)
 
 
 class SessionDetail(models.Model):
@@ -104,7 +104,7 @@ class SessionDetail(models.Model):
         self.save()
 
     def __str__(self):
-        return u'{0}) {1} [{2}]'.format(self.index, self.name, self.worker_type)
+        return '{0}) {1} [{2}]'.format(self.index, self.name, self.worker_type)
 
 
 class Worker(models.Model):

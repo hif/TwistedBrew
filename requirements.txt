@@ -1,6 +1,6 @@
-Django>1.7.5
-pyYAML>3.10
-suit>2.0.2
-pytz>2015.2
-pyzmq>14.5.0
-HTMLParser>0.0.2
+Django>=1.7.5
+pyYAML>=3.10
+suit>=2.0.2
+pytz>=2015.2
+pyzmq>=14.5.0
+HTMLParser>=0.0.2

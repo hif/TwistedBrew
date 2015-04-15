@@ -1,5 +1,5 @@
 #!/usr/bin python
-import HTMLParser
+import html
 from brew.importing.brew_importer import BrewImporter
 from brew.importing.beer_smith_parser import *
 import core.utils.logging as log
@@ -65,8 +65,6 @@ BREW_STYLE_DESCRIPTION_NODE = "F_S_DESCRIPTION"
 BREW_STYLE_PROFILE_NODE = "F_S_PROFILE"
 BREW_STYLE_INGREDIENTS_NODE = "F_S_INGREDIENTS"
 BREW_STYLE_WEB_NODE = "F_S_WEB_LINK"
-
-__brew_html_parser__ = HTMLParser.HTMLParser()
 
 
 def create_brew_model(data):
@@ -137,7 +135,7 @@ def create_fermentation_step(step, section, index):
 
 def lookup_brew_info(data, key):
     if data.data.__contains__(key):
-        return __brew_html_parser__.unescape(data.data[key])
+        return html.unescape(data.data[key])
     return ""
 
 
@@ -150,5 +148,5 @@ def lookup_brewstyle_info(data, key):
         return ""
     style = data.children[BREW_STYLE_NODE]
     if style.data.__contains__(key):
-        return __brew_html_parser__.unescape(style.data[key])
+        return html.unescape(style.data[key])
     return ""

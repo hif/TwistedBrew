@@ -23,19 +23,15 @@ message_lock = threading.Lock()
 
 def log_message(msg, msg_type, only_std=False):
     try:
-        try:
-            umsg = "{0}".format(msg)
-        except:
-            umsg = msg.decode('utf-8')
         if only_std or LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_STD:
-            print(u'[{0}] {1}'.format(msg_type, umsg))
+            print('[{0}] {1}'.format(msg_type, msg))
         if not only_std and (LOG_RECEIVER == LOG_RECEIVER_BOTH or LOG_RECEIVER == LOG_RECEIVER_DB):
             try:
                 with message_lock:
                     db_item = Message()
                     db_item.timestamp = dt.now()
                     db_item.type = LOG_TYPE_TEXT[msg_type]
-                    db_item.text = umsg
+                    db_item.text = msg
                     db_item.save()
             except Exception as e:
                 log_message('Logger could not save message to database ({0})'.format(e.args[0]), ERROR, True)

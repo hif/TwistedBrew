@@ -62,8 +62,14 @@ def brews_import(request):
             fd.close()
             brew_importer.BrewImporter.import_brews(index, uri)
     except Exception as e:
-        if not uri is None:
-            log.error('Failed to upload file {0} : {1}'.format(uri, e.args[0]))
-        else:
-            log.error('Failed to upload file : {0}'.format(e.message))
+        try:
+            if uri is not None:
+                log.error('Failed to upload file {0} : {1}'.format(uri, e.args[0]))
+            else:
+                log.error('Failed to upload file : {0}'.format(e.args[0]))
+        except Exception:
+            if uri is not None:
+                log.error('Failed to upload file {0}'.format(uri))
+            else:
+                log.error('Failed to upload file')
     return HttpResponseRedirect('/brew/brews/')

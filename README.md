@@ -70,6 +70,10 @@ To use a specific config file add it's path as an optional parameter to the abov
 
     python manage.py twisted_brew config/my_config_file.yml
 
+###ZeroMQ requirements
+
+Add **ipv6** in **/etc/modules** for ZeroMQ communication so that it survives reboot.
+
 ###The DS18B20 temperature probe
 
 To be able to use the probe you have to enabling the 1-wire communication device kernel modules in linux. Here is how it is done in Debian (also Rasbian).

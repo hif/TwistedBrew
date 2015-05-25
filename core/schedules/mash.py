@@ -1,5 +1,5 @@
 #!/usr/bin python
-import HTMLParser
+import html
 
 from core.schedules.schedule import *
 
@@ -23,13 +23,12 @@ class MashSchedule(Schedule):
         self.type = 'core.workers.mash.MashWorker'
 
     def parse(self, recipe):
-        html_parser = HTMLParser.HTMLParser()
         # Mash Schedule extracted
-        # self.name = html_parser.unescape(recipe.data["F_R_NAME"])
+        # self.name = html.unescape(recipe.data["F_R_NAME"])
         for mashItem in recipe.children["F_R_MASH"].children["steps"].subdata:
             if mashItem.name == "MashStep":
                 mashstep = MashStep()
-                mashstep.name = html_parser.unescape(mashItem.data["F_MS_NAME"])
+                mashstep.name = html.unescape(mashItem.data["F_MS_NAME"])
                 mashstep.temp = convert_f2c(mashItem.data["F_MS_STEP_TEMP"])
                 mashstep.min = mashItem.data["F_MS_STEP_TIME"][:-8]
                 self.steps.append(mashstep)

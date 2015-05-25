@@ -12,11 +12,14 @@ class Command(BaseCommand):
     help = 'Starts the Twisted Brew master and or workers according to the given config file'
     can_import_settings = True
 
+    def add_arguments(self, parser):
+        parser.add_argument('config')
+
     def handle(self, *args, **options):
         from django.conf import settings
         translation.activate(settings.LANGUAGE_CODE)
-        if len(args) > 0:
-            config_file = args[0]
+        if len(options) > 0:
+            config_file = options['config']
         else:
             config_file = defaults.DEFAULT_CONFIG
         try:

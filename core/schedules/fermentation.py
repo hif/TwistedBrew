@@ -1,5 +1,5 @@
 #!/usr/bin python
-import HTMLParser
+import html
 
 from core.schedules.schedule import *
 
@@ -39,9 +39,8 @@ class FermentationSchedule(Schedule):
         return self.steps[3]
 
     def parse(self, recipe):
-        html_parser = HTMLParser.HTMLParser()
         # Fermentation Schedule extracted
-        # self.name = html_parser.unescape(recipe.data["F_R_NAME"])
+        # self.name = html.unescape(recipe.data["F_R_NAME"])
         self.primary_step().start_temp = convert_f2c(recipe.children["F_R_AGE"].data["F_A_PRIM_TEMP"])
         self.primary_step().end_temp = convert_f2c(recipe.children["F_R_AGE"].data["F_A_PRIM_END_TEMP"])
         self.primary_step().days = recipe.children["F_R_AGE"].data["F_A_PRIM_DAYS"][:-8]

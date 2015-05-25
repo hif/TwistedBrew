@@ -23,6 +23,6 @@ config = coreutils.parse_config(configfile)
 if config.master is not None:
     master = Master(config.communication, config.master)
 coreutils.start_workers(config)
-if not master is None:
+if master is not None:
     master.info()
     master.start()

@@ -1,15 +1,13 @@
 from django.db import models
-import datetime
+import django.utils.timezone
 import brew.models
-import time
-import random
 
 COLUMN_SMALL_SIZE = 124
 
 
 class Session(models.Model):
     name = models.CharField(max_length=COLUMN_SMALL_SIZE)
-    session_date = models.DateField(default=datetime.datetime.now())
+    session_date = models.DateField(default=django.utils.timezone.now)
     source = models.ForeignKey(brew.models.Brew)
     notes = models.TextField(blank=True)
     locked = models.BooleanField(default=False)

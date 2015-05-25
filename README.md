@@ -74,6 +74,8 @@ To use a specific config file add it's path as an optional parameter to the abov
 
 Add **ipv6** in **/etc/modules** for ZeroMQ communication so that it survives reboot.
 
+If you get a ZMQError when starting up, check the config file and make sure the IP address is correct.
+
 ###The DS18B20 temperature probe
 
 To be able to use the probe you have to enabling the 1-wire communication device kernel modules in linux. Here is how it is done in Debian (also Rasbian).

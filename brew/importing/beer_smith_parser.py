@@ -30,12 +30,15 @@ class BeerParser():
             if not c:
                 return
         f.seek(f.tell() - 1)
-        # Find second <Data>
-        found = 0
-        while found < 2:
+        # Find <Data><Recipe>
+        found = False
+        while not found:
             self.next(f)
             if self.data == "Data":
-                found += 1
+                self.next(f)
+                if self.data == "Recipe":
+                    f.seek(f.tell() - 8)  # Back up before recipe node
+                    found = True
 
     def next(self, f):
         # print "at depth", self.depth

@@ -14,7 +14,7 @@ from core.master import Master
 from core.messages import MessagePong
 import core.utils.logging as log
 from core.utils.dateutils import *
-
+from django.conf import settings
 
 def home(request):
     context = RequestContext(request)
@@ -141,6 +141,22 @@ def ping_master(request):
     if pong:
         return HttpResponse(MessagePong)
     return HttpResponse('No reply from master')
+
+
+def fetch_master_info(request):
+    response = {
+        'master_ip': settings.MASTER_IP,
+        'master_port': settings.MASTER_PORT,
+    }
+    return HttpResponse(json.dumps(response), content_type="application/json")
+
+def set_master_info(request):
+    if request.POST:
+        master_ip = request.POST.get('master_ip')
+        master_port = request.POST.get('master_port')
+        settings.MASTER_IP = master_ip
+        settings.MASTER_PORT = master_port
+    return HttpResponse("Master info updated")
 
 
 def charts(request):

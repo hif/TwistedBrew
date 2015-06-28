@@ -20,6 +20,8 @@ LOG_TYPE_TEXT = {DEBUG: 'Debug', INFO: 'Info', WARNING: 'Warning', ERROR: 'Error
 
 message_lock = threading.Lock()
 
+def set_log_receiver(receiver):
+    LOG_RECEIVER = receiver
 
 def log_message(msg, msg_type, only_std=False):
     try:

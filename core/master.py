@@ -5,7 +5,7 @@ from session.models import SessionDetail, Worker, Measurement
 from twisted_brew.models import Command
 from django.utils import timezone as dt
 from core.comm.connection import MasterConnection, CONNECTION_MASTER_QUEUE, PushConnection
-
+from django.conf import settings
 
 class Master(threading.Thread):
 
@@ -13,9 +13,9 @@ class Master(threading.Thread):
         threading.Thread.__init__(self)
         self.measurements_lock = threading.Lock()
         if communication_config is None:
-            self.ip = MessageServerIP
-            self.master_port = MessageServerMasterPort
-            self.worker_port = MessageServerWorkerPort
+            self.ip = settings.MASTER_IP  # MessageServerIP
+            self.master_port = settings.MASTER_PORT  # MessageServerMasterPort
+            self.worker_port = settings.WORKER_PORT  # MessageServerWorkerPort
         else:
             self.ip = communication_config.ip
             self.master_port = communication_config.master_port
@@ -242,9 +242,9 @@ class Master(threading.Thread):
     @staticmethod
     def send_ping(ip=None, port=None):
         if ip is None:
-            ip = MessageServerIP
+            ip = settings.MASTER_IP  # MessageServerIP
         if port is None:
-            port = MessageServerMasterPort
+            port = settings.MASTER_PORT  # MessageServerMasterPort
         data = MessagePing
         log.debug('Commanding master - {0}'.format(data))
 
@@ -255,9 +255,9 @@ class Master(threading.Thread):
     @staticmethod
     def send_master(command, params=None, ip=None, port=None):
         if ip is None:
-            ip = MessageServerIP
+            ip = settings.MASTER_IP  # MessageServerIP
         if port is None:
-            port = MessageServerMasterPort
+            port = settings.MASTER_PORT  # MessageServerMasterPort
         data = command
         if params is not None:
             data += (MessageSplit + params)
@@ -269,9 +269,9 @@ class Master(threading.Thread):
     @staticmethod
     def start_work(worker_id, session_detail_id, ip=None, port=None):
         if ip is None:
-            ip = MessageServerIP
+            ip = settings.MASTER_IP  # MessageServerIP
         if port is None:
-            port = MessageServerMasterPort
+            port = settings.MASTER_PORT  # MessageServerMasterPort
         data = MessageWork + MessageSplit + worker_id + MessageSplit + session_detail_id
 
         log.debug('Commanding master - {0}'.format(data))

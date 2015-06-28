@@ -21,6 +21,8 @@ urlpatterns = patterns('',
     url(r'^charts[/]$', charts, name='charts'),
     url(r'^charts_update[/]$', charts_update, name='charts_update'),
     url(r'^ping_master[/]$', ping_master, name='ping_master'),
+    url(r'^fetch_master_info[/]$', fetch_master_info, name='fetch_master_info'),
+    url(r'^set_master_info[/]$', set_master_info, name='set_master_info'),
     (r'^brew/', include('brew.urls')),
     (r'^session/', include('session.urls')),
 

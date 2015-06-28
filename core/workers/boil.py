@@ -3,7 +3,6 @@
 from core.workers.baseworker import *
 from core.utils.pid import PID
 
-
 BOIL_DEBUG_INIT_TEMP = 60.0
 BOIL_DEBUG_CYCLE_TIME = 10.0
 BOIL_DEBUG_DELAY = 4
@@ -17,14 +16,16 @@ BOIL_DEBUG_TIMEDELTA = 10  # seconds
 class BoilWorker(BaseWorker):
     def __init__(self, name):
         BaseWorker.__init__(self, name)
-        self.pid = None
-        self.kpid = None
         self.current_temperature = 0.0
         self.current_set_temperature = 0.0
         self.test_temperature = BOIL_DEBUG_INIT_TEMP
 
     def on_start(self):
         log.debug('Waiting for boil schedule. To exit press CTRL+C')
+
+    def on_done(self):
+        self.outputs['Boiler'].write(0.0)
+        return True
 
     def work(self, data):
         try:
@@ -49,21 +50,12 @@ class BoilWorker(BaseWorker):
             self.inputs['Temperature'].test_temperature = BOIL_DEBUG_INIT_TEMP
         self.current_hold_time = timedelta(seconds=seconds)
         cycle_time = float(self.inputs['Temperature'].cycle_time)
-        if self.pid is None:
-            self.pid = PID(None, self.current_set_temperature, cycle_time)
-        else:
-            self.pid = PID(self.pid.pid_params, self.current_set_temperature, cycle_time)
         self.resume_all_devices()
 
     def boil_temperature_callback(self, measured_value):
         try:
-            calc = 0.0
-            if self.pid is not None:
-                calc = self.pid.calculate(measured_value, self.current_set_temperature)
-                log.debug('{0} reports measured value {1} and pid calculated {2}'.
-                          format(self.name, measured_value, calc))
-            else:
-                log.debug('{0} reports measured value {1}'.format(self.name, measured_value))
+            calc = 1.0
+            log.debug('{0} reports measured value {1}'.format(self.name, measured_value))
             self.current_temperature = measured_value
             measurement = self.generate_worker_measurement(self, self.inputs['Temperature'])
             measurement.value = self.current_temperature
@@ -81,12 +73,15 @@ class BoilWorker(BaseWorker):
             else:
                 measurement.debug_timer = None
             self.send_measurement(measurement)
-            if self.working and self.hold_timer is None and measured_value >= self.current_set_temperature:
+            # Failsafe - start hold timer at 99.0 if reaching 100.0 is difficult
+            # due to thermal sensor placement
+            if self.working and self.hold_timer is None and \
+                    (measured_value >= self.current_set_temperature or measured_value >= 99.0):
                 self.hold_timer = dt.now()
             if self.is_done():
                 self.finish()
-            elif self.pid is not None:
-                self.outputs['Mash Tun'].write(calc)
+            else:
+                self.outputs['Boiler'].write(calc)
         except Exception as e:
             log.error('Boil worker unable to react to temperature update, shutting down: {0}'.format(e.args[0]))
             self.stop_all_devices()
@@ -94,7 +89,7 @@ class BoilWorker(BaseWorker):
     def boil_heating_callback(self, heating_time):
         try:
             log.debug('{0} reports heating time of {1} seconds'.format(self.name, heating_time))
-            device = self.outputs['Mash Tun']
+            device = self.outputs['Boiler']
             measurement = self.generate_worker_measurement(self, device)
             measurement.value = heating_time
             measurement.set_point = device.cycle_time

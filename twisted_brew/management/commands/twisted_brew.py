@@ -5,6 +5,7 @@ from django.utils import translation
 
 from core.utils import coreutils
 import core.defaults as defaults
+import core.utils.logging as log
 from core.master import Master
 
 
@@ -32,6 +33,8 @@ class Command(BaseCommand):
             if master is not None:
                 master.info()
                 master.start()
+            else:
+                log.set_log_receiver(log.LOG_RECEIVER_STD)
         except Exception as e:
             raise CommandError('Could not start Twisted Brew: {0}'.format(e.__class__.__name__))
         self.stdout.write('Successfully started Twisted Brew')

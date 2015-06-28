@@ -1,6 +1,13 @@
 {% load static %}
 <script src="{% static 'js/ping_master.js' %}"></script>
+<script>
+        fetch_master_info();
+</script>
 <div style="text-align: center; width: 140px;">
+        <input class="form-control input-sm" id="master_ip" type="text" placeholder="Master IP" maxlength="15"/>
+        <input class="form-control input-sm" id="master_port" type="text" placeholder="Master port" maxlength="5"/>
+        <a class="btn btn-small btn-primary" onclick="set_master_info();">Update master info</a>
+        <br><br>
         <a class="btn btn-small btn-primary" onclick="ping_master();">ping master</a>
         <i><label id="ping_master_label">-n/a-</label></i>
 </div>

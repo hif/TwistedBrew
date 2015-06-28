@@ -2,7 +2,7 @@
 # The default config file name
 DEFAULT_CONFIG = 'config/twisted_brew.yml'
 
-MessageServerIP = "192.168.1.65"
+MessageServerIP = "192.168.1.101"
 MessageServerMasterPort = 9991
 MessageServerWorkerPort = 9992
 

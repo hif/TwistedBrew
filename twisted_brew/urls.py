@@ -5,6 +5,7 @@ from twisted_brew.views import *
 from django.contrib import admin
 admin.autodiscover()
 
+
 urlpatterns = patterns('',
     url(r'^$', home, name='home'),
     url(r'^index[/]$', home, name='home'),
@@ -31,4 +32,10 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+    # Django REST framework
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    (r'^api/v1/', include('twisted_brew.api_v1_urls')),
+    (r'^api/v1/', include('brew.api_v1_urls')),
+    (r'^api/v1/', include('session.api_v1_urls')),
 )

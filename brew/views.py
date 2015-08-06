@@ -3,10 +3,19 @@ import os
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-
 from brew.models import Brew
 from brew.importing import brew_importer
 import core.utils.logging as log
+from rest_framework import viewsets
+from brew.serializers import BrewSerializer
+
+
+class BrewViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brews to be viewed or edited.
+    """
+    queryset = Brew.objects.all().order_by('name')
+    serializer_class = BrewSerializer
 
 
 def brews(request):

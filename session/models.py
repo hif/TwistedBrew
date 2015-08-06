@@ -79,6 +79,9 @@ class SessionDetail(models.Model):
     done = models.BooleanField(default=False)
     assigned_worker = models.ForeignKey('Worker', null=True, default=None, blank=True)
 
+    def display_name(self):
+        return self.worker_type.split(".")[-1]
+
     def begin_work(self, worker_id):
         assigned_worker = Worker.objects.get(pk=worker_id)
         assigned_worker.status = Worker.BUSY

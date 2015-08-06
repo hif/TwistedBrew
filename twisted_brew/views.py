@@ -15,6 +15,25 @@ from core.messages import MessagePong
 import core.utils.logging as log
 from core.utils.dateutils import *
 from django.conf import settings
+from rest_framework import viewsets
+from twisted_brew.serializers import MessageSerializer, CommandSerializer
+
+
+class MessageViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing sessions to be viewed or edited.
+    """
+    queryset = Message.objects.all().order_by('id')
+    serializer_class = MessageSerializer
+
+
+class CommandViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows commands to be viewed or edited.
+    """
+    queryset = Command.objects.all().order_by('name')
+    serializer_class = CommandSerializer
+
 
 def home(request):
     context = RequestContext(request)

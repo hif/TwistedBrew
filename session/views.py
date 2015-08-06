@@ -5,9 +5,53 @@ from django.core.context_processors import csrf
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from core.master import Master
-from session.models import Worker, Measurement
+from session.models import Session, SessionDetail, Worker, WorkerDevice, Measurement
 from session.forms import *
 import json
+from rest_framework import viewsets
+from session.serializers import SessionSerializer, SessionDetailSerializer
+from session.serializers import WorkerSerializer, WorkerDeviceSerializer
+from session.serializers import MeasurementSerializer
+
+
+class SessionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing sessions to be viewed or edited.
+    """
+    queryset = Session.objects.all().order_by('-session_date')
+    serializer_class = SessionSerializer
+
+
+class SessionDetailViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing sessions details to be viewed or edited.
+    """
+    queryset = SessionDetail.objects.all().order_by('index')
+    serializer_class = SessionDetailSerializer
+
+
+class WorkerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing workers to be viewed or edited.
+    """
+    queryset = Worker.objects.all().order_by('type')
+    serializer_class = WorkerSerializer
+
+
+class WorkerDeviceViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing worker devices to be viewed or edited.
+    """
+    queryset = WorkerDevice.objects.all().order_by('id')
+    serializer_class = WorkerDeviceSerializer
+
+
+class MeasurementViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing sessions to be viewed or edited.
+    """
+    queryset = Measurement.objects.all().order_by('-timestamp')
+    serializer_class = MeasurementSerializer
 
 
 class SessionView(DetailView):

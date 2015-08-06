@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
-from session.views import SessionView, SessionsView, SessionUpdateView, SessionDeleteView, SessionDetailUpdateView, MeasurementListView
+from session.views import SessionView, SessionsView, SessionUpdateView, SessionDeleteView, SessionDetailUpdateView
+from session.views import MeasurementListView
 
 
 urlpatterns = patterns('',

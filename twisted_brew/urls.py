@@ -35,7 +35,10 @@ urlpatterns = patterns('',
 
     # Django REST framework
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    (r'^api/v1/', include('twisted_brew.api_v1_urls')),
-    (r'^api/v1/', include('brew.api_v1_urls')),
-    (r'^api/v1/', include('session.api_v1_urls')),
+    url(r'^api/v1/', include('twisted_brew.api_v1_urls')),
+    url(r'^api/v1/', include('brew.api_v1_urls')),
+    url(r'^api/v1/', include('session.api_v1_urls')),
+
+    # Django REST framework
+    url(r'^ng_messages[/]$', ng_messages, name='ng_messages'),
 )

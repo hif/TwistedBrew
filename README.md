@@ -98,6 +98,7 @@ As our gui uses .bind() method in Javascript you have to use the following brows
 
 Required packages
 * Django
+* Django REST Framework
 * pyYAML
 * suit
 * pytz

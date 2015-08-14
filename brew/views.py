@@ -3,11 +3,11 @@ import os
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from brew.models import Brew
+from brew.models import Brew, BrewSection, BrewStep
 from brew.importing import brew_importer
 import core.utils.logging as log
 from rest_framework import viewsets
-from brew.serializers import BrewSerializer
+from brew.serializers import BrewSerializer, BrewSectionSerializer, BrewStepSerializer
 
 
 class BrewViewSet(viewsets.ModelViewSet):
@@ -16,6 +16,22 @@ class BrewViewSet(viewsets.ModelViewSet):
     """
     queryset = Brew.objects.all().order_by('name')
     serializer_class = BrewSerializer
+
+
+class BrewSectionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brew sections to be viewed or edited.
+    """
+    queryset = BrewSection.objects.all().order_by('index')
+    serializer_class = BrewSectionSerializer
+
+
+class BrewStepViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brew steps to be viewed or edited.
+    """
+    queryset = BrewStep.objects.all().order_by('index')
+    serializer_class = BrewStepSerializer
 
 
 def brews(request):

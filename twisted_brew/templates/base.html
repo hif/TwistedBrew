@@ -47,6 +47,7 @@
                           src="{% block background %}{% static 'img/beers.jpeg' %}{% endblock %}"></div>
 <div style="position:fixed;top:4px;right:8px;z-index:9999">
 {% block admin %}
+    <small><a class="navbar-brand" href="/api/v1">[api root]</a></small>
     <small><a class="navbar-brand" href="/admin">[admin]</a></small>
 {% endblock %}
 </div>

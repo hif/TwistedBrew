@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     {% load static %}
     <script src="{% static 'js/angular.js' %}"></script>
+    <script src="{% static 'js/ng_messages.js' %}"></script>
     <title></title>
 </head>
-<body>
-This is the ng_messages page
+<body ng-app="ng_messages">
+<div ng-controller="ListCtrl" ng-init="initialize('Ready for action')">
+    <h1>This is the ng_messages page</h1>
+    <ul>
+        <li></li>
+    </ul>
+    <form>
+        <button ng-click="loadItems()">Load</button>
+    </form>
+    <hr/>
+    <pre>Items:[[ items | json ]]</pre>
+</div>
 </body>
 </html>

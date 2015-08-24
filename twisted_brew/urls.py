@@ -39,4 +39,5 @@ urlpatterns = patterns('',
 
     # Django Angular test
     url(r'^ng_messages[/]$', ng_messages, name='ng_messages'),
+    url(r'^ng_app[/]$', ng_app, name='ng_app'),
 )

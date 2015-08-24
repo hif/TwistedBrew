@@ -230,3 +230,7 @@ def charts_update(request):
 def ng_messages(request):
     context = RequestContext(request)
     return render_to_response('ng_messages.html', None, context)
+
+def ng_app(request):
+    context = RequestContext(request)
+    return render_to_response('ng_app.html', None, context)

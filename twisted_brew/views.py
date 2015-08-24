@@ -25,7 +25,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     queryset = Message.objects.all().order_by('id')
     serializer_class = MessageSerializer
-
+    filter_fields = ('type',)
 
 class CommandViewSet(viewsets.ModelViewSet):
     """
@@ -227,9 +227,11 @@ def charts_update(request):
 
     return HttpResponse(json.dumps(update_data), content_type="application/json")
 
+
 def ng_messages(request):
     context = RequestContext(request)
     return render_to_response('ng_messages.html', None, context)
+
 
 def ng_app(request):
     context = RequestContext(request)

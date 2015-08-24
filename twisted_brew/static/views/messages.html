@@ -1,28 +1,29 @@
-<b>Type : [[ type ]]</b>
-
 <div class="row-fluid">
 
   <div class="span3">
   <div class="span9">
-    <h4>
+    <!--<b>
       <ng-pluralize count="items.length"
                     when="{'0'    : 'No messages found. :-(',
-                           'one'  : '1 messages found!',
+                           'one'  : '1 message found!',
                            'other': '{} messages found!'}">
       </ng-pluralize>
-    </h4>
+    </b>-->
 
     <table class="table table-hover table-striped">
       <tr>
-        <th><a href ng-click="sortBy('timestamp')">Rating [[sortIconFor('timestamp')]]</a></th>
-        <th><a href ng-click="sortBy('type')">Name [[sortIconFor('type')]]</a></th>
-        <th><a href ng-click="sortBy('text')">Price [[sortIconFor('text')]]</a></th>
+        <!--<th><a href ng-click="sortBy('timestamp')">Timestamp [[sortIconFor('timestamp')]]</a></th>
+        <th><a href ng-click="sortBy('type')">Type [[sortIconFor('type')]]</a></th>
+        <th><a href ng-click="sortBy('text')">Text [[sortIconFor('text')]]</a></th>-->
+        <th>Timestamp [[sortIconFor('timestamp')]]</th>
+        <th>Type [[sortIconFor('type')]]</th>
+        <th>Text [[sortIconFor('text')]]</th>
       </tr>
       <tr ng-repeat="item in items">
-        <td>
+        <td nowrap>
           [[ item.timestamp | date ]]
         </td>
-        <td>
+        <td nowrap>
           [[ item.type ]]
         </td>
         <td>

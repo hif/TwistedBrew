@@ -1,5 +1,5 @@
 /* global angular */
-var ng_messages = angular.module('ng_messages', []);
+var ng_messages = angular.module('ng_messages', ['ngTable']);
 
 ng_messages.config(function($interpolateProvider){
     $interpolateProvider.startSymbol('[[');

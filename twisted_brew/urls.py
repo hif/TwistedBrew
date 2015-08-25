@@ -38,5 +38,5 @@ urlpatterns = patterns('',
     url(r'^api/v1/', include('twisted_brew.api_v1_urls')),
 
     # Django Angular test
-    url(r'^ng_messages[/]$', ng_messages, name='ng_messages'),
+    url(r'^twistedbrew[/]$', twistedbrew, name='twistedbrew'),
 )

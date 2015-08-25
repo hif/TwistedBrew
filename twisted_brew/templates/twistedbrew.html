@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html ng-app="TwistedBrew">
+<html>
 <head lang="en">
     <meta charset="UTF-8">
     {% load static %}
-    <script src="{% static 'js/angular.js' %}"></script>
+    <script src="{% static 'js/angular/angular.js' %}"></script>
     <script src="{% static 'js/ng_messages.js' %}"></script>
     <title></title>
 </head>
@@ -17,7 +17,14 @@
         <button ng-click="loadItems()">Load</button>
     </form>
     <hr/>
-    <pre>Items:[[ items | json ]]</pre>
+    <table ng-table class="table">
+        <tr ng-repeat="item in items">
+            <td data-title="'Name'">[[ item.timestamp ]]</td>
+            <td data-title="'Age'">[[ item.type ]]</td>
+            <td data-title="'Age'">[[ item.text ]]</td>
+        </tr>
+    </table>
+    <!--<pre>Items:[[ items | json ]]</pre>-->
 </div>
 </body>
 </html>

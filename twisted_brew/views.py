@@ -227,6 +227,6 @@ def charts_update(request):
 
     return HttpResponse(json.dumps(update_data), content_type="application/json")
 
-def ng_messages(request):
+def twistedbrew(request):
     context = RequestContext(request)
-    return render_to_response('ng_messages.html', None, context)
+    return render_to_response('twistedbrew.html', None, context)

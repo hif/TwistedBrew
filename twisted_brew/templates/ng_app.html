@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     {% load static %}
     <!-- Bootstrap -->
-    <!-- <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet"> -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
-    <!-- <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet"> -->
-    <!-- <link href="{% static 'css/sidebar.css' %}" rel="stylesheet"> -->
-    <!-- <script src="{% static 'js/jquery-2.1.1.js' %}"></script> -->
-    <!-- <script src="{% static 'js/bootstrap.min.js' %}"></script> -->
+    <script src="{% static 'js/jquery-2.1.1.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- MarkDown parser -->
+    <script src="{% static 'js/marked.js' %}"></script>
     <!-- Angular -->
     <script src="{% static 'js/angular.js' %}"></script>
     <script src="{% static 'js/angular-resource.js' %}"></script>
@@ -17,29 +16,55 @@
     <script src="{% static 'js/app.js' %}"></script>
     <script src="{% static 'js/controllers/NavBarController.js' %}"></script>
     <script src="{% static 'js/controllers/MessageController.js' %}"></script>
-    <title></title>
+    <!-- MarkDown parser -->
+    <script src="{% static 'js/angular-md.min.js' %}"></script>
+    <title>Twisted Brew</title>
 </head>
 <body >
-<div class="container">
+<div class="container-fluid">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+              data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#/">Twisted Brew</a>
+    </div>
 
-  <div class="navbar" ng-controller="NavbarController">
-    <div class="navbar-inner">
-      <a class="brand" href="#/">Twisted Brew</a>
-      <ul class="nav">
-        <li ng-class="{active: routeIs('/')}"><a href="#/">Home</a></li>
-        <li ng-class="{active: routeIs('/messages/')}"><a href="/ng_app/#/messages/">Messages</a></li>
-        <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Warning">Warnings</a></li>
-        <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Error">Errors</a></li>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li ng-class="{active: routeIs('/')}"><a href="#/">Home</a>
+        <li ng-class="{active: routeIs('/')}"><a href="#/">Brews</a>
+        <li ng-class="{active: routeIs('/')}"><a href="#/">Sessions</a>
+        <li ng-class="{active: routeIs('/')}"><a href="#/">Workers</a>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" role="button"
+             aria-haspopup="true" aria-expanded="false">Messages <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li ng-class="{active: routeIs('/messages/')}"><a href="/ng_app/#/messages/">All</a></li>
+            <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Info">Info</a></li>
+            <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Warning">Warnings</a></li>
+            <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Error">Errors</a></li>
+            <li role="separator" class="divider"></li>
+            <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Debug">Debug</a></li>
+          </ul>
+        </li>
       </ul>
-
-      <ul class="nav pull-right">
+      <ul class="nav navbar-nav navbar-right">
+        <li ng-class="{active: routeIs('/api')}"><a href="/api/v1">API Root</a></li>
+        <li ng-class="{active: routeIs('/admin')}"><a href="/admin">Admin</a></li>
         <li ng-class="{active: routeIs('/help')}"><a href="#/help">Help</a></li>
       </ul>
-    </div>
-  </div>
-
-  <ng-view></ng-view>
-
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+    <ng-view></ng-view>
 </div>
 </body>
 </html>

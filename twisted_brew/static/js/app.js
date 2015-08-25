@@ -1,7 +1,7 @@
 
 'use strict';
 
-var twistedBrew = angular.module('twistedBrew', ['ngResource', 'ngRoute']);
+var twistedBrew = angular.module('twistedBrew', ['ngResource', 'ngRoute', 'yaru22.md']);
 
 twistedBrew.config(function($routeProvider, $interpolateProvider){
     $interpolateProvider.startSymbol('[[');
@@ -42,7 +42,7 @@ twistedBrew.config(function($routeProvider, $interpolateProvider){
         templateUrl: 'views/how-it-works.html'
       }).
       when('/help', {
-        templateUrl: 'views/help.html'
+        templateUrl: '/static/views/help.html'
       });
 });
 

@@ -16,10 +16,6 @@ class Connection():
         self.worker_port = worker_port
         self.queue = queue
         self.ignore_broadcasts = ignore_broadcasts
-        if queue == CONNECTION_PUSH_QUEUE:
-            self.master_context = zmq.Context()
-            self.master_socket = self.master_context.socket(zmq.PUSH)
-            self.master_socket.connect("tcp://{0}:{1}".format(self.ip, self.master_port))
         if queue == CONNECTION_MASTER_QUEUE:
             self.master_context = zmq.Context()
             self.master_socket = self.master_context.socket(zmq.PUB)
@@ -32,7 +28,8 @@ class Connection():
             self.master_context = zmq.Context()
             self.master_socket = self.master_context.socket(zmq.PUSH)
             self.master_socket.connect("tcp://{0}:{1}".format(self.ip, self.master_port))
-
+            if queue == CONNECTION_PUSH_QUEUE:
+                return
             self.worker_context = zmq.Context()
             self.worker_socket = self.worker_context.socket(zmq.SUB)
             self.worker_socket.connect("tcp://{0}:{1}".format(self.ip, worker_port))

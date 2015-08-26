@@ -1,70 +1,115 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="twistedBrew">
-<head>
-    <meta charset="UTF-8">
+<html lang="en">
+
+<head lang="en" ng-app="twistedBrew">
+
     {% load static %}
-    <!-- Bootstrap -->
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Twisted Brew</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'css/sb-admin.css' %}" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="{% static 'css/plugins/morris.css' %}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{% static 'font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
     <script src="{% static 'js/jquery-2.1.1.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <!-- MarkDown parser -->
-    <script src="{% static 'js/marked.js' %}"></script>
+    <script src="{% static 'js/angular/marked.js' %}"></script>
     <!-- Angular -->
-    <script src="{% static 'js/angular.js' %}"></script>
-    <script src="{% static 'js/angular-resource.js' %}"></script>
-    <script src="{% static 'js/angular-route.js' %}"></script>
-    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/angular/angular.js' %}"></script>
+    <script src="{% static 'js/angular/angular-resource.js' %}"></script>
+    <script src="{% static 'js/angular/angular-route.js' %}"></script>
+    <script src="{% static 'js/angular/app.js' %}"></script>
+    <script src="{% static 'js/angular/angular-md.min.js' %}"></script>
+    <!-- Angular Services -->
+    <!-- Angular Directives -->
+    <!-- Angular Controllers-->
     <script src="{% static 'js/controllers/NavBarController.js' %}"></script>
     <script src="{% static 'js/controllers/MessageController.js' %}"></script>
-    <!-- MarkDown parser -->
-    <script src="{% static 'js/angular-md.min.js' %}"></script>
-    <title>Twisted Brew</title>
 </head>
-<body >
-<div class="container-fluid">
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-              data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#/">Twisted Brew</a>
-    </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li ng-class="{active: routeIs('/')}"><a href="#/">Home</a>
-        <li ng-class="{active: routeIs('/')}"><a href="#/">Brews</a>
-        <li ng-class="{active: routeIs('/')}"><a href="#/">Sessions</a>
-        <li ng-class="{active: routeIs('/')}"><a href="#/">Workers</a>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" role="button"
-             aria-haspopup="true" aria-expanded="false">Messages <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li ng-class="{active: routeIs('/messages/')}"><a href="/ng_app/#/messages/">All</a></li>
-            <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Info">Info</a></li>
-            <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Warning">Warnings</a></li>
-            <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Error">Errors</a></li>
-            <li role="separator" class="divider"></li>
-            <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Debug">Debug</a></li>
-          </ul>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li ng-class="{active: routeIs('/api')}"><a href="/api/v1">API Root</a></li>
-        <li ng-class="{active: routeIs('/admin')}"><a href="/admin">Admin</a></li>
-        <li ng-class="{active: routeIs('/help')}"><a href="#/help">Help</a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-    <ng-view></ng-view>
-</div>
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#/">Twisted Brew</a>
+            </div>
+            <!-- Top Menu Items -->
+            <ul class="nav navbar-right top-nav">
+                <li ng-class="{active: routeIs('/api')}"><a href="/api/v1">API Root</a></li>
+                <li ng-class="{active: routeIs('/admin')}"><a href="/admin">Admin</a></li>
+                <li ng-class="{active: routeIs('/help')}"><a href="#/help">Help</a></li>
+            </ul>
+            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav side-nav">  
+                    <li ng-class="{active: routeIs('/')}"><a href="#/">Home</a>
+                    <li ng-class="{active: routeIs('/')}"><a href="#/">Brews</a>
+                    <li ng-class="{active: routeIs('/')}"><a href="#/">Sessions</a>
+                    <li ng-class="{active: routeIs('/')}"><a href="#/">Workers</a>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" role="button"
+                         aria-haspopup="true" aria-expanded="false">Messages <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li ng-class="{active: routeIs('/messages/')}"><a href="/ng_app/#/messages/">All</a></li>
+                        <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Info">Info</a></li>
+                        <li ng-class="{active: routeIs('/warnings/')}"><a href="/ng_app/#/messages/Warning">Warnings</a></li>
+                        <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Error">Errors</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li ng-class="{active: routeIs('/errors/')}"><a href="/ng_app/#/messages/Debug">Debug</a></li>
+                      </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </nav>
+
+        <div id="page-wrapper">
+
+            <div class="container-fluid">
+
+                <ng-view></ng-view>
+
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
 </body>
+
 </html>

@@ -1,5 +1,5 @@
 communication:
-    ip: "192.168.1.65"
+    ip: "192.168.3.100"
     master_port: "9991"
     worker_port: "9992"
 

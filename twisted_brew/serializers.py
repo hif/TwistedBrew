@@ -12,3 +12,9 @@ class CommandSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Command
         fields = ("id", "name", "type", "description")
+
+
+class QueueCommandSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Command
+        fields = ("id", "issued", "command", "status", "modified")

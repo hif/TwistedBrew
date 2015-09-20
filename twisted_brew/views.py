@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 import json
 from datetime import timedelta as timedelta
 import time
-from twisted_brew.models import Command,  Message
+from twisted_brew.models import Command,  Message, QueueCommand
 from session.models import Measurement
 from core.master import Master
 from core.messages import MessagePong
@@ -16,7 +16,7 @@ import core.utils.logging as log
 from core.utils.dateutils import *
 from django.conf import settings
 from rest_framework import viewsets
-from twisted_brew.serializers import MessageSerializer, CommandSerializer
+from twisted_brew.serializers import MessageSerializer, CommandSerializer, QueueCommandSerializer
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -25,6 +25,14 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     queryset = Message.objects.all().order_by('id')
     serializer_class = MessageSerializer
+
+
+class QueueCommandViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows brewing sessions to be viewed or edited.
+    """
+    queryset = QueueCommand.objects.all().order_by('-issued')
+    serializer_class = QueueCommandSerializer
 
 
 class CommandViewSet(viewsets.ModelViewSet):

@@ -7,9 +7,10 @@ from datetime import timedelta as timedelta
 from core.defaults import *
 from core.messages import *
 from core.utils.coreutils import *
+from core.utils.httputils import *
 from core.workers.worker_measurement import WorkerMeasurement
 import core.utils.logging as log
-from core.comm.connection import WorkerConnection
+from core.utils.logging import LOG_RECEIVER_STD
 
 
 MessageFunctions = (MessageInfo,
@@ -26,8 +27,7 @@ class BaseWorker(threading.Thread):
         self.name = name
         self.simulation = False
         self.ip = MessageServerIP
-        self.master_port = 0
-        self.worker_port = 0
+        self.port = 80
         self.input_config = None
         self.output_config = None
         self.outputs = {}
@@ -42,17 +42,15 @@ class BaseWorker(threading.Thread):
         self.pause_time = 0.0
         self.debug_timer = dt.now()
         self.session_detail_id = 0
-        self.connection = None
+        log.set_log_receiver(LOG_RECEIVER_STD)
 
     def __str__(self):
         return 'Worker - [name:{0}, type:{1}, out:{2}, in:{3}]'. \
             format(self.name, str(self.__class__.__name__), len(self.output_config), len(self.input_config))
 
-    def init_communication(self, ip, master_port, worker_port):
+    def init_communication(self, ip, port):
         self.ip = ip
-        self.master_port = master_port
-        self.worker_port = worker_port
-        self.connection = WorkerConnection(self.ip, self.master_port, self.worker_port, self.name)
+        self.port = port
 
     def create_device_threads(self):
         for i in self.input_config:
@@ -144,20 +142,23 @@ class BaseWorker(threading.Thread):
             time.sleep(0)
         log.debug('Shutting down worker {0}'.format(self), True)
 
+    def check(self):
+        response = HttpUtils.get_json(HttpUtils.MEASUREMENTS)
+
     def stop(self):
         self.stop_all_devices()
         self.on_stop()
         self.enabled = False
 
-    def send_to_master(self, data):
+    def send_to_master(self, entity, data):
         #log.debug('Sending to master - ' + data + " " + str(self.ip) + ":" + str(self.port), True)
-        self.connection.send(data)
+        return HttpUtils.post_json(entity, data)
 
     def send_measurement(self, worker_measurement):
         message = WorkerMeasurement.serialize_message(worker_measurement)
         if message is None:
             return
-        self.send_to_master(message)
+        self.send_to_master(HttpUtils.MEASUREMENTS, message)
 
     @staticmethod
     def generate_worker_measurement(worker, device):

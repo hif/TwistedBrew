@@ -27,3 +27,28 @@ class Message(models.Model):
 
     def __str__(self):
         return '{0} [{1}] {2}'.format(self.timestamp, self.type, self.text)
+
+
+class QueueCommand(models.Model):
+    PENDING = 0
+    RUNNING = 1
+    DONE = 2
+    QUEUE_STATUS = (
+        (PENDING, 'Pending'),
+        (RUNNING, 'Running'),
+        (DONE, 'Done'),
+    )
+    issued = models.DateTimeField(auto_now=True)
+    command = models.CharField(max_length=COLUMN_SMALL_SIZE)
+    status = models.IntegerField(choices=QUEUE_STATUS, default=PENDING)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-issued']
+
+    @staticmethod
+    def clear():
+        QueueCommand.objects.all().delete()
+
+    def __str__(self):
+        return '{0} : {1} [{2}]'.format(self.issued, self.command, self.QUEUE_STATUS(self.status))

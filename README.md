@@ -102,4 +102,4 @@ Required packages
 * pyYAML
 * suit
 * pytz
-* pyzmq
+* requests

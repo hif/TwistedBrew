@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from rest_framework import routers
-from twisted_brew.views import MessageViewSet, CommandViewSet
+from twisted_brew.views import MessageViewSet, CommandViewSet, QueueCommandViewSet
 from brew.views import BrewViewSet, BrewSectionViewSet, BrewStepViewSet
 from session.views import SessionViewSet, SessionDetailViewSet
 from session.views import WorkerViewSet, WorkerDeviceViewSet
@@ -18,6 +18,7 @@ router.register(r'session_details', SessionDetailViewSet)
 router.register(r'workers', WorkerViewSet)
 router.register(r'worker_devices', WorkerDeviceViewSet)
 router.register(r'measurements', MeasurementViewSet)
+router.register(r'queue_commands', QueueCommandViewSet)
 
 
 urlpatterns = patterns('',

@@ -1,0 +1,16 @@
+master:
+  image: twistedbrew/twistedbrew
+  command:
+    - python
+    - -u
+    - manage.py
+    - twisted_brew
+    - ./config/master.yml
+worker:
+  image: twistedbrew/twistedbrew
+  command:
+    - python
+    - -u
+    - manage.py
+    - twisted_brew
+    - ./config/master.yml

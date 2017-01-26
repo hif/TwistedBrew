@@ -13,7 +13,7 @@ Design goals:
 
 Master:
 
-*   Parses recipe.bsmx from Beersmith and collects marsh schedule, hop schedule and fermentation schedule
+*   Parses recipe.bsmx from Beersmith and collects mash schedule, hop schedule and fermentation schedule
 *   Can be monitored and controlled from a web GUI
 *   Collects info from all BrewWorkers on the network for the user to control
 *   Can assign brewing schedule(s) to available brewWorkers

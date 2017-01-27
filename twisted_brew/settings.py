@@ -187,6 +187,6 @@ REST_FRAMEWORK = {
 }
 
 # Connection information for the web server to talk to the master process
-MASTER_IP = "192.168.1.101"
+MASTER_IP = "master"
 MASTER_PORT = "9991"
 WORKER_PORT = "9992"

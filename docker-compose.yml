@@ -1,5 +1,14 @@
+db:
+  image: twistedbrew/twistedbrew
+  command:
+    - python
+    - manage.py
+    - syncdb
+    - --noinput
 master:
   image: twistedbrew/twistedbrew
+  volumes_from:
+    - db
   command:
     - python
     - -u
@@ -8,9 +17,27 @@ master:
     - ./config/master.yml
 worker:
   image: twistedbrew/twistedbrew
+  links:
+    - master
+  volumes_from:
+    - db
   command:
     - python
     - -u
     - manage.py
     - twisted_brew
-    - ./config/master.yml
+    - ./config/mash_config.yml
+ui:
+  image: twistedbrew/twistedbrew
+  links:
+    - master
+  ports:
+    - 8000:8000
+  volumes_from:
+    - db
+  command:
+    - python
+    - -u
+    - manage.py
+    - runserver
+    - 0.0.0.0:8000

@@ -1,10 +1,12 @@
 #!/usr/bin python
 # The default config file name
+import os
+
 DEFAULT_CONFIG = 'config/twisted_brew.yml'
 
-MessageServerIP = "192.168.1.101"
-MessageServerMasterPort = 9991
-MessageServerWorkerPort = 9992
+MessageServerIP = os.environ.get('MASTER_IP', '0.0.0.0')
+MessageServerMasterPort = int(os.environ.get('MASTER_PORT', '9991'))
+MessageServerWorkerPort = int(os.environ.get('WORKER_PORT', '9992'))
 
 DefaultDBHost = 'localhost'
 DefaultDBPort = '5432'

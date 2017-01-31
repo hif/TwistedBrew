@@ -187,6 +187,6 @@ REST_FRAMEWORK = {
 }
 
 # Connection information for the web server to talk to the master process
-MASTER_IP = "master"
-MASTER_PORT = "9991"
-WORKER_PORT = "9992"
+MASTER_IP = os.environ.get('MASTER_IP', '0.0.0.0')
+MASTER_PORT = os.environ.get('MASTER_PORT', '9991')
+WORKER_PORT = os.environ.get('WORKER_PORT', '9992')

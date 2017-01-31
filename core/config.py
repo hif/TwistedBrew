@@ -76,7 +76,7 @@ class CommunicationConfig():
             self.ip = defaults.MessageServerIP
         if self.master_port is None or self.master_port == 0:
             self.master_port = defaults.MessageServerMasterPort
-        if self.master_port is None or self.worker_port == 0:
+        if self.worker_port is None or self.worker_port == 0:
             self.worker_port = defaults.MessageServerWorkerPort
 
     def set_from_yaml(self, yaml_data):

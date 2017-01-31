@@ -17,6 +17,8 @@ master:
     - ./config/master.yml
 worker:
   image: twistedbrew/twistedbrew
+  environment:
+    MASTER_IP: "master"
   links:
     - master
   volumes_from:
@@ -29,6 +31,8 @@ worker:
     - ./config/mash_config.yml
 ui:
   image: twistedbrew/twistedbrew
+  environment:
+    MASTER_IP: "master"
   links:
     - master
   ports:

@@ -1,5 +1,14 @@
 version: '2'
 
+# consul: http://localhost:8500
+# prometheus: http://localhost:9090
+# grafana: http://localhost:3000
+#     user: admin
+#     pass: admin
+# consul-metrics: http://localhost:9107/metrics
+# prometheus-metrics: http://localhost:9090/metrics
+
+
 services:
   db:
     image: twistedbrew/twistedbrew
@@ -10,8 +19,16 @@ services:
       - --noinput
   master:
     image: twistedbrew/twistedbrew
+    environment:
+      SERVICE_NAME: twistedbrew-master
+      SERVICE_TAGS: tb
+      SERVICE_9001_NAME: twistedbrew-master-port
+      SERVICE_9002_NAME: twistedbrew-slave-port
     volumes_from:
       - db
+    ports:
+      - "9001:9001"
+      - "9002:9002"
     command:
       - python
       - -u
@@ -35,6 +52,9 @@ services:
   ui:
     image: twistedbrew/twistedbrew
     environment:
+      SERVICE_NAME: twistedbrew-ui
+      SERVICE_TAGS: tb
+      SERVICE_8000_NAME: twistedbrew-ui
       MASTER_IP: "master"
     links:
       - master
@@ -48,3 +68,51 @@ services:
       - manage.py
       - runserver
       - 0.0.0.0:8000
+  consul:
+    image: consul
+    command:
+      - agent
+      - -server
+      - -bind=${HOST_IP}
+      - -ui
+      - -client=0.0.0.0
+      - -bootstrap-expect=1
+    environment:
+      CONSUL_LOCAL_CONFIG: '{"skip_leave_on_interrupt": true, "datacenter": "TwistedBrew", "domain": "consul", "recursors": ["8.8.8.8", "8.8.4.4"]}'
+    network_mode: host
+    restart: always
+  consul-registrator:
+    image: gliderlabs/registrator
+    command:
+      - consul://${HOST_IP}:8500
+    restart: always
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+  consul-exporter:
+    image: prom/consul-exporter
+    network_mode: host
+    restart: always
+    command:
+      - -consul.server=${HOST_IP}:8500
+  prometheus:
+    image: prom/prometheus
+    dns: ${HOST_IP}
+    hostname: ${HOST_NAME}
+    network_mode: host
+    restart: always
+    volumes:
+      - ./docker-stack/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - -config.file=/etc/prometheus/prometheus.yml
+      - -storage.local.retention=720h
+  grafana:
+    image: grafana/grafana
+    environment:
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SECURITY_ADMIN_USER: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    network_mode: host
+    restart: always
